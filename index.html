@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jett LP</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#0b0e14;--card:#141925;--card2:#1b2131;--fg:#e8ecf4;--mut:#8590a6;--line:#232a3b;--acc:#6c8cff;--up:#2ecc8f;--dn:#ff5c6c;--warn:#f0b445}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:14px 14px 40px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:700;font-size:16px;letter-spacing:.01em}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.04em}
+.p-on{background:rgba(46,204,143,.15);color:var(--up)}.p-off{background:rgba(133,144,166,.15);color:var(--mut)}.p-dry{background:rgba(240,180,69,.14);color:var(--warn)}
+.sub{color:var(--mut);font-size:12px;margin-top:4px}
+.hero{background:linear-gradient(145deg,#1d2640,#141925);border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0}
+.hero .lbl{color:var(--mut);font-size:12px}.hero .big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;margin:2px 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.split div{background:rgba(255,255,255,.03);border-radius:12px;padding:8px 10px}
+.split b{display:block;font-variant-numeric:tabular-nums;font-size:15px}
+h3{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:20px 2px 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mut{color:var(--mut);font-size:12px}.num{font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.chip{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--card2);color:var(--mut);margin-right:6px}
+.agents{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ag{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 8px;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.d-run{background:var(--up)}.d-stb{background:var(--acc)}.d-dead{background:var(--dn)}
+.list .it{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.list .it:last-child{border-bottom:0}
+.tabs{display:flex;gap:6px;margin-bottom:8px}.tab{flex:1;text-align:center;padding:7px;border-radius:10px;background:var(--card);color:var(--mut);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--line)}
+.tab.on{color:var(--fg);border-color:var(--acc)}
+svg{display:block;width:100%;height:120px}
+.empty{color:var(--mut);font-size:13px;text-align:center;padding:10px}
+#err{color:var(--dn);font-size:12px;margin-top:6px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><span class="brand">Jett LP</span><span><span class="pill p-dry">PAPER</span> <span id="mode" class="pill p-off">…</span></span></div>
+<div class="sub" id="sub">Loading…</div><div id="err"></div>
+<div class="hero">
+  <div class="tabs" id="eqtabs"><div class="tab on" data-c="sol">Solana</div><div class="tab" data-c="rh">Robinhood</div></div>
+  <div class="lbl">Paper equity</div><div class="big" id="eq">–</div><div class="mut" id="eqd"></div>
+  <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+  <div class="split"><div><span class="mut">Realized</span><b id="rl">–</b></div><div><span class="mut">Unrealized</span><b id="ur">–</b></div></div>
+</div>
+<h3>Health</h3><div class="card row" id="health"></div><div class="agents" id="agents"></div>
+<h3>Open positions</h3><div id="pos"></div>
+<h3>Risk decisions</h3><div class="card list" id="risk"></div>
+<h3>Recent signals</h3><div class="card list" id="sig"></div>
+<div class="sub" style="text-align:center;margin-top:18px">Read-only · paper trading · no real funds</div>
+</div>
+<script>
+const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();try{tg.setHeaderColor("#0b0e14");tg.setBackgroundColor("#0b0e14")}catch(e){}}
+const OWNER="lilchad078",REPO="jett-lp-miniapp";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dp=u=>u==="ETH"?4:3;
+const amt=(x,u)=>(x==null?"–":(+x).toFixed(dp(u))+" "+u);
+const sgn=(x,u)=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(+x).toFixed(dp(u))}</span>`;
+const pc=x=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(x*100).toFixed(1)}%</span>`;
+const tm=ts=>ts?new Date(ts*1000).toLocaleTimeString("en-GB",{timeZone:"Asia/Makassar",hour:"2-digit",minute:"2-digit"}):"–";
+const age=m=>m<60?m+"m":m<1440?Math.floor(m/60)+"h "+(m%60)+"m":Math.floor(m/1440)+"d";
+const px=v=>v==null?"–":v>=1?v.toPrecision(5):v.toExponential(2);
+let S=null,CH="sol";
+async function get(url,opt){const r=await fetch(url,Object.assign({cache:"no-store"},opt||{}));if(!r.ok)throw new Error(r.status);return r.json()}
+async function load(){
+  const tries=[
+    get(`https://api.github.com/repos/${OWNER}/${REPO}/contents/snapshot.json?ref=data`,{headers:{Accept:"application/vnd.github.raw+json"}}),
+    get(`https://raw.githubusercontent.com/${OWNER}/${REPO}/data/snapshot.json?t=${Date.now()}`),
+    get(`data/snapshot.json?t=${Date.now()}`)];
+  const res=(await Promise.allSettled(tries)).filter(r=>r.status==="fulfilled").map(r=>r.value);
+  if(!res.length){$("err").textContent="Snapshot unavailable. Try again shortly.";return}
+  S=res.sort((a,b)=>b.ts-a.ts)[0];$("err").textContent="";render();
+}
+function curve(pts){
+  const el=$("curve");if(!pts||pts.length<2){el.innerHTML="";return}
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const X=x=>x1>x0?(x-x0)/(x1-x0)*300:0,Y=y=>y1>y0?110-(y-y0)/(y1-y0)*100:60;
+  const d=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
+  const c=ys[ys.length-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
+  el.innerHTML=`<path d="${d} L300 120 L0 120 Z" fill="${c}" opacity=".10"/><path d="${d}" fill="none" stroke="${c}" stroke-width="2"/>`;
+}
+function render(){
+  const s=S,m=s.mode,mo=$("mode");mo.textContent=m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"?"p-on":"p-off");
+  const stale=Math.round((Date.now()/1000-s.ts)/60);
+  $("sub").textContent=`Window ${m.window} · next switch ${m.next_change} · updated ${tm(s.ts)} WITA`+(stale>10?` (${stale}m ago)`:"")+(m.paused?" · PAUSED":"");
+  const e=s.equity[CH];$("eq").textContent=amt(e.equity,e.unit);
+  const ch=e.capital?(e.equity/e.capital-1):0;$("eqd").innerHTML=`${pc(ch)} vs capital ${amt(e.capital,e.unit)}`;
+  $("rl").innerHTML=sgn(e.realized,e.unit);$("ur").innerHTML=sgn(e.unrealized,e.unit);curve(e.points);
+  const h=s.health;$("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${(s.agents||[]).filter(a=>a.alive).length}/${(s.agents||[]).length} agents</span>`;
+  $("agents").innerHTML=(s.agents||[]).map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
+  const P=s.positions||[];
+  $("pos").innerHTML=P.length?P.map(p=>`<div class="card"><div class="row"><span><span class="chip">${p.chain.toUpperCase()}</span><b>${esc(p.pair)}</b></span><span class="num">${pc(p.pnl_pct)}</span></div>
+   <div class="row mut" style="margin-top:6px"><span>Range ${px(p.range.low)} – ${px(p.range.high)}</span><span>${age(p.age_min)}</span></div>
+   <div class="row mut"><span>Size ${amt(p.size,p.unit)} · PnL ${sgn(p.pnl,p.unit)}</span><span>Fees ${(+p.fees).toFixed(dp(p.unit)+1)}</span></div></div>`).join(""):`<div class="card empty">No open positions</div>`;
+  const st={opened:"Opened",skipped_risk:"Blocked",skipped_held:"Already held",approved:"Approved",reject:"Rejected"};
+  const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(st[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""} · ${tm(r.ts)}</span></div>`).join(""):`<div class="empty">No decisions in 24h</div>`;
+  const kd={wallet_buy:"Wallet buy",gmgn_trending:"Trending"};
+  const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">No signals in 6h</div>`;
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CH=t.dataset.c;if(S)render()});
+load();setInterval(load,120000);
+</script>
+</body></html>
