@@ -36,6 +36,15 @@ h3{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;lett
 svg{display:block;width:100%;height:120px}
 .empty{color:var(--mut);font-size:13px;text-align:center;padding:10px}
 #err{color:var(--dn);font-size:12px;margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.kpi b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.tbl th{color:var(--mut);font-weight:600;text-align:right;padding:4px 4px;border-bottom:1px solid var(--line)}
+.tbl td{text-align:right;padding:5px 4px;border-bottom:1px solid var(--line)}.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl tr:last-child td{border-bottom:0}
+.bt{border-style:dashed}
+#btcurve{height:80px}
 </style>
 </head>
 <body><div class="wrap">
@@ -47,6 +56,10 @@ svg{display:block;width:100%;height:120px}
   <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
   <div class="split"><div><span class="mut">Realized</span><b id="rl">–</b></div><div><span class="mut">Unrealized</span><b id="ur">–</b></div></div>
 </div>
+<h3>Performance · paper</h3>
+<div class="kpis" id="kpis"></div>
+<div class="card" style="margin-top:8px;overflow-x:auto"><table class="tbl" id="days"></table><div class="mut" id="perfnote" style="margin-top:6px"></div></div>
+<div class="card bt" id="bt"></div>
 <h3>Health</h3><div class="card row" id="health"></div><div class="agents" id="agents"></div>
 <h3>Open positions</h3><div id="pos"></div>
 <h3>Risk decisions</h3><div class="card list" id="risk"></div>
@@ -84,6 +97,27 @@ function curve(pts){
   const c=ys[ys.length-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
   el.innerHTML=`<path d="${d} L300 120 L0 120 Z" fill="${c}" opacity=".10"/><path d="${d}" fill="none" stroke="${c}" stroke-width="2"/>`;
 }
+function spk(el,ys){if(!ys||ys.length<2){el.innerHTML="";return}
+  const y0=Math.min(...ys),y1=Math.max(...ys),n=ys.length,X=i=>i/(n-1)*300,Y=y=>y1>y0?70-(y-y0)/(y1-y0)*60:40;
+  const d=ys.map((y,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(y).toFixed(1)).join(" ");const c=ys[n-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
+  el.innerHTML=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="4 3"/>`}
+function perf(s){
+  const P=s.performance;if(!P||!P.chains){$("kpis").innerHTML="";$("days").innerHTML="";$("bt").style.display="none";return}
+  const c=P.chains[CH],u=CH==="rh"?"ETH":"SOL";if(!c)return;
+  const w=c.d7,sh=c.shadow7,fr=w.opened?Math.round(w.filled/w.opened*100)+"%":"–";
+  const k=(l,v)=>`<div class="kpi"><span class="mut">${l}</span><b>${v}</b></div>`;
+  $("kpis").innerHTML=k("Since start",pc(c.cum_pct/100))+k("7d W/L",`${w.wins}/${w.n}`)+k("7d fill",fr)
+    +k("Unfilled 7d",w.unfilled)+k("Fees 7d",(+w.fees).toFixed(dp(u)))+k("Shadow 7d",sh.n?`${sh.n} · ${sh.avg_pct>=0?"+":""}${(+sh.avg_pct).toFixed(1)}%`:"0");
+  const D=(c.days||[]).slice(-10).reverse();
+  $("days").innerHTML=`<tr><th>Day</th><th>End</th><th>Day %</th><th>Total %</th><th>W/L</th><th>DD</th></tr>`+(D.length?D.map(r=>
+    `<tr><td>${esc(r.day.slice(5))}${r.final?"":" ·"}</td><td>${(+r.end_eq).toFixed(dp(u))}</td><td>${pc(r.change_pct/100)}</td><td>${pc(r.cum_pct/100)}</td><td>${r.wins}/${r.closed}</td><td>${(+r.max_dd_pct).toFixed(1)}%</td></tr>`).join(""):`<tr><td colspan="6" class="empty">No paper days yet</td></tr>`);
+  $("perfnote").textContent=`Day = 09:00–09:00 WIB · "·" = today, in progress · config ${P.cfg_ver||"–"}`;
+  const b=P.backtest,el=$("bt");
+  if(b&&CH==="sol"){el.style.display="";el.innerHTML=`<div class="row"><b>Backtest</b><span class="pill p-off">REPLAY · NOT LIVE</span></div>
+    <div class="mut" style="margin-top:4px">${esc(b.label)} · ${b.pools} pools</div><svg id="btcurve" viewBox="0 0 300 80" preserveAspectRatio="none"></svg>
+    <div class="row mut"><span>${b.n} trades · win ${Math.round(b.win_rate*100)}% · avg ${b.avg_pnl_pct>=0?"+":""}${(+b.avg_pnl_pct).toFixed(2)}%</span><span>fill ${Math.round(b.fill_rate*100)}% · ${pc(b.capital_pct/100)}</span></div>`;spk($("btcurve"),b.curve)}
+  else el.style.display="none";
+}
 function render(){
   const s=S,m=s.mode,mo=$("mode");mo.textContent=m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"?"p-on":"p-off");
   const stale=Math.round((Date.now()/1000-s.ts)/60);
@@ -91,12 +125,14 @@ function render(){
   const e=s.equity[CH];$("eq").textContent=amt(e.equity,e.unit);
   const ch=e.capital?(e.equity/e.capital-1):0;$("eqd").innerHTML=`${pc(ch)} vs capital ${amt(e.capital,e.unit)}`;
   $("rl").innerHTML=sgn(e.realized,e.unit);$("ur").innerHTML=sgn(e.unrealized,e.unit);curve(e.points);
+  perf(s);
   const h=s.health;$("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${(s.agents||[]).filter(a=>a.alive).length}/${(s.agents||[]).length} agents</span>`;
   $("agents").innerHTML=(s.agents||[]).map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
   const P=s.positions||[];
   $("pos").innerHTML=P.length?P.map(p=>`<div class="card"><div class="row"><span><span class="chip">${p.chain.toUpperCase()}</span><b>${esc(p.pair)}</b></span><span class="num">${pc(p.pnl_pct)}</span></div>
    <div class="row mut" style="margin-top:6px"><span>Range ${px(p.range.low)} – ${px(p.range.high)}</span><span>${age(p.age_min)}</span></div>
-   <div class="row mut"><span>Size ${amt(p.size,p.unit)} · PnL ${sgn(p.pnl,p.unit)}</span><span>Fees ${(+p.fees).toFixed(dp(p.unit)+1)}</span></div></div>`).join(""):`<div class="card empty">No open positions</div>`;
+   <div class="row mut"><span>Size ${amt(p.size,p.unit)} · PnL ${sgn(p.pnl,p.unit)}</span><span>Fees ${(+p.fees).toFixed(dp(p.unit)+1)}</span></div>
+   <div class="row mut"><span>${p.filled?"Filled":"Waiting · price needs "+((p.to_range||0)*100).toFixed(1)+"% to top"}</span><span>${esc(p.cfg_ver||"")}</span></div></div>`).join(""):`<div class="card empty">No open positions</div>`;
   const st={opened:"Opened",skipped_risk:"Blocked",skipped_held:"Already held",approved:"Approved",reject:"Rejected"};
   const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(st[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""} · ${tm(r.ts)}</span></div>`).join(""):`<div class="empty">No decisions in 24h</div>`;
   const kd={wallet_buy:"Wallet buy",gmgn_trending:"Trending"};
