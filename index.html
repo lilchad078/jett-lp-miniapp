@@ -268,6 +268,12 @@ details.sys summary::-webkit-details-marker{display:none}
 #toast.ok .sp,#toast.bad .sp{animation:none;border:0;width:auto;height:auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 .p-stop{background:rgba(239,68,68,.15);color:#ef4444}
+/* research */
+.v-res .hsub{color:var(--mut)}.v-res .seg{background:rgba(127,140,160,.12)}.v-res .ttl{color:var(--fg)}body.v-res{background:var(--bg);color:var(--fg)}
+.rp{margin:8px 0 10px}.rp:last-child{margin-bottom:2px}.rp .prog{margin:5px 0 2px}
+.tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.02em;white-space:nowrap}
+.t-pass{background:rgba(34,197,94,.14);color:#16a34a}.t-near{background:rgba(245,158,11,.15);color:#d97706}.t-rej{background:var(--card2);color:var(--mut)}.t-bad{background:rgba(239,68,68,.15);color:#ef4444}
+.t-strong{background:rgba(34,197,94,.14);color:#16a34a}.t-weak{background:rgba(245,158,11,.15);color:#d97706}
 @media (prefers-reduced-motion:reduce){#toast,.sw::after,.ub{transition:none}#toast .sp{animation:none}}
 </style>
 </head>
@@ -277,7 +283,7 @@ details.sys summary::-webkit-details-marker{display:none}
     <div style="min-width:0"><div class="ttl">Jett LP</div><div class="hsub"><span class="ldot" id="ldot"></span><span id="sub">Loading…</span></div></div>
     <div class="hright"><span class="pill p-dry">PAPER</span><span id="mode" class="pill p-off">…</span></div></div>
   <div id="err"></div>
-  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button></div>
+  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button><button data-v="res">Research</button></div>
 </div>
 <div id="office">
   <div class="scene"><div id="scene"></div><button class="thm" id="thm" type="button" aria-label="Switch theme"></button></div>
@@ -323,6 +329,15 @@ details.sys summary::-webkit-details-marker{display:none}
   </details>
   <div class="sub" style="text-align:center;margin-top:18px">Paper trading · no real funds</div>
 </div>
+<div class="wrap" id="resv" hidden>
+  <div class="row" style="margin:6px 2px 4px"><b>Research</b><span class="pill p-off">PAPER ESTIMATE</span></div>
+  <div class="mut" id="resnote" style="margin:0 2px 6px"></div>
+  <h3>Sample progress</h3><div class="card" id="resprog"></div>
+  <h3>Rule leaderboard</h3><div class="card" style="overflow-x:auto"><table class="tbl" id="reslb"></table><div class="mut" id="reslbn" style="margin-top:6px"></div></div>
+  <h3>Paper positions</h3><div class="stats" id="rescnt"></div><div class="card" id="respos" style="margin-top:8px"></div>
+  <h3>Live feed</h3><div class="card" id="resfeed"></div>
+  <div class="sub" style="text-align:center;margin-top:18px">Research only · paper estimate · live v5 trading unchanged</div>
+</div>
 <div class="mask" id="mask"></div><div class="acard" id="acard"></div>
 <div id="toast" role="status" aria-live="polite"><span class="sp"></span><span id="toastt"></span></div>
 <script>
@@ -355,7 +370,7 @@ async function load(){
   if(LOCAL&&n.ts<LOCAL.ts)applySt(n,LOCAL.st);else LOCAL=null;
   S=n;$("err").textContent="";renderAll();
 }
-function renderAll(){if(!S)return;header();renderOffice();renderPos();renderRep()}
+function renderAll(){if(!S)return;header();renderOffice();renderPos();renderRep();renderRes()}
 
 /* ---------- theme: purely visual, never touches agent state or the sleep logic ---------- */
 const TK="jett_theme";
@@ -474,6 +489,43 @@ function renderRep(){
   const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">None yet</div>`;
 }
 document.querySelectorAll("#eqtabs .tab").forEach(t=>t.onclick=()=>{CH=t.dataset.c;if(S)renderRep()});
+/* ---------- Research (paper estimate, symbols only) ---------- */
+const hz=m=>m>=60?(m%60?(m/60).toFixed(1):m/60)+"h":m+"m";
+const np=x=>x==null?"–":`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(+x).toFixed(2)}%</span>`;
+const vtag={passed:["t-pass","v5 pass"],"near-miss":["t-near","v5 near-miss"],rejected:["t-rej","v5 reject"],unsafe:["t-bad","unsafe"]};
+const pst={pending:"Pending",filled:"Filled",unfilled:"Not filled",no_entry:"No entry"};
+function renderRes(){
+  const R=S.research;
+  if(!R||R.error){$("resnote").textContent=R&&R.error?"Research data unavailable right now.":"No research data yet.";["resprog","reslb","rescnt","respos","resfeed"].forEach(i=>$(i).innerHTML="");return}
+  $("resnote").textContent=R.universe+(R.report_ts?` Leaderboard from report ${dt(R.report_ts)} WITA.`:"");
+  const P=R.progress||[],T=(P[0]&&P[0].targets)||[30,100],top=T[T.length-1];
+  $("resprog").innerHTML=P.length?P.map(p=>{const f=Math.min(1,p.tokens_done/top)*100,m=T[0]/top*100;
+    return `<div class="rp"><div class="row"><b style="font-size:13px">${esc(p.regime)}</b><span class="mut num">${p.tokens_done} / ${T[0]} · ${top} tokens</span></div>
+     <div class="prog"><i style="left:0;width:${f.toFixed(1)}%;background:${p.tokens_done>=T[0]?"#22c55e":"var(--acc)"}"></i><i style="left:calc(${m}% - 1px);width:2px;background:var(--mut)"></i></div>
+     <div class="mut">${p.tokens_seen} token${p.tokens_seen===1?"":"s"} seen, ${p.tokens_done} with a simulated result</div></div>`}).join("")
+    +`<div class="mut">STRONG needs ${R.strong_tokens} tokens and a positive out-of-sample result.</div>`:`<div class="empty">No samples yet</div>`;
+  const L=R.leaderboard||[];
+  $("reslb").innerHTML=`<tr><th>Regime / rule</th><th>Tokens</th><th>Win</th><th>Net low / high</th><th>OOS</th><th></th></tr>`+(L.length?L.map(r=>
+    `<tr><td><b>${esc(r.regime)}</b><div class="mut">${esc(r.variant)} · ${hz(r.horizon_min)}${r.subgroup&&r.subgroup!=="all"?" · "+esc(r.subgroup):""}</div></td>
+     <td>${r.tokens??"–"}</td><td>${r.win_rate==null?"–":Math.round(r.win_rate*100)+"%"}</td><td>${np(r.net_low)}<div class="mut">${np(r.net_high)}</div></td>
+     <td>${r.oos_n?np(r.oos_net_low)+`<div class="mut">n ${r.oos_n}</div>`:'<span class="mut">none</span>'}</td>
+     <td>${r.label==="STRONG"?'<span class="tag t-strong">STRONG</span>':r.label==="WEAK"?'<span class="tag t-weak">WEAK</span>':'<span class="mut">–</span>'}</td></tr>`).join("")
+    :`<tr><td colspan="6" class="empty">No results yet</td></tr>`);
+  $("reslbn").textContent=`Net = avg net after low / high cost estimate. A rule needs ≥ ${R.rule_min_tokens} tokens profitable after low cost. OOS = later (out-of-sample) part.`;
+  const C=R.counts||{};
+  $("rescnt").innerHTML=Object.keys(C).map(k=>{const c=C[k];return `<div class="stat"><span>${esc(k)}</span><b>${c.pending+c.filled+c.unfilled+c.no_entry}</b><div class="mut">${c.pending} pending · ${c.filled} filled · ${c.unfilled+c.no_entry} unfilled</div></div>`}).join("");
+  const Q=R.positions||[];
+  $("respos").innerHTML=Q.length?Q.map(q=>`<div class="cl"><div><b>${esc(q.symbol)}</b>${q.pool_rank?` <span class="chip">pool #${q.pool_rank}</span>`:""}<div class="mut">${esc(q.regime)} · ${esc(q.variant)} · ${hz(q.horizon_min)}</div></div>
+     <div class="r">${q.status==="pending"?`<span class="mut">${pst.pending}</span><div class="mut">ends ${tm(q.ends)}</div>`:`${np(q.net_pct)}<div class="mut">${pst[q.status]||esc(q.status)} · fee ${q.fee_pct==null?"–":(+q.fee_pct).toFixed(2)+"%"}</div>`}</div></div>`).join("")
+    +`<div class="mut" style="margin-top:6px">Paper estimate: simulated LP per regime with its leading variant. Not real positions.</div>`:`<div class="empty">No paper positions yet</div>`;
+  const F=R.feed||[];
+  $("resfeed").innerHTML=F.length?F.map(f=>{const v=vtag[f.v5]||["t-rej",f.v5];
+    return `<div class="cl"><div style="min-width:0"><b>${esc(f.symbol)}</b>${f.pool_rank?` <span class="chip">pool #${f.pool_rank}</span>`:""}${f.dlmm?"":' <span class="chip">no DLMM</span>'}
+      <div class="mut">${esc(f.source)} · ${esc(f.age||"?")} · ${esc(f.regime)}${f.tracked?"":" · not simulated"}</div>
+      ${f.why&&f.why.length?`<div class="mut">${esc(f.why.join(", "))}</div>`:""}</div>
+      <div class="r"><span class="tag ${v[0]}">${esc(v[1])}</span><div class="mut">${tm(f.first_seen)} WITA</div></div></div>`}).join("")
+    +`<div class="mut" style="margin-top:6px">v5 result is a reference only; research does not use it as a gate.</div>`:`<div class="empty">Nothing seen in the last 24h</div>`;
+}
 /* ---------- Office: agents as characters ---------- */
 const BOT="JettLPbot",RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 const AG={
@@ -487,7 +539,8 @@ const AG={
   watcher:{n:"Watcher",r:"Tracks fills, SL, cascade, timeouts",c:"#06b6d4",g:[3,1],sh:"bean",ey:"v",act:"look"},
   tg_bot:{n:"Telegram",r:"Alerts and commands in chat",c:"#2aabee",g:[0,2],sh:"tri2",ey:"t",act:"plane"},
   miniapp:{n:"Mini App",r:"Local Mini App server",c:"#a855f7",g:[1,2],sh:"tall",ey:"v",act:"wave"},
-  publisher:{n:"Publisher",r:"Pushes this snapshot to Pages",c:"#ec4899",g:[2,2],sh:"puff",ey:"v",act:"papers"}};
+  publisher:{n:"Publisher",r:"Pushes this snapshot to Pages",c:"#ec4899",g:[2,2],sh:"puff",ey:"v",act:"papers"},
+  quant_research:{n:"Research",r:"Logs candidates and paper outcomes",c:"#eab308",g:[3,2],sh:"sq",ey:"v",act:"calc"}};
 const FLOW=["scout","quant","mm","lp_strategist","risk","executor_sol","watcher"];
 const ISO=(i,j)=>[200+(i-j-.5)*57,96+(i+j)*33];
 const ago=s=>s==null?"–":s<60?s+"s":s<3600?Math.round(s/60)+"m":Math.round(s/3600)+"h";
@@ -756,8 +809,8 @@ async function act(a,pid){
 }
 function view(v){
   VIEW=v;localStorage.setItem("jett_view",v);const b=document.body.classList;
-  b.toggle("v-office",v==="office");b.toggle("v-dash",v!=="office");b.toggle("v-pos",v==="pos");b.toggle("v-rep",v==="rep");
-  $("office").hidden=v!=="office";$("posv").hidden=v!=="pos";$("repv").hidden=v!=="rep";
+  b.toggle("v-office",v==="office");b.toggle("v-dash",v!=="office");b.toggle("v-pos",v==="pos");b.toggle("v-rep",v==="rep");b.toggle("v-res",v==="res");
+  $("office").hidden=v!=="office";$("posv").hidden=v!=="pos";$("repv").hidden=v!=="rep";$("resv").hidden=v!=="res";
   document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));tgColors();window.scrollTo(0,0);
 }
 document.addEventListener("click",e=>{
@@ -775,7 +828,7 @@ document.addEventListener("click",e=>{
 
 /* ---------- refresh: fast while the app is open and the bot is listening ---------- */
 applyTheme();setInterval(()=>{if(!localStorage.getItem(TK))applyTheme()},60000);
-view(["office","pos","rep"].includes(localStorage.getItem("jett_view"))?localStorage.getItem("jett_view"):"office");
+view(["office","pos","rep","res"].includes(localStorage.getItem("jett_view"))?localStorage.getItem("jett_view"):"office");
 load();relayInit();
 setInterval(()=>{if(!document.hidden)load()},15000);
 setInterval(hello,240000);
