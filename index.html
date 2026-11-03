@@ -46,11 +46,103 @@ svg{display:block;width:100%;height:120px}
 .bt{border-style:dashed}
 #btcurve{height:80px}
 .grp{margin:8px 2px 6px}
+/* ---------- Office ---------- */
+body.v-office{background:linear-gradient(180deg,#eef3fb 0%,#dfe7f4 60%,#0e1118 60%);color:#111827}
+body.v-office.night{background:linear-gradient(180deg,#0f1630 0%,#0c1226 60%,#0e1118 60%);color:#e5e7eb}
+.hdr{max-width:560px;margin:0 auto;padding:12px 14px 6px}
+.hrow{display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:11px;background:#111827;display:grid;place-items:center;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.ttl{font-weight:800;font-size:19px;letter-spacing:-.01em;line-height:1.1}
+.hsub{font-size:12px;color:#6b7280;margin-top:2px;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.night .hsub,.v-dash .hsub{color:#94a3b8}
+.ldot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex:none;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+.ldot.late{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.18)}.ldot.off{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+.hright{margin-left:auto;display:flex;gap:5px;flex:none}
+.p-act{background:rgba(34,197,94,.15);color:#16a34a}.p-stb{background:rgba(99,102,241,.18);color:#818cf8}.p-pau{background:rgba(239,68,68,.15);color:#ef4444}
+.seg{display:flex;margin-top:10px;background:rgba(17,24,39,.07);border-radius:11px;padding:3px}
+.night .seg,.v-dash .seg{background:rgba(255,255,255,.07)}
+.seg button{flex:1;border:0;background:none;font:600 13px/1 inherit;font-family:inherit;padding:8px;border-radius:9px;color:#6b7280;cursor:pointer}
+.seg button.on{background:#fff;color:#111827;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.night .seg button.on,.v-dash .seg button.on{background:#1f2937;color:#f9fafb}
+.scene{max-width:560px;margin:0 auto;position:relative;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.scene svg{display:block;width:100%;height:auto;overflow:visible;user-select:none;-webkit-user-select:none}
+.scene .ch,.scene .prop{cursor:pointer}
+.bub text{font:600 8.6px -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;fill:#111827}
+.bub .t2{font-weight:500;fill:#4b5563}
+.plate{font:800 4.6px -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;letter-spacing:.35px;fill:#64748b}
+.ws{font:700 4.3px -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;fill:#94a3b8}
+.win{fill:#cfe8ff;transition:fill .8s}.night .win{fill:#18214a}
+.moon{opacity:0;transition:opacity .8s}.night .moon{opacity:1}
+#nightfx{opacity:0;transition:opacity 1s;pointer-events:none}.night #nightfx{opacity:1}
+.cc{max-width:560px;margin:-14px auto 0;background:#0e1118;color:#e5e7eb;border-radius:24px 24px 0 0;padding:10px 14px calc(22px + env(safe-area-inset-bottom));position:relative;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+.grab{width:38px;height:4px;border-radius:3px;background:#2b313d;margin:0 auto 10px}
+.cch{display:flex;align-items:center;gap:8px;margin-bottom:10px}.cch b{font-size:16px}
+.cch .pill{margin-left:auto}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cb{display:flex;align-items:center;gap:8px;background:#171b24;border:1px solid #232937;border-radius:14px;padding:10px 9px;color:#e5e7eb;font:600 12.5px/1.15 inherit;font-family:inherit;cursor:pointer;text-align:left;transition:transform .12s,background .2s}
+.cb:active{transform:scale(.97);background:#1d2330}
+.cb i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
+.cb.on{border-color:#3b4252}.cb.kill{color:#fca5a5}
+.feedc{background:#171b24;border:1px solid #232937;border-radius:16px;padding:11px 12px;margin-top:10px}
+.fh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.fh b{font-size:13.5px}
+.ev{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid #1f2430;font-size:12.5px;line-height:1.35}
+.ev:first-of-type{border-top:0}
+.evd{width:8px;height:8px;border-radius:50%;margin-top:4px;flex:none}
+.ev .tx{flex:1;min-width:0;color:#9ca3af}.ev .tx b{color:#e5e7eb;font-weight:600}
+.ev time{color:#6b7280;font-size:11px;flex:none;font-variant-numeric:tabular-nums}
+.note{color:#6b7280;font-size:11px;text-align:center;margin-top:10px}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;opacity:0;transition:opacity .2s}
+.mask.show{opacity:1}
+.acard{position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);width:min(560px,100%);background:#0e1118;color:#e5e7eb;border-radius:22px 22px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));z-index:21;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.acard.show{transform:translate(-50%,0)}
+.ah{display:flex;align-items:center;gap:12px}.av{width:44px;height:44px;border-radius:50%;flex:none}
+.ah b{font-size:16px;display:block}.ah span{color:#9ca3af;font-size:12px}
+.ast{margin-left:auto;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin-top:14px;font-size:13px}
+.kv dt{color:#6b7280}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;word-break:break-word}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chips span{background:#171b24;border:1px solid #232937;border-radius:8px;padding:4px 8px;font-size:11.5px;color:#cbd5e1}
+.chips b{color:#f9fafb;font-variant-numeric:tabular-nums}
+.x{position:absolute;right:12px;top:10px;background:none;border:0;color:#6b7280;font-size:22px;cursor:pointer}
+body.v-dash{background:var(--bg);color:var(--fg)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){.acard,.mask{transition:none}}
+.s-work .arm{animation:type .5s ease-in-out infinite alternate}
+@keyframes type{to{transform:translateY(1.6px)}}
+.s-idle .bod,.s-stb .bod{animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-1.2px)}}
+.s-off{filter:grayscale(1);opacity:.55}.s-late .bod{animation:bob 1.4s ease-in-out infinite}
+.scr{animation:flick 2.4s steps(2) infinite}@keyframes flick{50%{opacity:.6}}
+.zz{font:700 6px sans-serif;fill:#64748b}
+.v-dash .hdr{color:var(--fg)}.v-dash .ttl{color:var(--fg)}
+#err{color:var(--dn);font-size:12px;margin-top:6px}
+@media (prefers-reduced-motion:reduce){.s-work .arm,.s-idle .bod,.s-stb .bod,.s-late .bod,.scr{animation:none}}
+.bub text{font-size:7.6px}.bub .t2{font-size:6.8px}.ws{font-size:5.8px;letter-spacing:.3px}
+.scene{margin-top:2px}
+.logo svg{width:20px;height:20px}
+
 </style>
 </head>
-<body><div class="wrap">
-<div class="top"><span class="brand">Jett LP</span><span><span class="pill p-dry">PAPER</span> <span id="mode" class="pill p-off">…</span></span></div>
-<div class="sub" id="sub">Loading…</div><div id="err"></div>
+<body class="v-office">
+<div class="hdr">
+  <div class="hrow"><div class="logo"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 14 L10 4 L17 14 Z" fill="none" stroke="#6c8cff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="10" cy="12" r="2" fill="#2ecc8f"/></svg></div>
+    <div style="min-width:0"><div class="ttl">Jett LP</div><div class="hsub"><span class="ldot" id="ldot"></span><span id="sub">Loading…</span></div></div>
+    <div class="hright"><span class="pill p-dry">PAPER</span><span id="mode" class="pill p-off">…</span></div></div>
+  <div id="err"></div>
+  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="dash">Dashboard</button></div>
+</div>
+<div id="office">
+  <div class="scene" id="scene"></div>
+  <div class="cc"><div class="grab"></div>
+    <div class="cch"><b>Control</b><span class="pill" id="ccpill">…</span></div>
+    <div class="mut" id="ccsub" style="margin:-4px 0 10px"></div>
+    <div class="btns" id="btns"></div>
+    <div class="feedc"><div class="fh"><b>Live activity</b><span class="mut">WITA</span></div><div id="feed"></div></div>
+    <div class="note">Tap an agent for details · buttons open the bot chat · paper trading, no real funds</div>
+  </div>
+</div>
+<div class="mask" id="mask"></div><div class="acard" id="acard"></div>
+<div class="wrap" id="dash" hidden>
 <div class="hero">
   <div class="tabs" id="eqtabs"><div class="tab on" data-c="sol">Solana</div><div class="tab" data-c="rh">Robinhood</div></div>
   <div class="lbl">Paper equity</div><div class="big" id="eq">–</div><div class="mut" id="eqd"></div>
@@ -88,7 +180,7 @@ async function load(){
     get(`data/snapshot.json?t=${Date.now()}`)];
   const res=(await Promise.allSettled(tries)).filter(r=>r.status==="fulfilled").map(r=>r.value);
   if(!res.length){$("err").textContent="Snapshot unavailable. Try again shortly.";return}
-  S=res.sort((a,b)=>b.ts-a.ts)[0];$("err").textContent="";render();
+  S=res.sort((a,b)=>b.ts-a.ts)[0];$("err").textContent="";render();renderOffice();
 }
 function curve(pts){
   const el=$("curve");if(!pts||pts.length<2){el.innerHTML="";return}
@@ -122,6 +214,7 @@ function perf(s){
 function render(){
   const s=S,m=s.mode,mo=$("mode");mo.textContent=m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"?"p-on":"p-off");
   const stale=Math.round((Date.now()/1000-s.ts)/60);
+  $("ldot").className="ldot"+(stale>20?" off":stale>6?" late":"");
   $("sub").textContent=`Window ${m.window} · next switch ${m.next_change} · updated ${tm(s.ts)} WITA`+(stale>10?` (${stale}m ago)`:"")+(m.paused?" · PAUSED":"");
   const EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
   document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
@@ -147,6 +240,159 @@ function render(){
   const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">No signals in 6h</div>`;
 }
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CH=t.dataset.c;if(S)render()});
+/* ---------- Office: agents as characters, driven by snapshot.agents (status, last_action, ages, counts) ---------- */
+const BOT="JettLPbot";
+const AG={
+  scout:{n:"Scout",r:"Finds pools and wallet signals",c:"#f59e0b",g:[0,0]},
+  quant:{n:"Quant",r:"Scores volume, fees and momentum",c:"#3b82f6",g:[1,0]},
+  mm:{n:"Market Maker",r:"Scores liquidity and crowding",c:"#8b5cf6",g:[2,0]},
+  lp_strategist:{n:"LP Strategist",r:"Plans the range and bins",c:"#14b8a6",g:[3,0]},
+  coordinator:{n:"Coordinator",r:"Runs schedule, reports, ledger",c:"#64748b",g:[0,1]},
+  risk:{n:"Risk Manager",r:"Approves or blocks every trade",c:"#ef4444",g:[1,1]},
+  executor_sol:{n:"Executor-SOL",r:"Opens and closes paper positions",c:"#22c55e",g:[2,1]},
+  watcher:{n:"Watcher",r:"Tracks fills, SL, cascade, timeouts",c:"#06b6d4",g:[3,1]},
+  tg_bot:{n:"Telegram",r:"Alerts and commands in chat",c:"#0ea5e9",g:[0,2]},
+  miniapp:{n:"Mini App",r:"Local Mini App server",c:"#a855f7",g:[1,2]},
+  publisher:{n:"Publisher",r:"Pushes this snapshot to Pages",c:"#ec4899",g:[2,2]}};
+const FLOW=["scout","quant","mm","lp_strategist","risk","executor_sol","watcher"];
+const ISO=(i,j)=>[200+(i-j-.5)*57,96+(i+j)*33];
+const ago=s=>s==null?"–":s<60?s+"s":s<3600?Math.round(s/60)+"m":Math.round(s/3600)+"h";
+function agState(a){
+  if(!a.alive)return{k:"off",t:"Offline",col:"#ef4444"};
+  if(a.beat_age_s>180)return{k:"late",t:"Late",col:"#f59e0b"};
+  if(a.status&&a.status!=="running")return{k:"stb",t:a.status[0].toUpperCase()+a.status.slice(1),col:"#818cf8"};
+  if(a.action_age_s!=null&&a.action_age_s<150)return{k:"work",t:"Working",col:"#22c55e"};
+  return{k:"idle",t:"Idle",col:"#94a3b8"};
+}
+function say(a){
+  // short bubble text from the agent's real last_action (full text in the detail sheet)
+  const t=String(a.last_action||""),R=[[/^start pid \d+$/,"Started"],[/^server /,"Serving app"],[/^snapshot /,"Published"],
+    [/^scanned (\d+) pools, (\d+) to scoring/,"Scan $1 · $2 in"],[/^scored (\d+) candidates/,"Scored $1"],
+    [/^decided (\d+) candidates, (\d+) approved/,"$1 checked · $2 ok"],[/^watching (\d+) SOL positions?/,"Watching $1"],
+    [/^config (v\d+)/,"Config $1"]];
+  for(const[r,v]of R){const m=t.match(r);if(m)return v.replace(/\$(\d)/g,(_,i)=>m[i])}
+  return t.length>14?t.slice(0,13)+"…":t||"–";
+}
+function deskSVG(x,y,col,on){
+  // iso desk + monitor (decorative), screen glows when agent is working
+  return `<g transform="translate(${x},${y}) scale(1.25)">
+   <path d="M-22 6 L0 -5 L22 6 L0 17 Z" fill="#cbd5e1"/><path d="M-22 6 L0 17 L0 21 L-22 10 Z" fill="#94a3b8"/><path d="M22 6 L0 17 L0 21 L22 10 Z" fill="#a3b1c6"/>
+   <path d="M-4 -14 L10 -21 L10 -9 L-4 -2 Z" fill="#1f2937"/><path d="M-3 -13 L9 -19 L9 -10 L-3 -4 Z" fill="${on?col:"#334155"}" opacity="${on?.85:1}" class="${on?"scr":""}"/>
+   <path d="M2 -4 L4 -5 L4 0 L2 1 Z" fill="#1f2937"/></g>`;
+}
+function charSVG(id,x,y,a,st){
+  const m=AG[id],c=m.c,cls=`ch s-${st.k}`;
+  return `<g class="${cls}" data-id="${id}" transform="translate(${x},${y}) scale(1.3)">
+   <ellipse cx="0" cy="8" rx="11" ry="4.5" fill="rgba(15,23,42,.18)"/>
+   <g class="bod"><path d="M-8 6 Q-8 -8 0 -9 Q8 -8 8 6 Z" fill="${c}"/>
+   <g class="arm"><path d="M6 -4 L12 1" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/><path d="M-6 -4 L-11 1" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/></g>
+   <circle cx="0" cy="-15" r="6.2" fill="#fcd9b6"/><path d="M-6.4 -16 Q-6 -22.5 0 -22.5 Q6.4 -22.5 6.4 -16 Q3 -19 -6.4 -16 Z" fill="#3f2d20"/>
+   ${st.k==="off"?`<text x="9" y="-22" class="zz">z z</text>`:""}</g>
+   <circle cx="9" cy="-20" r="2.6" fill="${st.col}" stroke="#fff" stroke-width="1"/></g>`;
+}
+function bubbleW(l1,l2){return Math.max(44,Math.min(62,Math.max(l1.length*4.3,l2.length*3.9)+10))}
+function bubbleSVG(x,y,l1,l2,col){
+  const w=bubbleW(l1,l2);
+  return `<g class="bub" transform="translate(${x},${y-40})" pointer-events="none">
+   <rect x="${-w/2}" y="-21" width="${w}" height="21" rx="6" fill="#fff" stroke="${col}" stroke-opacity=".55"/>
+   <path d="M-3 0 L0 4 L3 0 Z" fill="#fff"/>
+   <text x="${-w/2+5}" y="-12.2">${esc(l1)}</text><text x="${-w/2+5}" y="-4" class="t2">${esc(l2)}</text></g>`;
+}
+function scene(s){
+  const ags=Object.fromEntries((s.agents||[]).map(a=>[a.name,a]));
+  const ids=Object.keys(AG).filter(id=>ags[id]);
+  let floor="",desks="",chars="",bubs="";
+  // floor (decorative)
+  const P=(i,j)=>ISO(i,j).map((v,k)=>v+(k?0:0));
+  const c0=ISO(-.5,-.5),c1=ISO(3.5,-.5),c2=ISO(3.5,2.5),c3=ISO(-.5,2.5);
+  floor+=`<path d="M${c0} L${c1} L${c2} L${c3} Z" fill="#eef2f7" stroke="#c3cedd"/>`;
+  for(let i=0;i<=4;i++){const a=ISO(i-.5,-.5),b=ISO(i-.5,2.5);floor+=`<path d="M${a} L${b}" stroke="#d5dde8" stroke-width=".6"/>`}
+  for(let j=0;j<=3;j++){const a=ISO(-.5,j-.5),b=ISO(3.5,j-.5);floor+=`<path d="M${a} L${b}" stroke="#d5dde8" stroke-width=".6"/>`}
+  // back walls with windows (decorative; night tint follows WIB clock)
+  const wl=`<path d="M${c0} L${c0[0]},${c0[1]-58} L${c1[0]},${c1[1]-58} L${c1} Z" fill="#d9e2ef"/><path d="M${c0} L${c0[0]},${c0[1]-58} L${c3[0]},${c3[1]-58} L${c3} Z" fill="#cbd6e6"/>`;
+  let wins="";for(let k=0;k<4;k++){const a=ISO(k+.05,-.5),b=ISO(k+.6,-.5);wins+=`<path class="win" d="M${a[0]},${a[1]-46} L${b[0]},${b[1]-46} L${b[0]},${b[1]-18} L${a[0]},${a[1]-18} Z"/>`}
+  for(let k=0;k<3;k++){const a=ISO(-.5,k+.1),b=ISO(-.5,k+.65);wins+=`<path class="win" d="M${a[0]},${a[1]-46} L${b[0]},${b[1]-46} L${b[0]},${b[1]-18} L${a[0]},${a[1]-18} Z"/>`}
+  // zone plates on floor
+  const plate=(i,j,t)=>{const[x,y]=ISO(i,j);return `<text class="plate" x="${x}" y="${y}" text-anchor="middle" transform="rotate(0)">${t}</text>`};
+  // pipeline path through the flow desks; dots move only when the pipeline had activity in the last 10 min
+  const pl=s.pipeline||{},busy=(pl.signals||0)+(pl.candidates||0)>0;
+  const pts=FLOW.filter(id=>ags[id]).map(id=>{const[i,j]=AG[id].g;const[x,y]=ISO(i,j);return[x,y+12]});
+  const pd="M"+pts.map(p=>p.join(",")).join(" L");
+  let flow=`<path id="flowp" d="${pd}" fill="none" stroke="#6c8cff" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 3"/>`;
+  if(busy){for(let k=0;k<4;k++)flow+=`<circle r="2.2" fill="#6c8cff"><animateMotion dur="9s" begin="${-k*2.25}s" repeatCount="indefinite"><mpath href="#flowp"/></animateMotion></circle>`}
+  // order back-to-front so nearer characters overlap correctly
+  const ord=ids.slice().sort((a,b)=>(AG[a].g[0]+AG[a].g[1])-(AG[b].g[0]+AG[b].g[1]));
+  for(const id of ord){const a=ags[id],st=agState(a),[i,j]=AG[id].g,[x,y]=ISO(i,j);
+    desks+=deskSVG(x+8,y+4,AG[id].c,st.k==="work");
+    chars+=charSVG(id,x-6,y-2,a,st);
+    desks+=`<text class="ws" x="${x+4}" y="${y+33}" text-anchor="middle">${AG[id].n.toUpperCase()}</text>`;
+  }
+  // bubbles: most recent action first, skip any that would overlap one already placed (tap the agent for the rest)
+  const placed=[];
+  for(const id of ids.slice().sort((a,b)=>(ags[a].action_age_s??1e9)-(ags[b].action_age_s??1e9))){
+    const a=ags[id],st=agState(a),[i,j]=AG[id].g,[x,y]=ISO(i,j),l1=say(a),l2=`${st.t} · ${ago(a.action_age_s)}`;
+    const w=bubbleW(l1,l2),bx=x-6,by=y-42,box=[bx-w/2-2,by-23,bx+w/2+2,by+2];
+    if(placed.some(q=>!(box[2]<q[0]||box[0]>q[2]||box[3]<q[1]||box[1]>q[3])))continue;
+    placed.push(box);bubs+=bubbleSVG(bx,y-2,l1,l2,st.col)}
+  // plant + coffee (decorative)
+  const[px1,py1]=ISO(3,2);
+  const deco=`<g transform="translate(${px1},${py1})"><ellipse cx="0" cy="8" rx="9" ry="4" fill="rgba(15,23,42,.15)"/><path d="M-6 0 L6 0 L4 9 L-4 9 Z" fill="#b45309"/><path d="M0 0 Q-10 -10 -4 -20 Q0 -8 0 0 Q2 -16 8 -18 Q6 -6 0 0" fill="#16a34a"/></g>
+    <text class="ws" x="${px1}" y="${py1+33}" text-anchor="middle">PAPER ONLY</text>`;
+  return `<svg viewBox="0 0 400 310" role="img" aria-label="Agent office">
+   <defs><linearGradient id="nightfxg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0b1023" stop-opacity=".35"/><stop offset="1" stop-color="#0b1023" stop-opacity=".1"/></linearGradient></defs>
+   ${wl}${wins}<circle class="moon" cx="360" cy="24" r="8" fill="#fde68a"/>${floor}${flow}${desks}${deco}${chars}${bubs}
+   <rect id="nightfx" x="0" y="0" width="400" height="310" fill="url(#nightfxg)"/></svg>`;
+}
+function feed(s){
+  const ev=(s.events||[]).slice(0,6);
+  return ev.length?ev.map(e=>`<div class="ev"><span class="evd" style="background:${(AG[e.agent]||{}).c||"#64748b"}"></span><span class="tx"><b>${esc((AG[e.agent]||{}).n||e.agent)}</b> ${esc(e.text)}</span><time>${tm(e.ts)}</time></div>`).join("")
+    :`<div class="ev"><span class="tx">No activity yet</span></div>`;
+}
+function renderOffice(){
+  const s=S;if(!s)return;
+  const wibH=(new Date().getUTCHours()+7)%24;document.body.classList.toggle("night",wibH>=18||wibH<6);
+  $("scene").innerHTML=scene(s);
+  const m=s.mode,pau=!!m.paused,act=m.mode==="AKTIF";
+  $("ccpill").textContent=pau?"PAUSED":act?"ACTIVE":"STANDBY";$("ccpill").className="pill "+(pau?"p-pau":act?"p-act":"p-stb");
+  const pl=s.pipeline||{},P=s.positions||[],A=P.filter(p=>p.filled).length;
+  $("ccsub").textContent=`Last 10 min: ${pl.signals||0} signals · ${pl.scored||0} scored · ${pl.approved||0} approved · Active ${A} · Pending ${P.length-A}`;
+  const b=(k,ic,bg,l,cls)=>`<button class="cb ${cls||""}" data-go="${k}"><i style="background:${bg}">${ic}</i>${l}</button>`;
+  $("btns").innerHTML=(pau?b("resume","▶","rgba(34,197,94,.18)","Resume"):b("pause","⏸","rgba(245,158,11,.18)","Pause"))
+    +b("positions","📂","rgba(108,140,255,.18)","Positions")+b("perf","📈","rgba(46,204,143,.18)","Performance")
+    +b("report","📝","rgba(148,163,184,.18)","Report")+b("hours","🕘","rgba(129,140,248,.18)","Hours")
+    +b("kill","⛔","rgba(239,68,68,.18)","Kill","kill");
+  $("feed").innerHTML=feed(s);
+}
+function openBot(k){
+  // deep link into the bot chat: /start <k>. Kill always lands on the bot's confirm screen, never closes directly.
+  const u=`https://t.me/${BOT}?start=${encodeURIComponent(k)}`;
+  if(tg&&tg.openTelegramLink){tg.openTelegramLink(u);try{tg.close()}catch(e){}}else location.href=u;
+}
+function card(id){
+  const a=(S.agents||[]).find(x=>x.name===id);if(!a)return;const m=AG[id],st=agState(a);
+  $("acard").innerHTML=`<button class="x" aria-label="Close" onclick="sheet(0)">×</button>
+   <div class="ah"><span class="av" style="background:${m.c}"></span><div><b>${esc(m.n)}</b><span>${esc(m.r)}</span></div>
+   <span class="ast" style="background:${st.col}22;color:${st.col}">${st.t}</span></div>
+   <dl class="kv"><dt>Doing</dt><dd>${esc(a.last_action||"–")}</dd><dt>Last action</dt><dd>${ago(a.action_age_s)} ago</dd>
+   <dt>Heartbeat</dt><dd>${ago(a.beat_age_s)} ago</dd><dt>Restarts</dt><dd>${a.restarts}</dd><dt>Errors</dt><dd>${a.errors}</dd></dl>
+   <div class="chips">${Object.entries(a.counts||{}).map(([k,v])=>`<span>${esc(k.replace(/_/g," "))} <b>${v}</b></span>`).join("")||`<span>No counters</span>`}</div>`;
+  sheet(1);
+}
+function sheet(on){$("mask").classList.toggle("show",!!on);$("acard").classList.toggle("show",!!on);$("mask").hidden=!on&&false}
+function view(v){
+  localStorage.setItem("jett_view",v);document.body.classList.toggle("v-office",v==="office");document.body.classList.toggle("v-dash",v==="dash");
+  $("office").hidden=v!=="office";$("dash").hidden=v!=="dash";
+  document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  if(tg){try{const c=v==="office"?(document.body.classList.contains("night")?"#0f1630":"#eef3fb"):"#0b0e14";tg.setHeaderColor(c);tg.setBackgroundColor(c)}catch(e){}}
+}
+document.addEventListener("click",e=>{
+  const ch=e.target.closest&&e.target.closest(".ch");if(ch){card(ch.dataset.id);return}
+  const go=e.target.closest&&e.target.closest("[data-go]");if(go){openBot(go.dataset.go);return}
+  const sv=e.target.closest&&e.target.closest(".seg button");if(sv){view(sv.dataset.v);return}
+  if(e.target.id==="mask")sheet(0);
+});
+
+view(localStorage.getItem("jett_view")||"office");
 load();setInterval(load,120000);
 </script>
 </body></html>
