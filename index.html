@@ -268,10 +268,10 @@ function perf(s){
   else el.style.display="none";
 }
 function render(){
-  const s=S,m=s.mode,mo=$("mode");mo.textContent=m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"?"p-on":"p-off");
+  const s=S,m=s.mode,mo=$("mode");mo.textContent=m.off?"OFF":m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"&&!m.off?"p-on":"p-off");
   const stale=Math.round((Date.now()/1000-s.ts)/60);
   $("ldot").className="ldot"+(stale>20?" off":stale>6?" late":"");
-  $("sub").textContent=`Window ${m.window} · next switch ${m.next_change} · updated ${tm(s.ts)} WITA`+(stale>10?` (${stale}m ago)`:"")+(m.paused?" · PAUSED":"");
+  $("sub").textContent=`Window ${m.window} · next switch ${m.next_change} · updated ${tm(s.ts)} WITA`+(stale>10?` (${stale}m ago)`:"")+(m.off?" · BOT OFF":m.paused?" · PAUSED":"");
   const EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
   document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
   $("eqtabs").style.display=EN.length>1?"":"none";
@@ -375,7 +375,7 @@ function propSVG(id){ // role props: decorative, animate only while awake (faste
 const hsh=id=>[...id].reduce((a,c)=>a*31+c.charCodeAt(0)>>>0,7);
 function charSVG(id,x,y,a,st,quiet){
   // real state (st.k from heartbeat/last action) picks work/idle/offline; the idle activity and naps are decorative
-  const m=AG[id],h=hsh(id),awakeDuty=id==="watcher";
+  const m=AG[id],h=hsh(id),awakeDuty=id==="watcher"&&!(S&&S.mode&&S.mode.off);
   const idle=st.k==="idle"||st.k==="stb"||st.k==="late";
   const sleep=idle&&(quiet?!awakeDuty:((Math.floor(Date.now()/120000)+h)%5===0));
   const mode=st.k==="off"?"off":sleep?"sleep":"open";
@@ -399,7 +399,7 @@ function bubbleSVG(x,y,l1,l2,col){
 function scene(s){
   const ags=Object.fromEntries((s.agents||[]).map(a=>[a.name,a]));
   const ids=Object.keys(AG).filter(id=>ags[id]);
-  const wibH=(new Date().getUTCHours()+7)%24,quiet=wibH>=18||wibH<6||(s.mode&&s.mode.mode!=="AKTIF"&&!s.mode.paused)||!!(s.mode&&s.mode.paused);
+  const wibH=(new Date().getUTCHours()+7)%24,quiet=wibH>=18||wibH<6||(s.mode&&s.mode.mode!=="AKTIF"&&!s.mode.paused)||!!(s.mode&&(s.mode.paused||s.mode.off));
   let floor="",desks="",chars="",bubs="";
   // floor (decorative)
   const P=(i,j)=>ISO(i,j).map((v,k)=>v+(k?0:0));
@@ -451,15 +451,15 @@ function renderOffice(){
   const s=S;if(!s)return;
   const wibH=(new Date().getUTCHours()+7)%24;document.body.classList.toggle("night",wibH>=18||wibH<6);
   $("scene").innerHTML=scene(s);
-  const m=s.mode,pau=!!m.paused,act=m.mode==="AKTIF";
-  $("ccpill").textContent=pau?"PAUSED":act?"ACTIVE":"STANDBY";$("ccpill").className="pill "+(pau?"p-pau":act?"p-act":"p-stb");
+  const m=s.mode,pau=!!m.paused,act=m.mode==="AKTIF",off=!!m.off;
+  $("ccpill").textContent=off?"OFF":pau?"PAUSED":act?"ACTIVE":"STANDBY";$("ccpill").className="pill "+(off?"p-off":pau?"p-pau":act?"p-act":"p-stb");
   const pl=s.pipeline||{},P=s.positions||[],A=P.filter(p=>p.filled).length;
   $("ccsub").textContent=`Last 10 min: ${pl.signals||0} signals · ${pl.scored||0} scored · ${pl.approved||0} approved · Active ${A} · Pending ${P.length-A}`;
   const b=(k,ic,bg,l,cls)=>`<button class="cb ${cls||""}" data-go="${k}"><i style="background:${bg}">${ic}</i>${l}</button>`;
-  $("btns").innerHTML=(pau?b("resume","▶","rgba(34,197,94,.18)","Resume"):b("pause","⏸","rgba(245,158,11,.18)","Pause"))
+  $("btns").innerHTML=(off?b("on","⏻","rgba(34,197,94,.18)","Turn on"):"")+(pau?b("resume","▶","rgba(34,197,94,.18)","Resume"):b("pause","⏸","rgba(245,158,11,.18)","Pause"))
     +b("positions","📂","rgba(108,140,255,.18)","Positions")+b("perf","📈","rgba(46,204,143,.18)","Performance")
     +b("report","📝","rgba(148,163,184,.18)","Report")+b("hours","🕘","rgba(129,140,248,.18)","Hours")
-    +b("kill","⛔","rgba(239,68,68,.18)","Kill","kill");
+    +b("kill","⛔","rgba(239,68,68,.18)","Kill","kill")+(off?"":b("off","⏻","rgba(100,116,139,.18)","Turn off"));
   $("feed").innerHTML=feed(s);
 }
 function openBot(k){
