@@ -45,6 +45,7 @@ svg{display:block;width:100%;height:120px}
 .tbl tr:last-child td{border-bottom:0}
 .bt{border-style:dashed}
 #btcurve{height:80px}
+.grp{margin:8px 2px 6px}
 </style>
 </head>
 <body><div class="wrap">
@@ -61,7 +62,7 @@ svg{display:block;width:100%;height:120px}
 <div class="card" style="margin-top:8px;overflow-x:auto"><table class="tbl" id="days"></table><div class="mut" id="perfnote" style="margin-top:6px"></div></div>
 <div class="card bt" id="bt"></div>
 <h3>Health</h3><div class="card row" id="health"></div><div class="agents" id="agents"></div>
-<h3>Open positions</h3><div id="pos"></div>
+<h3>Positions · <span id="poscount"></span></h3><div id="pos"></div>
 <h3>Risk decisions</h3><div class="card list" id="risk"></div>
 <h3>Recent signals</h3><div class="card list" id="sig"></div>
 <div class="sub" style="text-align:center;margin-top:18px">Read-only · paper trading · no real funds</div>
@@ -122,17 +123,24 @@ function render(){
   const s=S,m=s.mode,mo=$("mode");mo.textContent=m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"?"p-on":"p-off");
   const stale=Math.round((Date.now()/1000-s.ts)/60);
   $("sub").textContent=`Window ${m.window} · next switch ${m.next_change} · updated ${tm(s.ts)} WITA`+(stale>10?` (${stale}m ago)`:"")+(m.paused?" · PAUSED":"");
-  const e=s.equity[CH];$("eq").textContent=amt(e.equity,e.unit);
+  const EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
+  document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
+  $("eqtabs").style.display=EN.length>1?"":"none";
+  const e=s.equity[CH];if(!e)return;$("eq").textContent=amt(e.equity,e.unit);
   const ch=e.capital?(e.equity/e.capital-1):0;$("eqd").innerHTML=`${pc(ch)} vs capital ${amt(e.capital,e.unit)}`;
   $("rl").innerHTML=sgn(e.realized,e.unit);$("ur").innerHTML=sgn(e.unrealized,e.unit);curve(e.points);
   perf(s);
   const h=s.health;$("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${(s.agents||[]).filter(a=>a.alive).length}/${(s.agents||[]).length} agents</span>`;
   $("agents").innerHTML=(s.agents||[]).map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
-  const P=s.positions||[];
-  $("pos").innerHTML=P.length?P.map(p=>`<div class="card"><div class="row"><span><span class="chip">${p.chain.toUpperCase()}</span><b>${esc(p.pair)}</b></span><span class="num">${pc(p.pnl_pct)}</span></div>
+  const P=s.positions||[],A=P.filter(p=>p.filled),W=P.filter(p=>!p.filled);
+  $("poscount").textContent=`Active ${A.length} · Pending ${W.length}`;
+  const card=p=>`<div class="card"><div class="row"><span><span class="chip">${p.chain.toUpperCase()}</span><b>${esc(p.pair)}</b></span><span class="num">${p.filled?pc(p.pnl_pct):`<span class="mut">${((p.to_range||0)*100).toFixed(1)}% to range</span>`}</span></div>
    <div class="row mut" style="margin-top:6px"><span>Range ${px(p.range.low)} – ${px(p.range.high)}</span><span>${age(p.age_min)}</span></div>
-   <div class="row mut"><span>Size ${amt(p.size,p.unit)} · PnL ${sgn(p.pnl,p.unit)}</span><span>Fees ${(+p.fees).toFixed(dp(p.unit)+1)}</span></div>
-   <div class="row mut"><span>${p.filled?"Filled":"Waiting · price needs "+((p.to_range||0)*100).toFixed(1)+"% to top"}</span><span>${esc(p.cfg_ver||"")}</span></div></div>`).join(""):`<div class="card empty">No open positions</div>`;
+   ${p.filled?`<div class="row mut"><span>Size ${amt(p.size,p.unit)} · PnL ${sgn(p.pnl,p.unit)}</span><span>Fees ${(+p.fees).toFixed(dp(p.unit)+1)}</span></div>`
+   :`<div class="row mut"><span>Committed ${amt(p.size,p.unit)}</span><span>${p.left_min!=null?age(p.left_min)+" left":""}</span></div>`}</div>`;
+  $("pos").innerHTML=(A.length?`<div class="mut grp">🟢 Active · in range, fees accruing</div>`+A.map(card).join(""):"")
+    +(W.length?`<div class="mut grp">⏳ Pending · waiting for price to reach range</div>`+W.map(card).join(""):"")
+    ||`<div class="card empty">No open positions</div>`;
   const st={opened:"Opened",skipped_risk:"Blocked",skipped_held:"Already held",approved:"Approved",reject:"Rejected"};
   const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(st[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""} · ${tm(r.ts)}</span></div>`).join(""):`<div class="empty">No decisions in 24h</div>`;
   const kd={wallet_buy:"Wallet buy",gmgn_trending:"Trending"};
