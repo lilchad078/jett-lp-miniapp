@@ -120,6 +120,62 @@ body.v-dash{background:var(--bg);color:var(--fg)}
 .bub text{font-size:7.6px}.bub .t2{font-size:6.8px}.ws{font-size:5.8px;letter-spacing:.3px}
 .scene{margin-top:2px}
 .logo svg{width:20px;height:20px}
+/* blob mascots */
+.blobav{background:none!important;display:grid;place-items:center}
+.blob .bl,.blob .eye,.blob .p,.blob .look,.blob .wan,.blob .pace{transform-box:fill-box}
+.blob .bl{transform-origin:50% 100%}
+.blob .eye{transform-origin:50% 50%;animation:blink 4.6s infinite var(--d)}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.1)}}
+.blob{--k:1}.blob.s-work{--k:.5}
+.blob.s-work .bl{animation:squish .9s ease-in-out infinite var(--d)}
+@keyframes squish{0%,100%{transform:none}30%{transform:scale(1.09,.9)}60%{transform:translateY(-3px) scale(.95,1.06)}}
+.blob.sleep .bl{animation:breathe 3.6s ease-in-out infinite var(--d)}
+@keyframes breathe{50%{transform:scale(1.04,.95)}}
+.blob .zz text{font:800 7.5px system-ui,sans-serif;animation:zz 2.6s ease-in-out infinite}
+.blob .zz .z2{font-size:5.6px;animation-delay:-1.3s}
+@keyframes zz{0%{opacity:0;transform:translate(0,2px)}40%{opacity:1}100%{opacity:0;transform:translate(3px,-4px)}}
+.blob.s-off .bl{opacity:.45;filter:grayscale(1)}
+.blob.s-off .eye,.blob.s-off *{animation:none}
+.blob.sleep .p,.blob.s-off .p{animation:none!important}
+.blob.sleep .steam,.blob.s-off .steam{display:none}
+/* idle role actions on the body */
+.blob.s-idle:not(.sleep).a-peek .bl,.blob.s-stb:not(.sleep).a-peek .bl,.blob.s-late:not(.sleep).a-peek .bl{animation:peek 4s ease-in-out infinite var(--d)}
+@keyframes peek{0%,100%{transform:none}25%{transform:rotate(-13deg) translateX(-1px)}50%{transform:none}75%{transform:rotate(11deg) translateX(1px)}}
+.blob:not(.s-work):not(.sleep):not(.s-off).a-button .bl{animation:stretch 3.4s ease-in-out infinite var(--d)}
+@keyframes stretch{0%,60%,100%{transform:none}75%{transform:scale(.9,1.18)}85%{transform:scale(1.06,.94)}}
+.blob:not(.s-work):not(.sleep):not(.s-off).a-chart .bl{transform:rotate(-7deg)}
+.blob:not(.s-work):not(.sleep):not(.s-off).a-chart .look{transform:translateX(-1.6px)}
+.blob:not(.s-work):not(.sleep):not(.s-off).a-calc .look{transform:translate(1px,1px)}
+.blob:not(.s-work):not(.sleep):not(.s-off).a-plane .bl{animation:typebob 1.2s ease-in-out infinite var(--d)}
+@keyframes typebob{50%{transform:translateY(.8px)}}
+/* wandering and pacing (outer group, idle + awake only) */
+.blob:not(.sleep) .wan{animation:wander 8s ease-in-out infinite var(--d)}
+@keyframes wander{0%,100%{transform:none}30%{transform:translate(-3px,1px)}65%{transform:translate(3px,-1px)}}
+.blob:not(.sleep) .pace{animation:pace 5s ease-in-out infinite var(--d)}
+@keyframes pace{0%,100%{transform:translateX(-6px)}45%,55%{transform:translateX(6px)}50%{transform:translateX(6px) scaleX(-1)}}
+/* props (faster while working via --k) */
+.blob .bino{transform-origin:50% 50%;animation:bsweep calc(2.4s*var(--k)) ease-in-out infinite var(--d)}
+@keyframes bsweep{50%{transform:translateX(1.2px) translateY(-.4px)}}
+.blob .tap{animation:tap calc(.7s*var(--k)) ease-in-out infinite}
+@keyframes tap{0%,100%{transform:translate(-1.5px,-1px)}25%{transform:translate(-1.5px,1.2px)}50%{transform:translate(1.4px,-1px)}75%{transform:translate(1.4px,1.2px)}}
+.blob .coin{animation:jug calc(1.6s*var(--k)) linear infinite}.blob .c2{animation-delay:calc(-.53s*var(--k))}.blob .c3{animation-delay:calc(-1.06s*var(--k))}
+@keyframes jug{0%{transform:translate(-6px,6px)}25%{transform:translate(-3px,-8px)}50%{transform:translate(2px,-10px)}75%{transform:translate(5px,-2px)}100%{transform:translate(-6px,6px)}}
+.blob .chart{stroke-dasharray:24;animation:draw calc(3.2s*var(--k)) ease-in-out infinite}
+@keyframes draw{0%{stroke-dashoffset:24}60%,100%{stroke-dashoffset:0}}
+.blob .mug{transform-origin:50% 100%;animation:sip calc(4s*var(--k)) ease-in-out infinite var(--d)}
+@keyframes sip{0%,55%,100%{transform:none}70%,85%{transform:translate(-5px,-6px) rotate(-28deg)}}
+.blob .steam{animation:steam 2s ease-in-out infinite}@keyframes steam{50%{opacity:.2;transform:translateY(-1px)}}
+.blob .btn{transform-origin:50% 100%;animation:press calc(1.8s*var(--k)) ease-in-out infinite}
+@keyframes press{0%,70%,100%{transform:none}80%{transform:scaleY(.4) translateY(.6px)}}
+.blob.a-look:not(.sleep):not(.s-off) .look{animation:lookaround calc(4.4s*var(--k)) ease-in-out infinite var(--d)}
+@keyframes lookaround{0%,100%{transform:none}20%{transform:translate(-2px,0)}40%{transform:translate(-1.5px,-1.2px)}60%{transform:translate(2px,-.5px)}80%{transform:translate(1.5px,1px)}}
+.blob .plane{animation:fly calc(3s*var(--k)) ease-in infinite var(--d)}
+@keyframes fly{0%{opacity:0;transform:none}10%{opacity:1}100%{opacity:0;transform:translate(22px,-26px) rotate(-12deg)}}
+.blob .wave{transform-origin:10% 100%;animation:wave calc(1.4s*var(--k)) ease-in-out infinite}
+@keyframes wave{0%,100%{transform:rotate(10deg)}50%{transform:rotate(55deg)}}
+.blob .sheet{animation:stack calc(2.4s*var(--k)) ease-in infinite var(--d)}
+@keyframes stack{0%{opacity:0;transform:translate(-3px,-9px) rotate(-14deg)}30%{opacity:1}55%,100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.scene .blob,.scene .blob *{animation:none!important}}
 
 </style>
 </head>
@@ -241,19 +297,19 @@ function render(){
 }
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CH=t.dataset.c;if(S)render()});
 /* ---------- Office: agents as characters, driven by snapshot.agents (status, last_action, ages, counts) ---------- */
-const BOT="JettLPbot";
+const BOT="JettLPbot",RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 const AG={
-  scout:{n:"Scout",r:"Finds pools and wallet signals",c:"#f59e0b",g:[0,0]},
-  quant:{n:"Quant",r:"Scores volume, fees and momentum",c:"#3b82f6",g:[1,0]},
-  mm:{n:"Market Maker",r:"Scores liquidity and crowding",c:"#8b5cf6",g:[2,0]},
-  lp_strategist:{n:"LP Strategist",r:"Plans the range and bins",c:"#14b8a6",g:[3,0]},
-  coordinator:{n:"Coordinator",r:"Runs schedule, reports, ledger",c:"#64748b",g:[0,1]},
-  risk:{n:"Risk Manager",r:"Approves or blocks every trade",c:"#ef4444",g:[1,1]},
-  executor_sol:{n:"Executor-SOL",r:"Opens and closes paper positions",c:"#22c55e",g:[2,1]},
-  watcher:{n:"Watcher",r:"Tracks fills, SL, cascade, timeouts",c:"#06b6d4",g:[3,1]},
-  tg_bot:{n:"Telegram",r:"Alerts and commands in chat",c:"#0ea5e9",g:[0,2]},
-  miniapp:{n:"Mini App",r:"Local Mini App server",c:"#a855f7",g:[1,2]},
-  publisher:{n:"Publisher",r:"Pushes this snapshot to Pages",c:"#ec4899",g:[2,2]}};
+  scout:{n:"Scout",r:"Finds pools and wallet signals",c:"#ff6a13",g:[0,0],sh:"cloud",ey:"t",act:"peek"},
+  quant:{n:"Quant",r:"Scores volume, fees and momentum",c:"#1a7cf5",g:[1,0],sh:"tri",ey:"v",act:"calc"},
+  mm:{n:"Market Maker",r:"Scores liquidity and crowding",c:"#8d5a2b",g:[2,0],sh:"lump",ey:"v",act:"juggle"},
+  lp_strategist:{n:"LP Strategist",r:"Plans the range and bins",c:"#10c872",g:[3,0],sh:"pill",ey:"v",act:"chart"},
+  coordinator:{n:"Coordinator",r:"Runs schedule, reports, ledger",c:"#7c7c7c",g:[0,1],sh:"drop",ey:"v",act:"coffee"},
+  risk:{n:"Risk Manager",r:"Approves or blocks every trade",c:"#ef4444",g:[1,1],sh:"sq",ey:"v",act:"pace"},
+  executor_sol:{n:"Executor-SOL",r:"Opens and closes paper positions",c:"#111111",g:[2,1],sh:"orb",ey:"v",act:"button"},
+  watcher:{n:"Watcher",r:"Tracks fills, SL, cascade, timeouts",c:"#06b6d4",g:[3,1],sh:"bean",ey:"v",act:"look"},
+  tg_bot:{n:"Telegram",r:"Alerts and commands in chat",c:"#2aabee",g:[0,2],sh:"tri2",ey:"t",act:"plane"},
+  miniapp:{n:"Mini App",r:"Local Mini App server",c:"#a855f7",g:[1,2],sh:"tall",ey:"v",act:"wave"},
+  publisher:{n:"Publisher",r:"Pushes this snapshot to Pages",c:"#ec4899",g:[2,2],sh:"puff",ey:"v",act:"papers"}};
 const FLOW=["scout","quant","mm","lp_strategist","risk","executor_sol","watcher"];
 const ISO=(i,j)=>[200+(i-j-.5)*57,96+(i+j)*33];
 const ago=s=>s==null?"–":s<60?s+"s":s<3600?Math.round(s/60)+"m":Math.round(s/3600)+"h";
@@ -280,16 +336,58 @@ function deskSVG(x,y,col,on){
    <path d="M-4 -14 L10 -21 L10 -9 L-4 -2 Z" fill="#1f2937"/><path d="M-3 -13 L9 -19 L9 -10 L-3 -4 Z" fill="${on?col:"#334155"}" opacity="${on?.85:1}" class="${on?"scr":""}"/>
    <path d="M2 -4 L4 -5 L4 0 L2 1 Z" fill="#1f2937"/></g>`;
 }
-function charSVG(id,x,y,a,st){
-  const m=AG[id],c=m.c,cls=`ch s-${st.k}`;
-  return `<g class="${cls}" data-id="${id}" transform="translate(${x},${y}) scale(1.3)">
-   <ellipse cx="0" cy="8" rx="11" ry="4.5" fill="rgba(15,23,42,.18)"/>
-   <g class="bod"><path d="M-8 6 Q-8 -8 0 -9 Q8 -8 8 6 Z" fill="${c}"/>
-   <g class="arm"><path d="M6 -4 L12 1" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/><path d="M-6 -4 L-11 1" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/></g>
-   <circle cx="0" cy="-15" r="6.2" fill="#fcd9b6"/><path d="M-6.4 -16 Q-6 -22.5 0 -22.5 Q6.4 -22.5 6.4 -16 Q3 -19 -6.4 -16 Z" fill="#3f2d20"/>
-   ${st.k==="off"?`<text x="9" y="-22" class="zz">z z</text>`:""}</g>
-   <circle cx="9" cy="-20" r="2.6" fill="${st.col}" stroke="#fff" stroke-width="1"/></g>`;
+// ---- blob mascots: flat solid shapes, no outlines, two white pill eyes (drawn here, style after the user's reference)
+const C=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}"/>`;
+const SH={ // shape body (local coords, feet at y≈6) and eye anchor [y, half-gap]
+  drop:[`<path d="M0 -21C3 -15 10 -10 10 -3C10 3 5.5 7 0 7C-5.5 7 -10 3 -10 -3C-10 -10 -3 -15 0 -21Z"/>`,[-3,3]],
+  tri:[`<path d="M-2.8 -17Q0 -20.5 2.8 -17L12 1.5Q14 6.5 8.5 6.5L-8.5 6.5Q-14 6.5 -12 1.5Z"/>`,[-1,2.6]],
+  tri2:[`<path d="M-3 -15Q0 -18.5 3 -15L11 0Q13 6 8 6L-8 6Q-13 6 -11 0Z"/>`,[-2,2.6]],
+  cloud:[C(-5,-2,7.5)+C(5,-4,8)+C(0,-10,6.5)+C(9,2,5)+C(-10,3,4.5)+C(0,2,6.5),[-5,3.2]],
+  puff:[C(-4,-8,6.5)+C(5,-9,6)+C(-7,0,6)+C(6,0,6.5)+C(0,1,7)+C(0,-3,7),[-4,3]],
+  orb:[`<circle cx="0" cy="-4" r="10.5"/><ellipse cx="-4.6" cy="-9.6" rx="2.6" ry="1.4" fill="#fff" opacity=".9" transform="rotate(-35 -4.6 -9.6)"/>`,[-4,3]],
+  pill:[`<rect x="-12.5" y="-9.5" width="25" height="15.5" rx="7.75"/>`,[-2,3.2]],
+  lump:[C(-3,-11,6.5)+C(4,-6,7)+C(-4,-2,7)+C(5,3,4.5)+C(-1,2.5,5.5),[-5,2.8]],
+  sq:[`<rect x="-10" y="-15" width="20" height="21" rx="8"/>`,[-5,3]],
+  bean:[`<ellipse cx="0" cy="-3" rx="11" ry="9" transform="rotate(-8 0 -3)"/>`,[-4,3.2]],
+  tall:[`<rect x="-7.5" y="-19" width="15" height="25" rx="7.5"/>`,[-9,2.6]]};
+function eyesSVG(id,mode){ // mode: open | sleep | off
+  const m=AG[id],[ey,g]=SH[m.sh][1];
+  if(mode!=="open")return `<g fill="#fff" opacity="${mode==="off"?.6:.95}"><rect x="${-g-2}" y="${ey-.6}" width="3.4" height="1.3" rx=".65"/><rect x="${g-1.4}" y="${ey-.6}" width="3.4" height="1.3" rx=".65"/></g>`;
+  const e=m.ey==="t"?`<rect x="${-g-1.9}" y="${ey-1}" width="4.2" height="1.9" rx=".95" transform="rotate(-22 ${-g} ${ey})"/><rect x="${g-2.3}" y="${ey-1}" width="4.2" height="1.9" rx=".95" transform="rotate(-22 ${g} ${ey})"/>`
+    :`<rect x="${-g-1.15}" y="${ey-2.6}" width="2.3" height="5.2" rx="1.15"/><rect x="${g-1.15}" y="${ey-2.6}" width="2.3" height="5.2" rx="1.15"/>`;
+  return `<g class="look"><g class="eye" fill="#fff">${e}</g></g>`;
 }
+function propSVG(id){ // role props: decorative, animate only while awake (faster when the agent is working)
+  switch(AG[id].act){
+   case "peek":return [`<g class="p bino"><rect x="-6.2" y="-7.5" width="5" height="4.6" rx="2" fill="#1f2937"/><rect x="1.2" y="-7.5" width="5" height="4.6" rx="2" fill="#1f2937"/><rect x="-1.4" y="-6.4" width="2.8" height="1.6" fill="#1f2937"/><circle cx="-3.7" cy="-5.2" r="1.3" fill="#93c5fd"/><circle cx="3.7" cy="-5.2" r="1.3" fill="#93c5fd"/></g>`,""];
+   case "calc":return ["",`<g transform="translate(11,1)"><rect x="-3.5" y="-5" width="7" height="9" rx="1.4" fill="#e5e7eb"/><rect x="-2.5" y="-4" width="5" height="2" fill="#86efac"/><g fill="#9ca3af"><rect x="-2.5" y="-.8" width="1.4" height="1.2"/><rect x="-.7" y="-.8" width="1.4" height="1.2"/><rect x="1.1" y="-.8" width="1.4" height="1.2"/><rect x="-2.5" y="1.2" width="1.4" height="1.2"/><rect x="-.7" y="1.2" width="1.4" height="1.2"/><rect x="1.1" y="1.2" width="1.4" height="1.2"/></g><circle class="p tap" cx="0" cy="-1" r="1.9" fill="${AG[id].c}"/></g>`];
+   case "juggle":return ["",`<g transform="translate(9,-6)"><circle class="p coin" r="2.4" fill="#fbbf24"/><circle class="p coin c2" r="2.4" fill="#f59e0b"/><circle class="p coin c3" r="2.4" fill="#fcd34d"/></g>`];
+   case "chart":return ["",`<g transform="translate(-16,-13) scale(.72)"><path d="M-1 10 L-3 16 M7 10 L9 16" stroke="#94a3b8" stroke-width="1"/><rect x="-6" y="-8" width="18" height="18" rx="1.5" fill="#fff"/><polyline class="p chart" points="-4,6 0,2 3,4 7,-2 10,-5" fill="none" stroke="#10b981" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>`];
+   case "coffee":return ["",`<g transform="translate(11,0)"><g class="p mug"><rect x="-2.6" y="-3" width="5.2" height="5.6" rx="1" fill="#fff"/><path d="M2.6 -1.6 Q5 -1 2.6 1.4" fill="none" stroke="#fff" stroke-width="1.1"/><rect x="-2" y="-2.4" width="4" height="1.3" fill="#92400e"/><path class="steam" d="M-1 -5 q1.2 -1.5 0 -3 M1.2 -5 q1.2 -1.5 0 -3" stroke="#cbd5e1" stroke-width=".7" fill="none"/></g></g>`];
+   case "pace":return [`<path d="M-10.6 -10.5 Q-10 -19.5 0 -19.5 Q10 -19.5 10.6 -10.5 Z" fill="#facc15"/><rect x="-12" y="-11.4" width="24" height="2" rx="1" fill="#eab308"/>`,""];
+   case "button":return ["",`<g transform="translate(11,3)"><ellipse cx="0" cy="1" rx="4" ry="2" fill="#374151"/><g class="p btn"><ellipse cx="0" cy="-.4" rx="3" ry="1.7" fill="#ef4444"/></g></g>`];
+   case "look":return ["",""];
+   case "plane":return ["",`<g transform="translate(9,-4)"><path class="p plane" d="M0 0 L7 -3 L3 2 Z M3 2 L3.4 -.4 L7 -3" fill="#fff" stroke="#93c5fd" stroke-width=".5"/></g>`];
+   case "wave":return [`<g class="p wave"><rect x="5.5" y="-13" width="3.6" height="8" rx="1.8"/></g>`,""];
+   case "papers":return ["",`<g transform="translate(11,2)"><rect x="-4" y="0" width="8" height="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width=".3"/><rect x="-3.6" y="-1.6" width="8" height="2" fill="#fff" stroke="#cbd5e1" stroke-width=".3"/><rect class="p sheet" x="-4" y="-3.4" width="8" height="2" fill="#fff" stroke="#cbd5e1" stroke-width=".3"/></g>`];
+  }return["",""];
+}
+const hsh=id=>[...id].reduce((a,c)=>a*31+c.charCodeAt(0)>>>0,7);
+function charSVG(id,x,y,a,st,quiet){
+  // real state (st.k from heartbeat/last action) picks work/idle/offline; the idle activity and naps are decorative
+  const m=AG[id],h=hsh(id),awakeDuty=id==="watcher";
+  const idle=st.k==="idle"||st.k==="stb"||st.k==="late";
+  const sleep=idle&&(quiet?!awakeDuty:((Math.floor(Date.now()/120000)+h)%5===0));
+  const mode=st.k==="off"?"off":sleep?"sleep":"open";
+  const [inner,outer]=propSVG(id),wan=idle&&!sleep&&(m.act==="pace"?"pace":["look","wave","peek"].includes(m.act)?"wan":"");
+  const cls=`ch blob s-${st.k}${sleep?" sleep":""} a-${m.act}`;
+  return `<g class="${cls}" data-id="${id}" style="--d:${-(h%37)/10}s" transform="translate(${x},${y}) scale(1.3)">
+   <ellipse cx="0" cy="7.5" rx="10" ry="3.6" fill="rgba(15,23,42,.16)"/>
+   <g class="${wan}"><g class="bl" fill="${m.c}">${SH[m.sh][0]}${eyesSVG(id,mode)}${inner}</g>${outer}</g>
+   ${sleep||mode==="off"?`<g class="zz" fill="${mode==="off"?"#ef4444":"#6366f1"}"><text x="7" y="-16">${mode==="off"?"×":"z"}</text>${mode==="off"?"":`<text x="10" y="-21" class="z2">z</text>`}</g>`:""}
+   <circle cx="10" cy="-18" r="2.4" fill="${st.col}" stroke="#fff" stroke-width="1"/></g>`;
+}
+function blobAvatar(id){return `<svg viewBox="-15 -23 30 31" width="34" height="34" aria-hidden="true"><g fill="${AG[id].c}">${SH[AG[id].sh][0]}${eyesSVG(id,"open")}</g></svg>`}
 function bubbleW(l1,l2){return Math.max(44,Math.min(62,Math.max(l1.length*4.3,l2.length*3.9)+10))}
 function bubbleSVG(x,y,l1,l2,col){
   const w=bubbleW(l1,l2);
@@ -301,6 +399,7 @@ function bubbleSVG(x,y,l1,l2,col){
 function scene(s){
   const ags=Object.fromEntries((s.agents||[]).map(a=>[a.name,a]));
   const ids=Object.keys(AG).filter(id=>ags[id]);
+  const wibH=(new Date().getUTCHours()+7)%24,quiet=wibH>=18||wibH<6||(s.mode&&s.mode.mode!=="AKTIF"&&!s.mode.paused)||!!(s.mode&&s.mode.paused);
   let floor="",desks="",chars="",bubs="";
   // floor (decorative)
   const P=(i,j)=>ISO(i,j).map((v,k)=>v+(k?0:0));
@@ -319,12 +418,12 @@ function scene(s){
   const pts=FLOW.filter(id=>ags[id]).map(id=>{const[i,j]=AG[id].g;const[x,y]=ISO(i,j);return[x,y+12]});
   const pd="M"+pts.map(p=>p.join(",")).join(" L");
   let flow=`<path id="flowp" d="${pd}" fill="none" stroke="#6c8cff" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 3"/>`;
-  if(busy){for(let k=0;k<4;k++)flow+=`<circle r="2.2" fill="#6c8cff"><animateMotion dur="9s" begin="${-k*2.25}s" repeatCount="indefinite"><mpath href="#flowp"/></animateMotion></circle>`}
+  if(busy&&!RM){for(let k=0;k<4;k++)flow+=`<circle r="2.2" fill="#6c8cff"><animateMotion dur="9s" begin="${-k*2.25}s" repeatCount="indefinite"><mpath href="#flowp"/></animateMotion></circle>`}
   // order back-to-front so nearer characters overlap correctly
   const ord=ids.slice().sort((a,b)=>(AG[a].g[0]+AG[a].g[1])-(AG[b].g[0]+AG[b].g[1]));
   for(const id of ord){const a=ags[id],st=agState(a),[i,j]=AG[id].g,[x,y]=ISO(i,j);
     desks+=deskSVG(x+8,y+4,AG[id].c,st.k==="work");
-    chars+=charSVG(id,x-6,y-2,a,st);
+    chars+=charSVG(id,x-6,y-2,a,st,quiet);
     desks+=`<text class="ws" x="${x+4}" y="${y+33}" text-anchor="middle">${AG[id].n.toUpperCase()}</text>`;
   }
   // bubbles: most recent action first, skip any that would overlap one already placed (tap the agent for the rest)
@@ -371,7 +470,7 @@ function openBot(k){
 function card(id){
   const a=(S.agents||[]).find(x=>x.name===id);if(!a)return;const m=AG[id],st=agState(a);
   $("acard").innerHTML=`<button class="x" aria-label="Close" onclick="sheet(0)">×</button>
-   <div class="ah"><span class="av" style="background:${m.c}"></span><div><b>${esc(m.n)}</b><span>${esc(m.r)}</span></div>
+   <div class="ah"><span class="av blobav">${blobAvatar(id)}</span><div><b>${esc(m.n)}</b><span>${esc(m.r)}</span></div>
    <span class="ast" style="background:${st.col}22;color:${st.col}">${st.t}</span></div>
    <dl class="kv"><dt>Doing</dt><dd>${esc(a.last_action||"–")}</dd><dt>Last action</dt><dd>${ago(a.action_age_s)} ago</dd>
    <dt>Heartbeat</dt><dd>${ago(a.beat_age_s)} ago</dd><dt>Restarts</dt><dd>${a.restarts}</dd><dt>Errors</dt><dd>${a.errors}</dd></dl>
