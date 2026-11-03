@@ -69,6 +69,8 @@ body.v-office.night{background:linear-gradient(180deg,#0f1630 0%,#0c1226 60%,#0e
 .scene .ch,.scene .prop{cursor:pointer}
 .bub text{font:600 8.6px -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;fill:#111827}
 .bub .t2{font-weight:500;fill:#4b5563}
+.fl{fill:#eef2f7;stroke:#c3cedd;transition:fill .8s}.wa{fill:#d9e2ef;transition:fill .8s}.wb{fill:#cbd6e6;transition:fill .8s}
+.night .fl{fill:#283152;stroke:#3a4570}.night .wa{fill:#222a48}.night .wb{fill:#1b2240}
 .plate{font:800 4.6px -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;letter-spacing:.35px;fill:#64748b}
 .ws{font:700 4.3px -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;fill:#94a3b8}
 .win{fill:#cfe8ff;transition:fill .8s}.night .win{fill:#18214a}
@@ -91,8 +93,8 @@ body.v-office.night{background:linear-gradient(180deg,#0f1630 0%,#0c1226 60%,#0e
 .ev .tx{flex:1;min-width:0;color:#9ca3af}.ev .tx b{color:#e5e7eb;font-weight:600}
 .ev time{color:#6b7280;font-size:11px;flex:none;font-variant-numeric:tabular-nums}
 .note{color:#6b7280;font-size:11px;text-align:center;margin-top:10px}
-.mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;opacity:0;transition:opacity .2s}
-.mask.show{opacity:1}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.mask.show{opacity:1;pointer-events:auto}
 .acard{position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);width:min(560px,100%);background:#0e1118;color:#e5e7eb;border-radius:22px 22px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));z-index:21;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
 .acard.show{transform:translate(-50%,0)}
 .ah{display:flex;align-items:center;gap:12px}.av{width:44px;height:44px;border-radius:50%;flex:none}
@@ -177,6 +179,96 @@ body.v-dash{background:var(--bg);color:var(--fg)}
 @keyframes stack{0%{opacity:0;transform:translate(-3px,-9px) rotate(-14deg)}30%{opacity:1}55%,100%{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.scene .blob,.scene .blob *{animation:none!important}}
 
+/* ---------- theme (day = light, night = dark); purely visual ---------- */
+body{--bg:#f3f6fb;--card:#ffffff;--card2:#eef2f7;--fg:#111827;--mut:#64748b;--line:#e3e8f0;--sheet:#ffffff;--tile:#f6f8fc;--tileb:#e3e8f0;--sub2:#4b5563}
+body.night{--bg:#0b0e14;--card:#141925;--card2:#1b2131;--fg:#e8ecf4;--mut:#8590a6;--line:#232a3b;--sheet:#0e1118;--tile:#171b24;--tileb:#232937;--sub2:#9ca3af}
+html{background:#f3f6fb}html.night{background:#0b0e14}body{background:var(--bg);color:var(--fg);min-height:100vh}
+.acard:not(.show){visibility:hidden;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s .28s}
+body.v-office{background:linear-gradient(180deg,#eef3fb 0%,#dfe7f4 58%,var(--bg) 58%);color:var(--fg)}
+body.v-office.night{background:linear-gradient(180deg,#0f1630 0%,#0c1226 58%,var(--bg) 58%)}
+body.v-pos,body.v-rep{background:var(--bg);color:var(--fg)}
+.v-pos .hsub,.v-rep .hsub{color:var(--mut)}
+.v-pos .seg,.v-rep .seg{background:rgba(127,140,160,.12)}
+body:not(.night) .seg button.on{background:#fff;color:#111827}
+.night .seg button.on{background:#1f2937;color:#f9fafb}
+.v-pos .ttl,.v-rep .ttl{color:var(--fg)}
+.cc,.acard{background:var(--sheet);color:var(--fg)}
+body:not(.night) .cc{box-shadow:0 -8px 24px rgba(15,23,42,.08)}
+.grab{background:var(--line)}
+.feedc,.tile,.ctl{background:var(--tile);border:1px solid var(--tileb)}
+.ev{border-top-color:var(--line)}.ev .tx{color:var(--sub2)}.ev .tx b{color:var(--fg)}.ev time{color:var(--mut)}
+.note{color:var(--mut)}
+.chips span{background:var(--tile);border-color:var(--tileb);color:var(--sub2)}.chips b{color:var(--fg)}
+.kv dt{color:var(--mut)}.ah span{color:var(--mut)}
+.hero{background:var(--card);border-color:var(--line)}
+.night .hero{background:linear-gradient(145deg,#1d2640,#141925)}
+.split div{background:var(--card2)}
+/* theme toggle: round icon button in the scene's top-right corner */
+.thm{position:absolute;right:12px;top:4px;z-index:3;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  background:#fff;border:1px solid #e2e8f0;color:#111827;box-shadow:0 2px 8px rgba(15,23,42,.10);padding:0;-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.thm:active{transform:scale(.92)}.thm svg{width:18px;height:18px}
+.night .thm{background:#0a0a0a;border-color:#2a2f3a;color:#f5f5f5;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+/* control */
+.ctl{border-radius:16px;padding:12px;margin-bottom:8px}
+.pw{display:flex;align-items:center;gap:12px}
+.pwi{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;background:rgba(34,197,94,.14);color:#16a34a}
+.pwi svg{width:20px;height:20px}
+.pwi.off{background:rgba(127,140,160,.16);color:var(--mut)}
+.pw b{display:block;font-size:15px}.pw .mut{display:block}
+.ub{border:0;border-radius:12px;padding:10px 14px;font:600 13px/1 inherit;font-family:inherit;cursor:pointer;transition:transform .12s,opacity .2s;-webkit-tap-highlight-color:transparent}
+.ub:active{transform:scale(.97)}.ub[disabled]{opacity:.45;cursor:default}
+.b-pri{background:#6c8cff;color:#fff}.b-go{background:#16a34a;color:#fff}.b-dk{background:var(--card2);color:var(--fg);border:1px solid var(--line)}
+.b-dn{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.35)}.b-wide{width:100%;padding:13px;margin-top:8px;font-size:14px}
+.pw .ub{margin-left:auto;flex:none}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 0}
+.trow+.trow{border-top:1px solid var(--line);margin-top:10px;padding-top:12px}
+.trow b{font-size:13.5px;display:block}
+.trow-c{flex-direction:column;align-items:stretch}.trow-c .sg{display:flex}.trow-c .sg button{flex:1}
+.sw{width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;border:0;cursor:pointer;flex:none;transition:background .2s;padding:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw.on{background:#f59e0b}.sw.on::after{transform:translateX(18px)}.sw[disabled]{opacity:.45}
+.sg{display:flex;background:var(--card2);border-radius:10px;padding:3px;gap:2px;flex:none}
+.sg button{border:0;background:none;color:var(--mut);font:600 12px/1 inherit;font-family:inherit;padding:7px 9px;border-radius:8px;cursor:pointer}
+.sg button.on{background:var(--card);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.tile{border-radius:14px;padding:11px 12px;cursor:pointer;text-align:left;color:var(--fg);font-family:inherit}
+.tile b{display:block;font-size:13.5px}.tile span{font-size:12px;color:var(--mut)}
+.lk{font-size:11px;color:var(--mut);display:flex;align-items:center;gap:5px}
+.lk i{width:6px;height:6px;border-radius:50%;background:var(--mut)}.lk.ok i{background:#22c55e}.lk.bad i{background:#ef4444}
+/* positions */
+.pc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px}
+.pc .top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.pc .pair{font-weight:700;font-size:15px}
+.st{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.03em}
+.st.a{background:rgba(34,197,94,.14);color:#16a34a}.st.p{background:rgba(245,158,11,.15);color:#d97706}
+.pnl{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;line-height:1.1}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.grid3 div{background:var(--card2);border-radius:10px;padding:7px 9px}.grid3 span{display:block;font-size:11px;color:var(--mut)}.grid3 b{font-size:13px;font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:4px;background:var(--card2);overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:#f59e0b;border-radius:4px}
+.pacts{display:flex;gap:8px;margin-top:11px}.pacts .ub{flex:1}
+.tp{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tp span{font-size:11px;padding:3px 8px;border-radius:8px;background:var(--card2);color:var(--mut)}
+/* reports */
+.prog{height:8px;border-radius:5px;background:var(--card2);overflow:hidden;margin:10px 0 4px;position:relative}
+.prog i{position:absolute;top:0;bottom:0;border-radius:5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 10px}
+.stat span{font-size:11px;color:var(--mut);display:block}.stat b{font-size:17px;font-variant-numeric:tabular-nums}
+.cl{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}.cl:last-child{border-bottom:0}
+.cl .r{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums}
+details.sys summary{cursor:pointer;color:var(--mut);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:20px 2px 8px;list-style:none}
+details.sys summary::-webkit-details-marker{display:none}
+/* sheet + toast */
+.acard h4{margin:2px 0 4px;font-size:17px}.acard p{margin:0 0 6px;color:var(--mut);font-size:13px}
+.fld{display:flex;gap:8px;margin-top:10px}.fld label{flex:1;font-size:12px;color:var(--mut)}
+.fld input{width:100%;margin-top:4px;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:600 15px inherit;font-family:inherit}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translate(-50%,140%);z-index:30;max-width:calc(100% - 28px);
+  background:#111827;color:#f9fafb;padding:10px 14px;border-radius:12px;font-size:13px;display:flex;gap:8px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .25s}
+.night #toast{background:#f9fafb;color:#111827}
+#toast:not(.show){visibility:hidden}#toast.show{transform:translate(-50%,0)}#toast .sp{width:12px;height:12px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+#toast.ok .sp,#toast.bad .sp{animation:none;border:0;width:auto;height:auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.p-stop{background:rgba(239,68,68,.15);color:#ef4444}
+@media (prefers-reduced-motion:reduce){#toast,.sw::after,.ub{transition:none}#toast .sp{animation:none}}
 </style>
 </head>
 <body class="v-office">
@@ -185,118 +277,200 @@ body.v-dash{background:var(--bg);color:var(--fg)}
     <div style="min-width:0"><div class="ttl">Jett LP</div><div class="hsub"><span class="ldot" id="ldot"></span><span id="sub">Loading…</span></div></div>
     <div class="hright"><span class="pill p-dry">PAPER</span><span id="mode" class="pill p-off">…</span></div></div>
   <div id="err"></div>
-  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="dash">Dashboard</button></div>
+  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button></div>
 </div>
 <div id="office">
-  <div class="scene" id="scene"></div>
+  <div class="scene"><div id="scene"></div><button class="thm" id="thm" type="button" aria-label="Switch theme"></button></div>
   <div class="cc"><div class="grab"></div>
-    <div class="cch"><b>Control</b><span class="pill" id="ccpill">…</span></div>
-    <div class="mut" id="ccsub" style="margin:-4px 0 10px"></div>
-    <div class="btns" id="btns"></div>
+    <div class="cch"><b>Control</b><span class="lk" id="lk"><i></i><span>Connecting…</span></span><span class="pill" id="ccpill">…</span></div>
+    <div class="ctl"><div class="pw" id="pw"></div></div>
+    <div class="ctl">
+      <div class="trow"><div><b>Pause new positions</b><span class="mut" id="pausesub">Open positions keep running</span></div><button class="sw" id="swpause" type="button" aria-label="Pause new positions"></button></div>
+      <div class="trow trow-c"><div><b>Trading hours</b><span class="mut" id="hrsub"></span></div>
+        <div class="sg" id="sghours"><button data-h="auto">Schedule</button><button data-h="on">Always</button><button data-h="off">Standby</button></div></div>
+    </div>
+    <div class="tiles"><button class="tile" data-v="pos" type="button"><b id="tpos">Positions</b><span id="tposs">–</span></button>
+      <button class="tile" data-v="rep" type="button"><b>Reports</b><span id="treps">–</span></button></div>
+    <div class="mut" id="ccsub" style="margin:0 2px 2px"></div>
     <div class="feedc"><div class="fh"><b>Live activity</b><span class="mut">WITA</span></div><div id="feed"></div></div>
-    <div class="note">Tap an agent for details · buttons open the bot chat · paper trading, no real funds</div>
+    <div class="note" id="note">Tap an agent for details · paper trading, no real funds</div>
   </div>
 </div>
-<div class="mask" id="mask"></div><div class="acard" id="acard"></div>
-<div class="wrap" id="dash" hidden>
-<div class="hero">
+<div class="wrap" id="posv" hidden>
+  <div class="row" style="margin:6px 2px 10px"><b id="poshd">Positions</b><span class="mut" id="posnote"></span></div>
+  <div id="pos"></div>
+  <div class="sub" style="text-align:center;margin-top:14px">Paper trading · TP/SL are % of position size</div>
+</div>
+<div class="wrap" id="repv" hidden>
   <div class="tabs" id="eqtabs"><div class="tab on" data-c="sol">Solana</div><div class="tab" data-c="rh">Robinhood</div></div>
-  <div class="lbl">Paper equity</div><div class="big" id="eq">–</div><div class="mut" id="eqd"></div>
-  <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
-  <div class="split"><div><span class="mut">Realized</span><b id="rl">–</b></div><div><span class="mut">Unrealized</span><b id="ur">–</b></div></div>
+  <div class="hero">
+    <div class="row"><span class="lbl">Capital progress</span><span class="mut" id="capst"></span></div>
+    <div class="big" id="eq">–</div><div class="mut" id="eqd"></div>
+    <div class="prog" id="prog"></div>
+    <div class="row mut" style="font-size:11px"><span id="pl0"></span><span id="pl1"></span></div>
+    <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+    <div class="split"><div><span class="mut">Realized</span><b id="rl">–</b></div><div><span class="mut">Unrealized</span><b id="ur">–</b></div></div>
+  </div>
+  <h3>Last 7 days</h3><div class="stats" id="stats"></div>
+  <h3>Recent closes</h3><div class="card" id="closes"></div>
+  <h3>By config</h3><div class="card" style="overflow-x:auto"><table class="tbl" id="byver"></table></div>
+  <h3>Daily</h3><div class="card" style="overflow-x:auto"><table class="tbl" id="days"></table><div class="mut" id="perfnote" style="margin-top:6px"></div></div>
+  <div class="card bt" id="bt"></div>
+  <details class="sys"><summary>System ▾</summary>
+    <div class="card row" id="health"></div><div class="agents" id="agents"></div>
+    <h3>Risk decisions</h3><div class="card list" id="risk"></div>
+    <h3>Recent signals</h3><div class="card list" id="sig"></div>
+  </details>
+  <div class="sub" style="text-align:center;margin-top:18px">Paper trading · no real funds</div>
 </div>
-<h3>Performance · paper</h3>
-<div class="kpis" id="kpis"></div>
-<div class="card" style="margin-top:8px;overflow-x:auto"><table class="tbl" id="days"></table><div class="mut" id="perfnote" style="margin-top:6px"></div></div>
-<div class="card bt" id="bt"></div>
-<h3>Health</h3><div class="card row" id="health"></div><div class="agents" id="agents"></div>
-<h3>Positions · <span id="poscount"></span></h3><div id="pos"></div>
-<h3>Risk decisions</h3><div class="card list" id="risk"></div>
-<h3>Recent signals</h3><div class="card list" id="sig"></div>
-<div class="sub" style="text-align:center;margin-top:18px">Read-only · paper trading · no real funds</div>
-</div>
+<div class="mask" id="mask"></div><div class="acard" id="acard"></div>
+<div id="toast" role="status" aria-live="polite"><span class="sp"></span><span id="toastt"></span></div>
 <script>
-const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();try{tg.setHeaderColor("#0b0e14");tg.setBackgroundColor("#0b0e14")}catch(e){}}
+const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand()}
 const OWNER="lilchad078",REPO="jett-lp-miniapp";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const dp=u=>u==="ETH"?4:3;
 const amt=(x,u)=>(x==null?"–":(+x).toFixed(dp(u))+" "+u);
 const sgn=(x,u)=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(+x).toFixed(dp(u))}</span>`;
-const pc=x=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(x*100).toFixed(1)}%</span>`;
+const pc=(x,d=1)=>x==null?"–":`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(x*100).toFixed(d)}%</span>`;
 const tm=ts=>ts?new Date(ts*1000).toLocaleTimeString("en-GB",{timeZone:"Asia/Makassar",hour:"2-digit",minute:"2-digit"}):"–";
-const age=m=>m<60?m+"m":m<1440?Math.floor(m/60)+"h "+(m%60)+"m":Math.floor(m/1440)+"d";
+const dt=ts=>ts?new Date(ts*1000).toLocaleString("en-GB",{timeZone:"Asia/Makassar",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"–";
+const age=m=>m==null?"–":m<60?m+"m":m<1440?Math.floor(m/60)+"h "+(m%60)+"m":Math.floor(m/1440)+"d";
 const px=v=>v==null?"–":v>=1?v.toPrecision(5):v.toExponential(2);
-let S=null,CH="sol";
+let S=null,CH="sol",VIEW="office";
 async function get(url,opt){const r=await fetch(url,Object.assign({cache:"no-store"},opt||{}));if(!r.ok)throw new Error(r.status);return r.json()}
+let firstLoad=true;
 async function load(){
-  const tries=[
-    get(`https://api.github.com/repos/${OWNER}/${REPO}/contents/snapshot.json?ref=data`,{headers:{Accept:"application/vnd.github.raw+json"}}),
-    get(`https://raw.githubusercontent.com/${OWNER}/${REPO}/data/snapshot.json?t=${Date.now()}`),
-    get(`data/snapshot.json?t=${Date.now()}`)];
+  // raw.githubusercontent with ?t= is uncached; the GitHub API (60/h) only on first open
+  const tries=[get(`https://raw.githubusercontent.com/${OWNER}/${REPO}/data/snapshot.json?t=${Date.now()}`),get(`data/snapshot.json?t=${Date.now()}`)];
+  if(firstLoad)tries.push(get(`https://api.github.com/repos/${OWNER}/${REPO}/contents/snapshot.json?ref=data`,{headers:{Accept:"application/vnd.github.raw+json"}}));
+  firstLoad=false;
   const res=(await Promise.allSettled(tries)).filter(r=>r.status==="fulfilled").map(r=>r.value);
-  if(!res.length){$("err").textContent="Snapshot unavailable. Try again shortly.";return}
-  S=res.sort((a,b)=>b.ts-a.ts)[0];$("err").textContent="";render();renderOffice();
+  if(!res.length){if(!S)$("err").textContent="Snapshot unavailable. Try again shortly.";return}
+  const n=res.sort((a,b)=>b.ts-a.ts)[0];if(S&&n.ts<S.ts&&!S._local)return;
+  S=n;$("err").textContent="";renderAll();
 }
-function curve(pts){
+function renderAll(){if(!S)return;header();renderOffice();renderPos();renderRep()}
+
+/* ---------- theme: purely visual, never touches agent state or the sleep logic ---------- */
+const TK="jett_theme";
+const autoNight=()=>{const h=(new Date().getUTCHours()+7)%24;return h>=18||h<6};
+const isNight=()=>{const p=localStorage.getItem(TK);return p?p==="night":autoNight()};
+const SUN=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M5.4 18.6l1.5-1.5M17.1 6.9l1.5-1.5"/></svg>`;
+const MOON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1z"/></svg>`;
+function applyTheme(){
+  const n=isNight();document.body.classList.toggle("night",n);document.documentElement.classList.toggle("night",n);
+  const b=$("thm");b.innerHTML=n?MOON:SUN;b.setAttribute("aria-label",n?"Night theme. Switch to day":"Day theme. Switch to night");
+  tgColors();
+}
+function tgColors(){if(!tg)return;const n=document.body.classList.contains("night");
+  const c=VIEW==="office"?(n?"#0f1630":"#eef3fb"):(n?"#0b0e14":"#f3f6fb");try{tg.setHeaderColor(c);tg.setBackgroundColor(c)}catch(e){}}
+$("thm").onclick=()=>{localStorage.setItem(TK,isNight()?"day":"night");applyTheme()};
+
+/* ---------- status: OFF / STOPPED / PAUSED / ACTIVE / STANDBY ---------- */
+let helloAt=0;
+function status(){
+  const s=S,m=s.mode,now=Date.now()/1000,stale=(now-s.ts)/60,ags=s.agents||[];
+  const dead=ags.length&&!ags.some(a=>a.alive);
+  const noFresh=helloAt&&now-helloAt>75&&s.ts<helloAt-5&&!S._local;   // asked for a fresh snapshot, none came
+  if(m.off)return{t:"OFF",c:"p-off",k:"off"};
+  if(dead||noFresh||(stale>15&&m.mode==="AKTIF"))return{t:"STOPPED",c:"p-stop",k:"stop"};
+  if(m.paused)return{t:"PAUSED",c:"p-pau",k:"pau"};
+  return m.mode==="AKTIF"?{t:"ACTIVE",c:"p-act",k:"act"}:{t:"STANDBY",c:"p-stb",k:"stb"};
+}
+function header(){
+  const s=S,m=s.mode,st=status(),mo=$("mode");mo.textContent=st.t;mo.className="pill "+st.c;
+  const stale=Math.round((Date.now()/1000-s.ts)/60);
+  $("ldot").className="ldot"+(st.k==="stop"||st.k==="off"?" off":stale>6&&m.mode==="AKTIF"?" late":"");
+  $("sub").textContent=(st.k==="off"?"Bot is off":st.k==="stop"?"Bot not running":`Window ${m.window} · next ${m.next_change}`)+` · updated ${tm(s.ts)} WITA`+(stale>10?` (${age(stale)} ago)`:"");
+}
+/* ---------- Positions ---------- */
+function posCard(p){
+  const t=p.tpsl||{},u=p.unit,pend=PEND_POS[p.id];
+  const tpsl=(t.tp||t.sl)?`<div class="tp">${t.tp?`<span>TP +${t.tp}%</span>`:""}${t.sl?`<span>SL −${t.sl}%</span>`:""}</div>`:"";
+  const mid=p.filled
+    ?`<div class="grid3"><div><span>Size</span><b>${amt(p.size,u)}</b></div><div><span>PnL</span><b>${sgn(p.pnl,u)}</b></div><div><span>Fees</span><b>${(+p.fees).toFixed(dp(u)+1)}</b></div></div>`
+    :`<div class="grid3"><div><span>Committed</span><b>${amt(p.size,u)}</b></div><div><span>To range</span><b>${(Math.abs(p.to_range||0)*100).toFixed(1)}%</b></div><div><span>Time left</span><b>${p.left_min!=null?age(p.left_min):"–"}</b></div></div>
+      <div class="bar" title="How close price is to the range"><i style="width:${Math.max(4,Math.min(100,100-Math.abs(p.to_range||0)*400)).toFixed(0)}%"></i></div>`;
+  return `<div class="pc"><div class="top"><div><div class="pair">${esc(p.pair)}</div>
+     <div class="mut">Range ${px(p.range.low)} – ${px(p.range.high)} · ${age(p.age_min)} old</div></div>
+     <div style="text-align:right"><span class="st ${p.filled?"a":"p"}">${p.filled?"ACTIVE":"PENDING"}</span>
+     ${p.filled?`<div class="pnl">${pc(p.pnl_pct,2)}</div>`:""}</div></div>
+   ${mid}${tpsl}
+   <div class="pacts"><button class="ub b-dk" data-tpsl="${p.id}" ${pend?"disabled":""}>TP / SL</button>
+     <button class="ub b-dn" data-close="${p.id}" ${pend?"disabled":""}>${pend==="close"?"Closing…":"Close now"}</button></div></div>`;
+}
+const PEND_POS={};
+function renderPos(){
+  const P=S.positions||[],A=P.filter(p=>p.filled),W=P.filter(p=>!p.filled);
+  $("poshd").textContent=`Active ${A.length} · Pending ${W.length}`;
+  $("posnote").textContent=S.mode.off?"Bot off · positions frozen":"";
+  $("pos").innerHTML=P.length?[...A,...W].map(posCard).join(""):`<div class="card empty">No open positions</div>`;
+}
+
+/* ---------- Reports ---------- */
+function curve(pts,base){
   const el=$("curve");if(!pts||pts.length<2){el.innerHTML="";return}
-  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  const X=x=>x1>x0?(x-x0)/(x1-x0)*300:0,Y=y=>y1>y0?110-(y-y0)/(y1-y0)*100:60;
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]).concat(base?[base]:[]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const X=x=>x1>x0?(x-x0)/(x1-x0)*300:0,Y=y=>y1>y0?112-(y-y0)/(y1-y0)*104:60;
   const d=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
-  const c=ys[ys.length-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
-  el.innerHTML=`<path d="${d} L300 120 L0 120 Z" fill="${c}" opacity=".10"/><path d="${d}" fill="none" stroke="${c}" stroke-width="2"/>`;
+  const c=pts[pts.length-1][1]>=(base||pts[0][1])?"#2ecc8f":"#ff5c6c";
+  el.innerHTML=(base?`<line x1="0" x2="300" y1="${Y(base).toFixed(1)}" y2="${Y(base).toFixed(1)}" stroke="currentColor" stroke-opacity=".25" stroke-dasharray="3 4"/>`:"")
+    +`<path d="${d} L300 120 L0 120 Z" fill="${c}" opacity=".12"/><path d="${d}" fill="none" stroke="${c}" stroke-width="2"/>`;
 }
-function spk(el,ys){if(!ys||ys.length<2){el.innerHTML="";return}
+function spk(el,ys){if(!el||!ys||ys.length<2){if(el)el.innerHTML="";return}
   const y0=Math.min(...ys),y1=Math.max(...ys),n=ys.length,X=i=>i/(n-1)*300,Y=y=>y1>y0?70-(y-y0)/(y1-y0)*60:40;
   const d=ys.map((y,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(y).toFixed(1)).join(" ");const c=ys[n-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
   el.innerHTML=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="4 3"/>`}
-function perf(s){
-  const P=s.performance;if(!P||!P.chains){$("kpis").innerHTML="";$("days").innerHTML="";$("bt").style.display="none";return}
-  const c=P.chains[CH],u=CH==="rh"?"ETH":"SOL";if(!c)return;
-  const w=c.d7,sh=c.shadow7,fr=w.opened?Math.round(w.filled/w.opened*100)+"%":"–";
-  const k=(l,v)=>`<div class="kpi"><span class="mut">${l}</span><b>${v}</b></div>`;
-  $("kpis").innerHTML=k("Since start",pc(c.cum_pct/100))+k("7d W/L",`${w.wins}/${w.n}`)+k("7d fill",fr)
-    +k("Unfilled 7d",w.unfilled)+k("Fees 7d",(+w.fees).toFixed(dp(u)))+k("Shadow 7d",sh.n?`${sh.n} · ${sh.avg_pct>=0?"+":""}${(+sh.avg_pct).toFixed(1)}%`:"0");
-  const D=(c.days||[]).slice(-10).reverse();
-  $("days").innerHTML=`<tr><th>Day</th><th>End</th><th>Day %</th><th>Total %</th><th>W/L</th><th>DD</th></tr>`+(D.length?D.map(r=>
-    `<tr><td>${esc(r.day.slice(5))}${r.final?"":" ·"}</td><td>${(+r.end_eq).toFixed(dp(u))}</td><td>${pc(r.change_pct/100)}</td><td>${pc(r.cum_pct/100)}</td><td>${r.wins}/${r.closed}</td><td>${(+r.max_dd_pct).toFixed(1)}%</td></tr>`).join(""):`<tr><td colspan="6" class="empty">No paper days yet</td></tr>`);
-  $("perfnote").textContent=`Day = 09:00–09:00 WIB · "·" = today, in progress · config ${P.cfg_ver||"–"}`;
-  const b=P.backtest,el=$("bt");
+function renderRep(){
+  const s=S,EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
+  document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
+  $("eqtabs").style.display=EN.length>1?"":"none";
+  const e=(s.equity||{})[CH];if(!e)return;const u=e.unit,cap=e.capital||0,ch=cap?e.equity/cap-1:0;
+  $("eq").textContent=amt(e.equity,u);$("eqd").innerHTML=`${pc(ch,2)} vs starting capital ${amt(cap,u)}`;
+  $("capst").textContent=ch>=0?"Above start":"Below start";
+  // progress bar: centre = starting capital, ±10% at the edges
+  const f=Math.max(-1,Math.min(1,ch/0.10)),col=ch>=0?"#22c55e":"#ef4444";
+  $("prog").innerHTML=`<i style="left:${f>=0?50:50+f*50}%;width:${Math.abs(f)*50}%;background:${col}"></i><i style="left:calc(50% - 1px);width:2px;background:var(--mut)"></i>`;
+  $("pl0").textContent=amt(cap*0.9,u);$("pl1").textContent=amt(cap*1.1,u);
+  $("rl").innerHTML=sgn(e.realized,u);$("ur").innerHTML=sgn(e.unrealized,u);curve(e.points,cap);
+  const P=s.performance,c=P&&P.chains&&P.chains[CH];
+  const k=(l,v,x)=>`<div class="stat"><span>${l}</span><b>${v}</b>${x?`<div class="mut">${x}</div>`:""}</div>`;
+  if(c){const w=c.d7;
+    $("stats").innerHTML=k("Win rate",w.n?Math.round(w.wins/w.n*100)+"%":"–",`${w.wins}/${w.n} closed`)
+      +k("Avg PnL",w.avg_pct==null?"–":pc(w.avg_pct/100,2),"per trade")+k("Fill rate",w.opened?Math.round(w.filled/w.opened*100)+"%":"–",`${w.filled}/${w.opened} opened`)
+      +k("PnL",sgn(w.pnl,u),u)+k("Fees",(+w.fees).toFixed(dp(u)),u)+k("Since start",pc(c.cum_pct/100,2));
+    const V=c.by_ver||[];
+    $("byver").innerHTML=`<tr><th>Config</th><th>Trades</th><th>Fill</th><th>Win</th><th>PnL</th></tr>`+(V.length?V.slice().reverse().map(r=>
+      `<tr><td><b>${esc(r.ver)}</b>${r.ver===P.cfg_ver?' <span class="chip">LIVE</span>':""}<div class="mut" style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.label||"")}</div></td>
+       <td>${r.n}</td><td>${r.n?Math.round(r.filled/r.n*100)+"%":"–"}</td><td>${r.closed?Math.round(r.wins/r.closed*100)+"%":"–"}</td><td>${sgn(r.pnl,u)}</td></tr>`).join("")
+      :`<tr><td colspan="5" class="empty">No data yet</td></tr>`);
+    const D=(c.days||[]).slice(-10).reverse();
+    $("days").innerHTML=`<tr><th>Day</th><th>End</th><th>Day</th><th>Total</th><th>W/L</th><th>DD</th></tr>`+(D.length?D.map(r=>
+      `<tr><td>${esc(r.day.slice(5))}${r.final?"":" ·"}</td><td>${(+r.end_eq).toFixed(dp(u))}</td><td>${pc(r.change_pct/100)}</td><td>${pc(r.cum_pct/100)}</td><td>${r.wins}/${r.closed}</td><td>${(+r.max_dd_pct).toFixed(1)}%</td></tr>`).join("")
+      :`<tr><td colspan="6" class="empty">No full day yet</td></tr>`);
+    $("perfnote").textContent=`Day = 09:00–09:00 WIB · "·" = today, in progress`;
+  }else{$("stats").innerHTML="";$("byver").innerHTML="";$("days").innerHTML=""}
+  const C=(s.closes||[]).filter(x=>x.chain===CH).slice(0,10);
+  $("closes").innerHTML=C.length?C.map(x=>`<div class="cl"><div><b>${esc(x.pair)}</b><div class="mut">${esc(x.reason)} · held ${age(x.held_min)}${x.cfg_ver?" · "+esc(x.cfg_ver):""}</div></div>
+     <div class="r">${x.filled?pc(x.pnl_pct,2):'<span class="mut">unfilled</span>'}<div class="mut">${dt(x.ts)}</div></div></div>`).join("")
+    :`<div class="empty">No closed positions yet</div>`;
+  const b=P&&P.backtest,el=$("bt");
   if(b&&CH==="sol"){el.style.display="";el.innerHTML=`<div class="row"><b>Backtest</b><span class="pill p-off">REPLAY · NOT LIVE</span></div>
     <div class="mut" style="margin-top:4px">${esc(b.label)} · ${b.pools} pools</div><svg id="btcurve" viewBox="0 0 300 80" preserveAspectRatio="none"></svg>
     <div class="row mut"><span>${b.n} trades · win ${Math.round(b.win_rate*100)}% · avg ${b.avg_pnl_pct>=0?"+":""}${(+b.avg_pnl_pct).toFixed(2)}%</span><span>fill ${Math.round(b.fill_rate*100)}% · ${pc(b.capital_pct/100)}</span></div>`;spk($("btcurve"),b.curve)}
   else el.style.display="none";
-}
-function render(){
-  const s=S,m=s.mode,mo=$("mode");mo.textContent=m.off?"OFF":m.mode==="AKTIF"?"ACTIVE":"STANDBY";mo.className="pill "+(m.mode==="AKTIF"&&!m.off?"p-on":"p-off");
-  const stale=Math.round((Date.now()/1000-s.ts)/60);
-  $("ldot").className="ldot"+(stale>20?" off":stale>6?" late":"");
-  $("sub").textContent=`Window ${m.window} · next switch ${m.next_change} · updated ${tm(s.ts)} WITA`+(stale>10?` (${stale}m ago)`:"")+(m.off?" · BOT OFF":m.paused?" · PAUSED":"");
-  const EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
-  document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
-  $("eqtabs").style.display=EN.length>1?"":"none";
-  const e=s.equity[CH];if(!e)return;$("eq").textContent=amt(e.equity,e.unit);
-  const ch=e.capital?(e.equity/e.capital-1):0;$("eqd").innerHTML=`${pc(ch)} vs capital ${amt(e.capital,e.unit)}`;
-  $("rl").innerHTML=sgn(e.realized,e.unit);$("ur").innerHTML=sgn(e.unrealized,e.unit);curve(e.points);
-  perf(s);
-  const h=s.health;$("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${(s.agents||[]).filter(a=>a.alive).length}/${(s.agents||[]).length} agents</span>`;
-  $("agents").innerHTML=(s.agents||[]).map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
-  const P=s.positions||[],A=P.filter(p=>p.filled),W=P.filter(p=>!p.filled);
-  $("poscount").textContent=`Active ${A.length} · Pending ${W.length}`;
-  const card=p=>`<div class="card"><div class="row"><span><span class="chip">${p.chain.toUpperCase()}</span><b>${esc(p.pair)}</b></span><span class="num">${p.filled?pc(p.pnl_pct):`<span class="mut">${((p.to_range||0)*100).toFixed(1)}% to range</span>`}</span></div>
-   <div class="row mut" style="margin-top:6px"><span>Range ${px(p.range.low)} – ${px(p.range.high)}</span><span>${age(p.age_min)}</span></div>
-   ${p.filled?`<div class="row mut"><span>Size ${amt(p.size,p.unit)} · PnL ${sgn(p.pnl,p.unit)}</span><span>Fees ${(+p.fees).toFixed(dp(p.unit)+1)}</span></div>`
-   :`<div class="row mut"><span>Committed ${amt(p.size,p.unit)}</span><span>${p.left_min!=null?age(p.left_min)+" left":""}</span></div>`}</div>`;
-  $("pos").innerHTML=(A.length?`<div class="mut grp">🟢 Active · in range, fees accruing</div>`+A.map(card).join(""):"")
-    +(W.length?`<div class="mut grp">⏳ Pending · waiting for price to reach range</div>`+W.map(card).join(""):"")
-    ||`<div class="card empty">No open positions</div>`;
+  const h=s.health,ags=s.agents||[];
+  $("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${ags.filter(a=>a.alive).length}/${ags.length} agents</span>`;
+  $("agents").innerHTML=ags.map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
   const st={opened:"Opened",skipped_risk:"Blocked",skipped_held:"Already held",approved:"Approved",reject:"Rejected"};
-  const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(st[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""} · ${tm(r.ts)}</span></div>`).join(""):`<div class="empty">No decisions in 24h</div>`;
+  const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(st[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""}</span></div>`).join(""):`<div class="empty">None yet</div>`;
   const kd={wallet_buy:"Wallet buy",gmgn_trending:"Trending"};
-  const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">No signals in 6h</div>`;
+  const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">None yet</div>`;
 }
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CH=t.dataset.c;if(S)render()});
-/* ---------- Office: agents as characters, driven by snapshot.agents (status, last_action, ages, counts) ---------- */
+document.querySelectorAll("#eqtabs .tab").forEach(t=>t.onclick=()=>{CH=t.dataset.c;if(S)renderRep()});
+/* ---------- Office: agents as characters ---------- */
 const BOT="JettLPbot",RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 const AG={
   scout:{n:"Scout",r:"Finds pools and wallet signals",c:"#ff6a13",g:[0,0],sh:"cloud",ey:"t",act:"peek"},
@@ -404,11 +578,11 @@ function scene(s){
   // floor (decorative)
   const P=(i,j)=>ISO(i,j).map((v,k)=>v+(k?0:0));
   const c0=ISO(-.5,-.5),c1=ISO(3.5,-.5),c2=ISO(3.5,2.5),c3=ISO(-.5,2.5);
-  floor+=`<path d="M${c0} L${c1} L${c2} L${c3} Z" fill="#eef2f7" stroke="#c3cedd"/>`;
+  floor+=`<path d="M${c0} L${c1} L${c2} L${c3} Z" class="fl"/>`;
   for(let i=0;i<=4;i++){const a=ISO(i-.5,-.5),b=ISO(i-.5,2.5);floor+=`<path d="M${a} L${b}" stroke="#d5dde8" stroke-width=".6"/>`}
   for(let j=0;j<=3;j++){const a=ISO(-.5,j-.5),b=ISO(3.5,j-.5);floor+=`<path d="M${a} L${b}" stroke="#d5dde8" stroke-width=".6"/>`}
   // back walls with windows (decorative; night tint follows WIB clock)
-  const wl=`<path d="M${c0} L${c0[0]},${c0[1]-58} L${c1[0]},${c1[1]-58} L${c1} Z" fill="#d9e2ef"/><path d="M${c0} L${c0[0]},${c0[1]-58} L${c3[0]},${c3[1]-58} L${c3} Z" fill="#cbd6e6"/>`;
+  const wl=`<path d="M${c0} L${c0[0]},${c0[1]-58} L${c1[0]},${c1[1]-58} L${c1} Z" class="wa"/><path d="M${c0} L${c0[0]},${c0[1]-58} L${c3[0]},${c3[1]-58} L${c3} Z" class="wb"/>`;
   let wins="";for(let k=0;k<4;k++){const a=ISO(k+.05,-.5),b=ISO(k+.6,-.5);wins+=`<path class="win" d="M${a[0]},${a[1]-46} L${b[0]},${b[1]-46} L${b[0]},${b[1]-18} L${a[0]},${a[1]-18} Z"/>`}
   for(let k=0;k<3;k++){const a=ISO(-.5,k+.1),b=ISO(-.5,k+.65);wins+=`<path class="win" d="M${a[0]},${a[1]-46} L${b[0]},${b[1]-46} L${b[0]},${b[1]-18} L${a[0]},${a[1]-18} Z"/>`}
   // zone plates on floor
@@ -438,7 +612,7 @@ function scene(s){
   const deco=`<g transform="translate(${px1},${py1})"><ellipse cx="0" cy="8" rx="9" ry="4" fill="rgba(15,23,42,.15)"/><path d="M-6 0 L6 0 L4 9 L-4 9 Z" fill="#b45309"/><path d="M0 0 Q-10 -10 -4 -20 Q0 -8 0 0 Q2 -16 8 -18 Q6 -6 0 0" fill="#16a34a"/></g>
     <text class="ws" x="${px1}" y="${py1+33}" text-anchor="middle">PAPER ONLY</text>`;
   return `<svg viewBox="0 0 400 310" role="img" aria-label="Agent office">
-   <defs><linearGradient id="nightfxg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0b1023" stop-opacity=".35"/><stop offset="1" stop-color="#0b1023" stop-opacity=".1"/></linearGradient></defs>
+   <defs><linearGradient id="nightfxg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0b1023" stop-opacity=".3"/><stop offset="1" stop-color="#0b1023" stop-opacity=".12"/></linearGradient></defs>
    ${wl}${wins}<circle class="moon" cx="360" cy="24" r="8" fill="#fde68a"/>${floor}${flow}${desks}${deco}${chars}${bubs}
    <rect id="nightfx" x="0" y="0" width="400" height="310" fill="url(#nightfxg)"/></svg>`;
 }
@@ -447,51 +621,160 @@ function feed(s){
   return ev.length?ev.map(e=>`<div class="ev"><span class="evd" style="background:${(AG[e.agent]||{}).c||"#64748b"}"></span><span class="tx"><b>${esc((AG[e.agent]||{}).n||e.agent)}</b> ${esc(e.text)}</span><time>${tm(e.ts)}</time></div>`).join("")
     :`<div class="ev"><span class="tx">No activity yet</span></div>`;
 }
+/* ---------- Office control card ---------- */
+const PWR_ON=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 7.5a8 8 0 1 0 11.4 0"/></svg>`;
+let BUSY=null;
 function renderOffice(){
   const s=S;if(!s)return;
-  const wibH=(new Date().getUTCHours()+7)%24;document.body.classList.toggle("night",wibH>=18||wibH<6);
   $("scene").innerHTML=scene(s);
-  const m=s.mode,pau=!!m.paused,act=m.mode==="AKTIF",off=!!m.off;
-  $("ccpill").textContent=off?"OFF":pau?"PAUSED":act?"ACTIVE":"STANDBY";$("ccpill").className="pill "+(off?"p-off":pau?"p-pau":act?"p-act":"p-stb");
-  const pl=s.pipeline||{},P=s.positions||[],A=P.filter(p=>p.filled).length;
-  $("ccsub").textContent=`Last 10 min: ${pl.signals||0} signals · ${pl.scored||0} scored · ${pl.approved||0} approved · Active ${A} · Pending ${P.length-A}`;
-  const b=(k,ic,bg,l,cls)=>`<button class="cb ${cls||""}" data-go="${k}"><i style="background:${bg}">${ic}</i>${l}</button>`;
-  $("btns").innerHTML=(off?b("on","⏻","rgba(34,197,94,.18)","Turn on"):"")+(pau?b("resume","▶","rgba(34,197,94,.18)","Resume"):b("pause","⏸","rgba(245,158,11,.18)","Pause"))
-    +b("positions","📂","rgba(108,140,255,.18)","Positions")+b("perf","📈","rgba(46,204,143,.18)","Performance")
-    +b("report","📝","rgba(148,163,184,.18)","Report")+b("hours","🕘","rgba(129,140,248,.18)","Hours")
-    +b("kill","⛔","rgba(239,68,68,.18)","Kill","kill")+(off?"":b("off","⏻","rgba(100,116,139,.18)","Turn off"));
+  const m=s.mode,off=!!m.off,st=status(),P=s.positions||[],A=P.filter(p=>p.filled).length,can=canCtl();
+  $("ccpill").textContent=st.t;$("ccpill").className="pill "+st.c;
+  const sub=off?(P.length?`${P.length} position${P.length>1?"s":""} ${m.positions_off==="close"?"closing":"frozen"}`:"Agents idle · nothing is traded")
+    :st.k==="stop"?"No fresh data from the bot":m.paused?"Paused · watching open positions only":m.mode==="AKTIF"?"Scanning and trading (paper)":"Outside trading hours · standing by";
+  $("pw").innerHTML=`<span class="pwi ${off?"off":""}">${PWR_ON}</span><div style="min-width:0"><b>${off?"Bot is off":"Bot is on"}</b><span class="mut">${esc(sub)}</span></div>
+    <button class="ub ${off?"b-go":"b-dk"}" id="bpower" ${can&&!BUSY?"":"disabled"}>${BUSY==="power"?"…":off?"Turn on":"Turn off"}</button>`;
+  const sw=$("swpause");sw.classList.toggle("on",!!m.paused);sw.disabled=!can||!!BUSY||off;sw.setAttribute("aria-pressed",!!m.paused);
+  $("pausesub").textContent=m.paused?"Paused · open positions keep running":"Open positions keep running";
+  const hv=m.hours||"auto";document.querySelectorAll("#sghours button").forEach(b=>{b.classList.toggle("on",b.dataset.h===hv);b.disabled=!can||!!BUSY});
+  $("hrsub").textContent=hv==="auto"?`Schedule · window ${m.window}`:hv==="on"?"Always active":"Standby until changed";
+  $("tposs").textContent=`${A} active · ${P.length-A} pending`;
+  const c=s.performance&&s.performance.chains&&s.performance.chains.sol;
+  $("treps").innerHTML=c?`${pc(c.cum_pct/100,2)} since start`:"Equity, closes, configs";
+  const pl=s.pipeline||{};$("ccsub").textContent=`Last 10 min: ${pl.signals||0} signals · ${pl.scored||0} scored · ${pl.approved||0} approved`;
   $("feed").innerHTML=feed(s);
+  $("note").textContent=can?"Tap an agent for details · paper trading, no real funds":(tg&&tg.initData?"Controls unavailable: relay not reachable":"Open in Telegram to use the controls · paper trading");
 }
-function openBot(k){
-  // deep link into the bot chat: /start <k>. Kill always lands on the bot's confirm screen, never closes directly.
-  const u=`https://t.me/${BOT}?start=${encodeURIComponent(k)}`;
-  if(tg&&tg.openTelegramLink){tg.openTelegramLink(u);try{tg.close()}catch(e){}}else location.href=u;
+
+/* ---------- relay: encrypted commands out, signed replies back (ntfy.sh, outbound-only box) ---------- */
+let RL=null,ES=null;const PEND={};
+const te=new TextEncoder();
+const b64=u=>{u=new Uint8Array(u);let s="";for(let i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s)};
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const rid=p=>(p||"")+[...crypto.getRandomValues(new Uint8Array(12))].map(b=>b.toString(16).padStart(2,"0")).join("");
+const canCtl=()=>!!(tg&&tg.initData&&RL&&RL._enc);
+function link(k,t){const e=$("lk");e.className="lk "+(k||"");e.querySelector("span").textContent=t}
+async function relayInit(){
+  if(!(window.crypto&&crypto.subtle)){link("bad","No WebCrypto");return}
+  try{const r=await get(`relay.json?t=${Date.now()}`);
+    r._enc=await crypto.subtle.importKey("raw",ub64(r.enc),{name:"ECDH",namedCurve:"P-256"},false,[]);
+    r._sig=await crypto.subtle.importKey("raw",ub64(r.sig),{name:"ECDSA",namedCurve:"P-256"},false,["verify"]);RL=r}
+  catch(e){link("bad","Controls offline");return}
+  if(!(tg&&tg.initData)){link("","View only");if(S)renderOffice();return}
+  listen();hello();if(S)renderOffice();
 }
+function listen(){
+  try{ES&&ES.close()}catch(e){}
+  ES=new EventSource(`${RL.url}/${RL.reply}/sse?since=${Math.floor(Date.now()/1000)-30}`);
+  ES.onopen=()=>link("ok","Connected");
+  ES.onerror=()=>link("bad","Reconnecting…");
+  ES.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.event==="message"||m.message)onReply(m.message)}catch(x){}};
+}
+async function seal(obj){
+  const eph=await crypto.subtle.generateKey({name:"ECDH",namedCurve:"P-256"},true,["deriveBits"]);
+  const bits=await crypto.subtle.deriveBits({name:"ECDH",public:RL._enc},eph.privateKey,256);
+  const hk=await crypto.subtle.importKey("raw",bits,"HKDF",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"HKDF",hash:"SHA-256",salt:new Uint8Array(32),info:te.encode("jett-relay-v1")},hk,{name:"AES-GCM",length:256},false,["encrypt"]);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv,additionalData:te.encode("jett-cmd")},key,te.encode(JSON.stringify(obj)));
+  return JSON.stringify({v:1,e:b64(await crypto.subtle.exportKey("raw",eph.publicKey)),iv:b64(iv),ct:b64(ct)});
+}
+const post=env=>fetch(`${RL.url}/${RL.cmd}`,{method:"POST",body:env}).then(r=>{if(!r.ok)throw new Error(r.status)});
+async function hello(){if(!canCtl()||document.hidden)return;helloAt=Date.now()/1000;
+  try{await post(await seal({id:rid("h-"),init:tg.initData,cmd:"hello",args:{}}))}catch(e){}}
+async function send(cmd,args,label,tag){
+  if(!canCtl()){toast("bad",tg&&tg.initData?"Controls unavailable right now":"Open this inside Telegram to control the bot");return null}
+  const id=rid("c-");BUSY=tag||cmd;renderAll();toast("wait",label||"Sending…");
+  try{tg.HapticFeedback&&tg.HapticFeedback.impactOccurred("light")}catch(e){}
+  return new Promise(async res=>{
+    const fin=(body,why)=>{if(!PEND[id])return;clearTimeout(PEND[id].t);delete PEND[id];BUSY=null;
+      Object.keys(PEND_POS).forEach(k=>{if(PEND_POS[k]===id||PEND_POS[k]==="close"&&cmd==="close")delete PEND_POS[k]});
+      if(body){toast(body.ok?"ok":"bad",body.msg);try{tg.HapticFeedback&&tg.HapticFeedback.notificationOccurred(body.ok?"success":"error")}catch(e){}}
+      else toast("bad",why);renderAll();res(body)};
+    PEND[id]={fin,t:setTimeout(()=>fin(null,"No reply from the bot. Is it running?"),40000)};
+    try{await post(await seal({id,init:tg.initData,cmd,args:args||{}}))}catch(e){fin(null,"Couldn't reach the relay")}
+  });
+}
+async function onReply(txt){
+  let o;try{o=JSON.parse(txt)}catch(e){return}
+  if(!o||!o.b||!o.s)return;
+  const ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},RL._sig,ub64(o.s),te.encode(o.b)).catch(()=>false);
+  if(!ok)return;                                   // forged or foreign message: ignore
+  const b=JSON.parse(o.b),p=PEND[b.id];if(!p)return;
+  if(b.st&&S){const m=S.mode;m.off=b.st.off;m.paused=b.st.paused;m.hours=b.st.hours;m.mode=b.st.active?"AKTIF":"STANDBY";S._local=true}
+  p.fin(b);[3000,9000,20000].forEach(t=>setTimeout(load,t));
+}
+let tT=null;
+function toast(k,t){const e=$("toast");e.className="show "+k;$("toastt").textContent=t;
+  e.querySelector(".sp").textContent=k==="ok"?"✓":k==="bad"?"!":"";clearTimeout(tT);if(k!=="wait")tT=setTimeout(()=>e.className="",3800)}
+
+/* ---------- sheets: agent details, confirms, TP/SL editor ---------- */
+function sheet(on,html){if(html!=null)$("acard").innerHTML=`<button class="x" aria-label="Close" data-x>×</button>`+html;$("mask").classList.toggle("show",!!on);$("acard").classList.toggle("show",!!on)}
 function card(id){
   const a=(S.agents||[]).find(x=>x.name===id);if(!a)return;const m=AG[id],st=agState(a);
-  $("acard").innerHTML=`<button class="x" aria-label="Close" onclick="sheet(0)">×</button>
-   <div class="ah"><span class="av blobav">${blobAvatar(id)}</span><div><b>${esc(m.n)}</b><span>${esc(m.r)}</span></div>
+  sheet(1,`<div class="ah"><span class="av blobav">${blobAvatar(id)}</span><div><b>${esc(m.n)}</b><span>${esc(m.r)}</span></div>
    <span class="ast" style="background:${st.col}22;color:${st.col}">${st.t}</span></div>
    <dl class="kv"><dt>Doing</dt><dd>${esc(a.last_action||"–")}</dd><dt>Last action</dt><dd>${ago(a.action_age_s)} ago</dd>
    <dt>Heartbeat</dt><dd>${ago(a.beat_age_s)} ago</dd><dt>Restarts</dt><dd>${a.restarts}</dd><dt>Errors</dt><dd>${a.errors}</dd></dl>
-   <div class="chips">${Object.entries(a.counts||{}).map(([k,v])=>`<span>${esc(k.replace(/_/g," "))} <b>${v}</b></span>`).join("")||`<span>No counters</span>`}</div>`;
-  sheet(1);
+   <div class="chips">${Object.entries(a.counts||{}).map(([k,v])=>`<span>${esc(k.replace(/_/g," "))} <b>${v}</b></span>`).join("")||`<span>No counters</span>`}</div>`);
 }
-function sheet(on){$("mask").classList.toggle("show",!!on);$("acard").classList.toggle("show",!!on);$("mask").hidden=!on&&false}
+function powerSheet(){
+  const off=!!S.mode.off,n=(S.positions||[]).length;
+  if(off)return sheet(1,`<h4>Turn the bot on?</h4><p>Agents start scanning and trading again (paper).${S.mode.paused?" New positions stay paused until you resume.":""}</p>
+    <button class="ub b-go b-wide" data-act="on">Turn on</button><button class="ub b-dk b-wide" data-x>Cancel</button>`);
+  sheet(1,`<h4>Turn the bot off?</h4><p>Agents stop scanning and opening positions.${n?` You have ${n} open position${n>1?"s":""}.`:""}</p>`
+    +(n?`<button class="ub b-pri b-wide" data-act="frozen">Turn off · keep positions frozen</button><p style="margin-top:6px">Frozen positions are not watched until you turn the bot on.</p>
+         <button class="ub b-dn b-wide" data-act="closeall">Turn off · close all positions</button>`
+       :`<button class="ub b-pri b-wide" data-act="frozen">Turn off</button>`)
+    +`<button class="ub b-dk b-wide" data-x>Cancel</button>`);
+}
+const posBy=id=>(S.positions||[]).find(p=>String(p.id)===String(id));
+function closeSheet(id){const p=posBy(id);if(!p)return;
+  sheet(1,`<h4>Close ${esc(p.pair)} now?</h4><p>${p.filled?`Current PnL ${pc(p.pnl_pct,2)} (${sgn(p.pnl,p.unit)} ${p.unit}). `:"Not filled yet, the committed amount is released. "}Paper trade.</p>
+   <button class="ub b-dn b-wide" data-act="close" data-pid="${p.id}">Close now</button><button class="ub b-dk b-wide" data-x>Cancel</button>`)}
+function tpslSheet(id){const p=posBy(id);if(!p)return;const t=p.tpsl||{};
+  sheet(1,`<h4>TP / SL · ${esc(p.pair)}</h4><p>Close automatically when PnL reaches these levels (% of position size). Leave empty for the default rules.</p>
+   <div class="fld"><label>Take profit %<input id="ftp" type="number" inputmode="decimal" min="0.5" max="1000" step="0.5" placeholder="e.g. 5" value="${t.tp??""}"></label>
+   <label>Stop loss %<input id="fsl" type="number" inputmode="decimal" min="0.5" max="99" step="0.5" placeholder="e.g. 3" value="${t.sl??""}"></label></div>
+   <button class="ub b-pri b-wide" data-act="tpsl" data-pid="${p.id}">Save</button>
+   ${(t.tp||t.sl)?`<button class="ub b-dk b-wide" data-act="tpclear" data-pid="${p.id}">Clear</button>`:`<button class="ub b-dk b-wide" data-x>Cancel</button>`}`)}
+async function act(a,pid){
+  sheet(0);
+  if(a==="on")return send("power",{on:true},"Turning on…","power");
+  if(a==="frozen")return send("power",{on:false,positions:"frozen"},"Turning off…","power");
+  if(a==="closeall")return send("power",{on:false,positions:"close"},"Turning off and closing…","power");
+  if(a==="close"){PEND_POS[pid]="close";return send("close",{pid:+pid},"Closing position…","close")}
+  if(a==="tpsl"||a==="tpclear"){
+    const tp=a==="tpclear"?"":$("ftp").value.trim(),sl=a==="tpclear"?"":$("fsl").value.trim();
+    if(tp&&!(+tp>=0.5&&+tp<=1000)||sl&&!(+sl>=0.5&&+sl<=99)){toast("bad","TP must be 0.5–1000%, SL 0.5–99%");return}
+    const r=await send("tpsl",{pid:+pid,tp,sl},"Saving TP/SL…","tpsl");
+    if(r&&r.ok){const p=posBy(pid);if(p)p.tpsl=(tp||sl)?{tp:tp?+tp:null,sl:sl?+sl:null}:null;renderPos()}
+  }
+}
 function view(v){
-  localStorage.setItem("jett_view",v);document.body.classList.toggle("v-office",v==="office");document.body.classList.toggle("v-dash",v==="dash");
-  $("office").hidden=v!=="office";$("dash").hidden=v!=="dash";
-  document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  if(tg){try{const c=v==="office"?(document.body.classList.contains("night")?"#0f1630":"#eef3fb"):"#0b0e14";tg.setHeaderColor(c);tg.setBackgroundColor(c)}catch(e){}}
+  VIEW=v;localStorage.setItem("jett_view",v);const b=document.body.classList;
+  b.toggle("v-office",v==="office");b.toggle("v-dash",v!=="office");b.toggle("v-pos",v==="pos");b.toggle("v-rep",v==="rep");
+  $("office").hidden=v!=="office";$("posv").hidden=v!=="pos";$("repv").hidden=v!=="rep";
+  document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));tgColors();window.scrollTo(0,0);
 }
 document.addEventListener("click",e=>{
-  const ch=e.target.closest&&e.target.closest(".ch");if(ch){card(ch.dataset.id);return}
-  const go=e.target.closest&&e.target.closest("[data-go]");if(go){openBot(go.dataset.go);return}
-  const sv=e.target.closest&&e.target.closest(".seg button");if(sv){view(sv.dataset.v);return}
-  if(e.target.id==="mask")sheet(0);
+  const T=e.target.closest?e.target:e.target.parentElement,q=s=>T.closest(s);
+  if(q("[data-x]")||e.target.id==="mask"){sheet(0);return}
+  const ch=q(".ch");if(ch){card(ch.dataset.id);return}
+  const sv=q("[data-v]");if(sv){view(sv.dataset.v);return}
+  if(q("#bpower")){powerSheet();return}
+  if(q("#swpause")){if(S)send("pause",{on:!S.mode.paused},S.mode.paused?"Resuming…":"Pausing…","pause");return}
+  const h=q("#sghours button");if(h){if(S&&h.dataset.h!==(S.mode.hours||"auto"))send("hours",{v:h.dataset.h},"Changing hours…","hours");return}
+  const c=q("[data-close]");if(c){closeSheet(c.dataset.close);return}
+  const t=q("[data-tpsl]");if(t){tpslSheet(t.dataset.tpsl);return}
+  const a=q("[data-act]");if(a){act(a.dataset.act,a.dataset.pid);return}
 });
 
-view(localStorage.getItem("jett_view")||"office");
-load();setInterval(load,120000);
+/* ---------- refresh: fast while the app is open and the bot is listening ---------- */
+applyTheme();setInterval(()=>{if(!localStorage.getItem(TK))applyTheme()},60000);
+view(["office","pos","rep"].includes(localStorage.getItem("jett_view"))?localStorage.getItem("jett_view"):"office");
+load();relayInit();
+setInterval(()=>{if(!document.hidden)load()},15000);
+setInterval(hello,240000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){load();hello()}});
 </script>
 </body></html>
