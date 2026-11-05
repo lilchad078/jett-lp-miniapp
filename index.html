@@ -732,7 +732,7 @@ function agent(col,sh,k,i){const e=SH[sh][1],h=k==="work"?5.2:k==="off"?1.4:4;
    <g class="eye" style="animation-delay:${-i*1.1}s"><rect x="${-e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${h}" rx="1.15" fill="#fff"/><rect x="${e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${h}" rx="1.15" fill="#fff"/></g>
    <g fill="none" stroke="#e2e8f0" stroke-width=".9" opacity=".9"><circle cx="${-e[1]}" cy="${e[0]-.4}" r="2.9"/><circle cx="${e[1]}" cy="${e[0]-.4}" r="2.9"/><path d="M${-e[1]+2.9} ${e[0]-.4}H${e[1]-2.9}"/></g></g></g>`}
 function stn(x,y,d,i,below){const [name,st,,col,sh,short]=d,k=st.k==="work"?"lw":st.k==="off"?"lo":"li";
-  const t=`${name} · ${short}`,w=Math.max(t.length*5.3+22,60),bx=-w/2,by=below?52:-60;
+  const t=`${name} · ${short}`,w=Math.max(t.length*5.3+22,60),bx=-w/2+(i===1?16:i===2?-16:0),by=below?52:-60;
   return `<g transform="translate(${x},${y})" class="${k}">${bench(34,14,14)}<g transform="scale(1.2)">${PROPS[i]()}</g>
    <g transform="translate(-14,30) scale(1.25)">${agent(col,sh,st.k,i)}</g>
    <g class="bub"><rect x="${bx}" y="${by}" width="${w}" height="18" rx="9" fill="#fff" stroke="rgba(15,23,42,.1)"/>
