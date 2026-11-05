@@ -258,6 +258,19 @@ body:not(.night) .cc{box-shadow:0 -8px 24px rgba(15,23,42,.08)}
 details.sys summary{cursor:pointer;color:var(--mut);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:20px 2px 8px;list-style:none}
 details.sys summary::-webkit-details-marker{display:none}
 /* sheet + toast */
+.msh{max-height:82vh;overflow-y:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px;-webkit-overflow-scrolling:touch}
+.msh::-webkit-scrollbar{display:none}.msh h4{padding-right:34px}.msh .sec{margin-top:16px}.msh h5{margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
+.rw{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.rw:last-child{border-bottom:0}
+.rw span{color:var(--mut)}.rw b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.tg{font-style:normal;font-size:11px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:4px;white-space:nowrap}
+.tg-w{background:rgba(240,180,69,.16);color:#f0b445}.tg-u{background:var(--card2);color:var(--mut)}
+.fn{font-size:12px!important;color:var(--mut);margin:6px 0 0!important}.errt{color:#ff7a86!important}
+.lab{font-size:12px;color:var(--mut);margin:10px 0 5px}.ed-sg{width:100%}.ed-sg button{flex:1;padding:10px 6px;font-size:13px}
+.frow{display:flex;gap:10px;margin-top:10px}.frow label{flex:1;font-size:12px;color:var(--mut);min-width:0}
+.frow input,.sel{width:100%;box-sizing:border-box;margin-top:5px;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:600 15px/1.2 inherit;font-family:inherit}
+.sel{font-size:13px;margin-top:2px;appearance:none}
+.sug{display:block;font-size:11.5px;color:var(--acc);margin-top:4px;min-height:0}.sug:empty{display:none}
+.ub:disabled{opacity:.45}
 .acard h4{margin:2px 0 4px;font-size:17px}.acard p{margin:0 0 6px;color:var(--mut);font-size:13px}
 .fld{display:flex;gap:8px;margin-top:10px}.fld label{flex:1;font-size:12px;color:var(--mut)}
 .fld input{width:100%;margin-top:4px;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:600 15px inherit;font-family:inherit}
@@ -455,21 +468,81 @@ const E2=t=>esc(String(t??""));
 function mlpForm(){sheet(1,`<h4>Manual LP · paper</h4><p>Paste the token CA. It is sent encrypted to your bot only.</p>
   <div class="fld"><label>Token CA<input id="fca" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Token mint"></label></div>
   <div class="fld"><label>Size SOL<input id="fsz" type="number" inputmode="decimal" min="0.01" max="10" step="0.05" placeholder="default"></label></div>
-  <button class="ub b-pri b-wide" data-act="mlp">Build plan</button><button class="ub b-dk b-wide" data-x>Cancel</button>`)}
-function planSheet(v){
-  const kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,p=n=>(n>=0?"+":"")+(n*100).toFixed(0)+"%";
-  sheet(1,`<h4>${E2(v.symbol)} · plan</h4><dl class="kv">
-   ${kv("Pool",`bin ${v.pool.bin_step} · fee ${v.pool.base_fee}% · TVL ${usd(v.pool.tvl)}`)}${kv("State",E2(v.state))}
-   ${kv("Strategy",E2(v.strategy))}${kv("Why",E2(v.why))}${kv("Shape",E2(v.shape))}${kv("Side",E2(v.side))}
-   ${kv("Range",`${p(v.low_pct)} … ${p(v.high_pct)} (${v.n_bins} bins)`)}${kv("At range low",p(v.v_low)+" value")}
-   ${kv("Fees if in range",`~${fsol(v.fee_lo)}–${fsol(v.fee_hi)} SOL/day`)}${kv("Mid estimate",`~${fsol(v.fee_mid)} SOL/day`)}
-   ${kv("Break-even at low",v.be_h!=null?`~${Math.round(v.be_h)}h of fees`:v.be_small?"fees too small":"unknown")}
-   ${kv("Exit",`TP +${+(v.tp*100).toFixed(1)}% · SL ${+(v.sl*100).toFixed(1)}% · max ${hr(v.hold)}`)}${kv("Size",v.size+" SOL")}</dl>
-   ${v.token_side?`<p>Token side assumes the token is bought at entry (paper).</p>`:""}
-   <details><summary class="mut">Checks</summary><dl class="kv">${(v.checks||[]).map(c=>kv(E2(c[0]),(c[2]===true?"✅ ":c[2]===false?"⚠️ ":"")+E2(c[1]))).join("")}</dl></details>
-   <button class="ub b-go b-wide" data-act="mlpopen" data-pid="${E2(v.id)}">Open paper</button>
-   <button class="ub b-dk b-wide" data-x>Cancel</button>
-   <p style="margin-top:6px">Fine-tune shape and bins in Telegram with /lp.</p>`)}
+  <button class="ub b-pri b-wide" data-act="mlp">Show token stats</button><button class="ub b-dk b-wide" data-x>Cancel</button>`)}
+/* MLP-CALC-START (kept in sync with fomo/agents/lpbuild.py preview/fee_est; tests/test_miniapp_calc.py checks parity) */
+const MLP={MAX:69,XR1:0.10,XR2:0.30,K:0.35,BE:72};
+function mlpBins(bs,mode,shape,below,above){const st=1+Math.max(1,bs|0)/1e4;below=(mode==="quote"||mode==="custom")?below:0;above=(mode==="base"||mode==="custom")?above:0;
+  const ks=[];for(let k=-below;k<0;k++)ks.push(k);for(let k=1;k<=above;k++)ks.push(k);if(!ks.length)return null;
+  const m=Math.max(...ks.map(Math.abs)),w=ks.map(k=>shape==="spot"?1:shape==="bidask"?Math.abs(k):m+1-Math.abs(k)),sw=w.reduce((a,b)=>a+b,0);
+  return [[1,0,0],...ks.map((k,i)=>[Math.pow(st,k),w[i]/sw,Math.sign(k)])].sort((a,b)=>a[0]-b[0])}
+function mlpVal(bins,price){const px0=(bins.find(b=>b[2]===0)||bins[bins.length>>1])[0];let v=0;
+  for(const[pb,vv,sd]of bins){const parts=sd<0?[[vv,-1]]:sd>0?[[vv,1]]:[[vv/2,-1],[vv/2,1]];
+    for(const[x,s]of parts){if(s<0)v+=price>=pb?x:x/pb*price;else{const q=x/px0;v+=price<=pb?q*price:q*pb}}}return v}
+function mlpPrev(e,feeTvl){const b=mlpBins(e.bin_step,e.mode,e.shape,e.below,e.above);if(!b)return null;
+  const lo=b[0][0],hi=b[b.length-1][0],vlo=mlpVal(b,lo)-1,low=Math.max(0,e.size*feeTvl),two=!!e.below&&!!e.above,
+    high=low/(two?MLP.XR2:MLP.XR1),mid=low+MLP.K*(high-low),be=mid>0?Math.abs(vlo)*e.size/mid*24:null;
+  return {low_pct:lo-1,high_pct:hi-1,n_bins:b.length-1,v_low:vlo,v_high:mlpVal(b,hi)-1,fee_lo:low,fee_mid:mid,fee_hi:high,be_h:be,be_ok:be!=null&&be<=MLP.BE}}
+function binsFor(bs,pct,below){const st=1+bs/1e4;if(pct<=0)return 0;const n=below?-Math.log(1-Math.min(pct,.99))/Math.log(st):Math.log(1+pct)/Math.log(st);return Math.max(1,Math.ceil(n-1e-9))}
+function pctOf(bs,n,below){const st=1+bs/1e4;return below?1-Math.pow(st,-n):Math.pow(st,n)-1}
+/* MLP-CALC-END */
+let DR=null,ED=null;
+const SIDE={quote:"SOL only",custom:"Both",base:"Token only"},SHP={spot:"Spot",curve:"Curve",bidask:"Bid-Ask"};
+const pct1=x=>(x>=0?"+":"−")+Math.abs(x*100).toFixed(1)+"%";
+function statsSheet(v){DR=v;ED=Object.assign({},v.edit);
+  sheet(1,`<div class="msh"><h4>${E2(v.symbol)}</h4><p>Token stats · paper. Nothing is built until you ask.</p>
+   ${(v.stats||[]).map(s=>`<div class="sec"><h5>${E2(s.title)}</h5>${s.rows.map(r=>`<div class="rw"><span>${E2(r[0])}</span><b>${E2(r[1])}${r[2]?` <i class="tg ${r[2]==="Unknown"?"tg-u":"tg-w"}">${E2(r[2])}</i>`:""}</b></div>`).join("")}</div>`).join("")}
+   <p class="fn">* GMGN field, meaning unconfirmed.</p>
+   <button class="ub b-pri b-wide" data-plan>Build plan</button><button class="ub b-dk b-wide" data-x>Close</button></div>`)}
+function edPool(){const p=DR.pools[ED.pool_i]||DR.pools[0];return p}
+function planSheet(){const v=DR,e=ED,sg=v.sug,p=edPool(),bs=p.bin_step;
+  const seg=(k,opts)=>`<div class="sg ed-sg">${Object.entries(opts).map(([x,t])=>`<button data-ek="${k}" data-ev="${x}" class="${e[k]===x?"on":""}">${t}</button>`).join("")}</div>`;
+  const hint=(k,txt)=>`<span class="sug" id="sug_${k}">${String(e[k])!==String(sg[k])?"Suggested "+txt:""}</span>`;
+  const side=(k,below)=>`<div class="frow"><label>${below?"Bins below":"Bins above"}<input data-e="${k}" id="e_${k}" type="number" inputmode="numeric" min="1" max="69" step="1" value="${e[k]}"></label>
+     <label>${below?"Depth below %":"Height above %"}<input data-p="${k}" id="p_${k}" type="number" inputmode="decimal" step="1" value="${(pctOf(bs,e[k],below)*100).toFixed(1)}"></label></div>${hint(k,sg[k]+" bins")}`;
+  sheet(1,`<div class="msh"><h4>${E2(v.symbol)} · plan</h4><p>Agent suggestion: ${E2(v.strategy)}. ${E2(v.why)} Edit anything.</p>
+   <div class="sec"><h5>Pool</h5><select data-e="pool_i" class="sel">${v.pools.map((q,i)=>`<option value="${i}"${i===e.pool_i?" selected":""}>Bin ${q.bin_step} · fee ${q.base_fee}% · TVL ${usd(q.tvl)} · vol ${usd(q.vol24)}</option>`).join("")}</select>
+     ${hint("pool_i","pool "+(sg.pool_i+1))}<p class="fn">${E2(v.pool_why)}</p></div>
+   <div class="sec"><h5>Range</h5><div class="lab">Shape</div>${seg("shape",SHP)}${hint("shape",SHP[sg.shape])}
+     <div class="lab">Side</div>${seg("mode",SIDE)}${hint("mode",SIDE[sg.mode])}
+     ${e.mode!=="base"?side("below",true):""}${e.mode!=="quote"?side("above",false):""}
+     <p class="fn" id="capn">Max ${MLP.MAX} bins in total (one Meteora position). Bin step ${bs}.</p></div>
+   <div class="sec"><h5>Exit and size</h5>
+     <div class="frow"><label>Take profit %<input data-e="tp" type="number" inputmode="decimal" step="0.5" value="${+(e.tp*100).toFixed(2)}"></label>
+       <label>Stop loss %<input data-e="sl" type="number" inputmode="decimal" step="1" value="${+(Math.abs(e.sl)*100).toFixed(2)}"></label></div>
+     ${hint("tp","TP "+ +(sg.tp*100).toFixed(2)+"%")}${hint("sl","SL "+ +(Math.abs(sg.sl)*100).toFixed(2)+"%")}
+     <div class="frow"><label>Max hold, min<input data-e="hold" type="number" inputmode="numeric" min="5" step="5" value="${e.hold}"></label>
+       <label>Size SOL<input data-e="size" type="number" inputmode="decimal" min="0.01" max="10" step="0.05" value="${e.size}"></label></div>
+     ${hint("hold",hr(sg.hold))}${hint("size",sg.size+" SOL")}</div>
+   <div class="sec"><h5>Preview</h5><div id="pvw"></div></div>
+   ${v.price_note||e.mode!=="quote"?`<p class="fn" id="tsn">Token side assumes the token is bought at entry (paper).</p>`:""}
+   <button class="ub b-go b-wide" id="bopen" data-act="mlpopen" data-pid="${E2(v.id)}">Open paper</button>
+   <div class="pacts"><button class="ub b-dk" data-reset>Reset to suggestion</button><button class="ub b-dk" data-stats>Token stats</button></div></div>`);
+  renderPrev()}
+function edErr(){const e=ED;if(e.mode!=="base"&&!(e.below>=1))return"Set at least 1 bin below";if(e.mode!=="quote"&&!(e.above>=1))return"Set at least 1 bin above";
+  if(!(e.tp>=0.005&&e.tp<=10))return"TP must be above 0";if(!(e.sl<=-0.005&&e.sl>=-0.95))return"SL must be 0.5–95%";
+  if(!(e.hold>=5&&e.hold<=10080))return"Max hold 5 min to 7 days";if(!(e.size>=0.01&&e.size<=10))return"Size 0.01–10 SOL";return""}
+function edNorm(){const e=ED;if(e.mode==="quote")e.above=0;if(e.mode==="base")e.below=0;let capped=false;
+  if(e.below+e.above>MLP.MAX){e.above=Math.max(0,MLP.MAX-e.below);capped=true}
+  if(e.below>MLP.MAX){e.below=MLP.MAX;capped=true}return capped}
+function renderPrev(capped){const e=ED,p=edPool(),el=$("pvw");if(!el)return;
+  const pv=mlpPrev(Object.assign({},e,{bin_step:p.bin_step}),p.fee_tvl),err=edErr(),row=(a,b)=>`<div class="rw"><span>${a}</span><b>${b}</b></div>`;
+  $("capn").innerHTML=`Max ${MLP.MAX} bins in total (one Meteora position). Bin step ${p.bin_step}.`+(capped?` <i class="tg tg-w">Capped at ${MLP.MAX}</i>`:"");
+  el.innerHTML=!pv?row("Range","no bins"):row("Range",`${pct1(pv.low_pct)} to ${pct1(pv.high_pct)}`)+row("Bins",pv.n_bins)
+    +row("Value at range low",pct1(pv.v_low))+row("Fees in range",`${fsol(pv.fee_lo)} to ${fsol(pv.fee_hi)} SOL/day`)
+    +row("Mid estimate",`${fsol(pv.fee_mid)} SOL/day`)
+    +row("Break-even at low",pv.be_ok?`about ${Math.round(pv.be_h)}h of fees`:pv.be_h?`<span class="tg tg-w">Fees too small</span>`:"Unknown")
+    +(err?`<p class="fn errt">${err}</p>`:"");
+  const sg=DR.sug;["pool_i","shape","mode","below","above","tp","sl","hold","size"].forEach(k=>{const s=$("sug_"+k);if(s&&String(e[k])===String(sg[k]))s.textContent=""});
+  $("bopen").disabled=!!err||!pv}
+function edInput(t){const e=ED,p=edPool(),k=t.dataset.e||t.dataset.p,val=parseFloat(t.value);
+  if(t.dataset.p){const below=k==="below",n=Math.min(MLP.MAX,binsFor(p.bin_step,Math.abs(val||0)/100,below));e[k]=n;const b=$("e_"+k);if(b)b.value=n}
+  else if(k==="pool_i"){e.pool_i=+t.value;return planSheet()}
+  else if(k==="below"||k==="above"){e[k]=Math.max(0,Math.round(val||0));const q=$("p_"+k);if(q)q.value=(pctOf(p.bin_step,Math.min(e[k],MLP.MAX),k==="below")*100).toFixed(1)}
+  else if(k==="tp")e.tp=(val||0)/100;else if(k==="sl")e.sl=-Math.abs(val||0)/100;else if(k==="hold")e.hold=Math.round(val||0);else if(k==="size")e.size=val||0;
+  const capped=edNorm();if(capped){["below","above"].forEach(x=>{const b=$("e_"+x),q=$("p_"+x);if(b)b.value=e[x];if(q)q.value=(pctOf(p.bin_step,e[x],x==="below")*100).toFixed(1)})}
+  renderPrev(capped)}
+document.addEventListener("input",ev=>{const t=ev.target;if(t&&(t.dataset.e||t.dataset.p)&&ED)edInput(t)});
+document.addEventListener("change",ev=>{const t=ev.target;if(t&&t.dataset.e==="pool_i"&&ED)edInput(t)});
 function renderNew(){const el=$("lpnew");if(!NEWP){el.innerHTML="";return}
   el.innerHTML=`<div class="row" style="margin:12px 2px 8px"><b>New pools · ${NEWP.pools.length}</b><span class="mut">${NEWP.dropped} filtered</span></div>`
    +(NEWP.pools.length?NEWP.pools.map(p=>`<div class="card"><div class="row"><b>${E2(p.symbol)}</b><span class="mut">${hr(p.age_min)} old</span></div>
@@ -477,7 +550,7 @@ function renderNew(){const el=$("lpnew");if(!NEWP){el.innerHTML="";return}
      <dt>Organic</dt><dd>${p.organic==null?"unknown":p.organic}</dd></dl>
      <div class="pacts"><button class="ub b-pri" data-np="${E2(p.k)}">Manual LP</button></div></div>`).join("")
      :`<div class="card empty">Nothing passed the filter</div>`)}
-async function mlpRun(args){const r=await send("mlp",args,"Building plan…","mlp");if(r&&r.ok&&r.data&&r.data.draft)planSheet(r.data.draft)}
+async function mlpRun(args){const r=await send("mlp",args,"Reading token stats…","mlp");if(r&&r.ok&&r.data&&r.data.draft)statsSheet(r.data.draft)}
 function renderPos(){
   const P=S.positions||[],A=P.filter(p=>p.filled),W=P.filter(p=>!p.filled);
   $("poshd").textContent=`Active ${A.length} · Pending ${W.length}`;
@@ -859,7 +932,7 @@ async function act(a,pid){
   if(a==="mlp"){const ca=$("fca").value.trim(),sz=$("fsz").value.trim();$("fca").value="";
     if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca)){toast("bad","That doesn't look like a Solana token address");return}
     return mlpRun({ca,size:sz?+sz:null})}
-  if(a==="mlpopen")return send("mlp_open",{did:pid},"Opening paper position…","mlp");
+  if(a==="mlpopen"){const e=Object.assign({},ED);delete e.bin_step;return send("mlp_open",{did:pid,edits:e},"Opening paper position…","mlp")}
   if(a==="close"){PEND_POS[pid]="close";return send("close",{pid:+pid},"Closing position…","close")}
   if(a==="tpsl"||a==="tpclear"){
     const tp=a==="tpclear"?"":$("ftp").value.trim(),sl=a==="tpclear"?"":$("fsl").value.trim();
@@ -884,6 +957,12 @@ document.addEventListener("click",e=>{
   const h=q("#sghours button");if(h){if(S&&h.dataset.h!==(S.mode.hours||"auto"))send("hours",{v:h.dataset.h},"Changing hours…","hours");return}
   if(q("#bmlp")){mlpForm();return}
   if(q("#bnew")){send("newpools",{},"Loading new pools…","newpools").then(r=>{if(r&&r.ok&&r.data){NEWP=r.data;renderNew()}});return}
+  if(q("[data-plan]")){planSheet();return}
+  if(q("[data-stats]")){statsSheet(DR);return}
+  if(q("[data-reset]")){ED=Object.assign({},DR.sug);planSheet();return}
+  const ek=q("[data-ek]");if(ek&&ED){ED[ek.dataset.ek]=ek.dataset.ev;
+    if(ek.dataset.ek==="mode"){const bs=edPool().bin_step;if(ED.mode!=="base"&&!ED.below)ED.below=Math.min(MLP.MAX,binsFor(bs,.5,true));if(ED.mode!=="quote"&&!ED.above)ED.above=Math.min(MLP.MAX,binsFor(bs,.3,false))}
+    edNorm();planSheet();return}
   const np=q("[data-np]");if(np){mlpRun({k:np.dataset.np});return}
   const c=q("[data-close]");if(c){closeSheet(c.dataset.close);return}
   const t=q("[data-tpsl]");if(t){tpslSheet(t.dataset.tpsl);return}
