@@ -303,6 +303,9 @@ details.sys summary::-webkit-details-marker{display:none}
   </div>
 </div>
 <div class="wrap" id="lpv" hidden>
+  <div class="card"><div class="row"><b>Manual LP</b><span class="mut">paper</span></div>
+    <div class="pacts"><button class="ub b-pri" id="bmlp">Paste CA</button><button class="ub b-dk" id="bnew">New pools</button></div></div>
+  <div id="lpnew"></div>
   <div class="card"><div class="row"><b>Paper capital</b><span class="mut" id="lpcapn"></span></div><dl class="kv" id="lpcap"></dl></div>
   <div class="row" style="margin:12px 2px 8px"><b id="lphd">Open</b></div>
   <div id="lpopen"></div>
@@ -438,10 +441,43 @@ function renderLp(){
     +kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")+kv("In use",(+d.in_use).toFixed(2)+" SOL");
   $("lphd").textContent=`Open · ${O.length}`;
   $("lpopen").innerHTML=O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
-    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(o.recipe||"–"))}</dl></div>`).join("")
+    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(o.recipe||"–"))}</dl>
+    ${posBy(o.id)?`<div class="pacts"><button class="ub b-dn" data-close="${+o.id}"${PEND_POS[o.id]?" disabled":""}>${PEND_POS[o.id]?"Closing…":"Close"}</button></div>`:""}</div>`).join("")
     :`<div class="card empty">No open positions</div>`;
   $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(r.recipe),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
 }
+/* ---------- Manual LP from the Mini App: commands go through the encrypted relay; the CA never lands in the page or snapshot ---------- */
+let NEWP=null;
+const usd=x=>x>=1e6?"$"+(x/1e6).toFixed(1)+"M":x>=1e3?"$"+(x/1e3).toFixed(0)+"k":"$"+Math.round(x||0);
+const fsol=x=>x>=0.01?(+x).toFixed(3):(+x).toFixed(4);
+const hr=m=>m<60?m+"m":(m/60).toFixed(m%60?1:0)+"h";
+const E2=t=>esc(String(t??""));
+function mlpForm(){sheet(1,`<h4>Manual LP · paper</h4><p>Paste the token CA. It is sent encrypted to your bot only.</p>
+  <div class="fld"><label>Token CA<input id="fca" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Token mint"></label></div>
+  <div class="fld"><label>Size SOL<input id="fsz" type="number" inputmode="decimal" min="0.01" max="10" step="0.05" placeholder="default"></label></div>
+  <button class="ub b-pri b-wide" data-act="mlp">Build plan</button><button class="ub b-dk b-wide" data-x>Cancel</button>`)}
+function planSheet(v){
+  const kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,p=n=>(n>=0?"+":"")+(n*100).toFixed(0)+"%";
+  sheet(1,`<h4>${E2(v.symbol)} · plan</h4><dl class="kv">
+   ${kv("Pool",`bin ${v.pool.bin_step} · fee ${v.pool.base_fee}% · TVL ${usd(v.pool.tvl)}`)}${kv("State",E2(v.state))}
+   ${kv("Strategy",E2(v.strategy))}${kv("Why",E2(v.why))}${kv("Shape",E2(v.shape))}${kv("Side",E2(v.side))}
+   ${kv("Range",`${p(v.low_pct)} … ${p(v.high_pct)} (${v.n_bins} bins)`)}${kv("At range low",p(v.v_low)+" value")}
+   ${kv("Fees if in range",`~${fsol(v.fee_lo)}–${fsol(v.fee_hi)} SOL/day`)}${kv("Mid estimate",`~${fsol(v.fee_mid)} SOL/day`)}
+   ${kv("Break-even at low",v.be_h!=null?`~${Math.round(v.be_h)}h of fees`:v.be_small?"fees too small":"unknown")}
+   ${kv("Exit",`TP +${+(v.tp*100).toFixed(1)}% · SL ${+(v.sl*100).toFixed(1)}% · max ${hr(v.hold)}`)}${kv("Size",v.size+" SOL")}</dl>
+   ${v.token_side?`<p>Token side assumes the token is bought at entry (paper).</p>`:""}
+   <details><summary class="mut">Checks</summary><dl class="kv">${(v.checks||[]).map(c=>kv(E2(c[0]),(c[2]===true?"✅ ":c[2]===false?"⚠️ ":"")+E2(c[1]))).join("")}</dl></details>
+   <button class="ub b-go b-wide" data-act="mlpopen" data-pid="${E2(v.id)}">Open paper</button>
+   <button class="ub b-dk b-wide" data-x>Cancel</button>
+   <p style="margin-top:6px">Fine-tune shape and bins in Telegram with /lp.</p>`)}
+function renderNew(){const el=$("lpnew");if(!NEWP){el.innerHTML="";return}
+  el.innerHTML=`<div class="row" style="margin:12px 2px 8px"><b>New pools · ${NEWP.pools.length}</b><span class="mut">${NEWP.dropped} filtered</span></div>`
+   +(NEWP.pools.length?NEWP.pools.map(p=>`<div class="card"><div class="row"><b>${E2(p.symbol)}</b><span class="mut">${hr(p.age_min)} old</span></div>
+     <dl class="kv"><dt>TVL</dt><dd>${usd(p.tvl)}</dd><dt>Volume 1h</dt><dd>${usd(p.vol1h)}</dd><dt>Bin step</dt><dd>${p.bin_step}</dd>
+     <dt>Organic</dt><dd>${p.organic==null?"unknown":p.organic}</dd></dl>
+     <div class="pacts"><button class="ub b-pri" data-np="${E2(p.k)}">Manual LP</button></div></div>`).join("")
+     :`<div class="card empty">Nothing passed the filter</div>`)}
+async function mlpRun(args){const r=await send("mlp",args,"Building plan…","mlp");if(r&&r.ok&&r.data&&r.data.draft)planSheet(r.data.draft)}
 function renderPos(){
   const P=S.positions||[],A=P.filter(p=>p.filled),W=P.filter(p=>!p.filled);
   $("poshd").textContent=`Active ${A.length} · Pending ${W.length}`;
@@ -820,6 +856,10 @@ async function act(a,pid){
   if(a==="on")return send("power",{on:true},"Turning on…","power");
   if(a==="frozen")return send("power",{on:false,positions:"frozen"},"Turning off…","power");
   if(a==="closeall")return send("power",{on:false,positions:"close"},"Turning off and closing…","power");
+  if(a==="mlp"){const ca=$("fca").value.trim(),sz=$("fsz").value.trim();$("fca").value="";
+    if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca)){toast("bad","That doesn't look like a Solana token address");return}
+    return mlpRun({ca,size:sz?+sz:null})}
+  if(a==="mlpopen")return send("mlp_open",{did:pid},"Opening paper position…","mlp");
   if(a==="close"){PEND_POS[pid]="close";return send("close",{pid:+pid},"Closing position…","close")}
   if(a==="tpsl"||a==="tpclear"){
     const tp=a==="tpclear"?"":$("ftp").value.trim(),sl=a==="tpclear"?"":$("fsl").value.trim();
@@ -842,6 +882,9 @@ document.addEventListener("click",e=>{
   if(q("#bpower")){powerSheet();return}
   if(q("#swpause")){if(S)send("pause",{on:!S.mode.paused},S.mode.paused?"Resuming…":"Pausing…","pause");return}
   const h=q("#sghours button");if(h){if(S&&h.dataset.h!==(S.mode.hours||"auto"))send("hours",{v:h.dataset.h},"Changing hours…","hours");return}
+  if(q("#bmlp")){mlpForm();return}
+  if(q("#bnew")){send("newpools",{},"Loading new pools…","newpools").then(r=>{if(r&&r.ok&&r.data){NEWP=r.data;renderNew()}});return}
+  const np=q("[data-np]");if(np){mlpRun({k:np.dataset.np});return}
   const c=q("[data-close]");if(c){closeSheet(c.dataset.close);return}
   const t=q("[data-tpsl]");if(t){tpslSheet(t.dataset.tpsl);return}
   const a=q("[data-act]");if(a){act(a.dataset.act,a.dataset.pid);return}
@@ -849,7 +892,7 @@ document.addEventListener("click",e=>{
 
 /* ---------- refresh: fast while the app is open and the bot is listening ---------- */
 applyTheme();setInterval(()=>{if(!localStorage.getItem(TK))applyTheme()},60000);
-view(["office","pos","rep","res"].includes(localStorage.getItem("jett_view"))?localStorage.getItem("jett_view"):"office");
+view(["office","pos","lp","rep","res"].includes(localStorage.getItem("jett_view"))?localStorage.getItem("jett_view"):"office");
 load();relayInit();
 setInterval(()=>{if(!document.hidden)load()},15000);
 setInterval(hello,240000);
