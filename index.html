@@ -740,18 +740,24 @@ function stn(x,y,d,i,below){const [name,st,,col,sh,short]=d,k=st.k==="work"?"lw"
     <circle class="${k==="lw"?"led":""}" cx="${bx+10}" cy="${by+9}" r="3" fill="${st.col}"/><text x="${bx+17}" y="${by+12.3}" style="font-size:9px"><tspan font-weight="700">${esc(name)}</tspan> · ${esc(short)}</text></g></g>`}
 function labData(R){
   const qr=(S.agents||[]).find(a=>a.name==="quant_research"),Q=qr&&qr.counts||{};
-  const qs=qr?agState(qr):{k:"off",t:"Unavailable",col:"#94a3b8"};
+  const A=R.activity||{},nw=Date.now()/1000,W={k:"work",col:"#22c55e"},ID={k:"idle",col:"#94a3b8"},OFF={k:"off",t:"Unavailable",col:"#94a3b8"};
+  const live=qr&&qr.alive&&qr.status==="running"&&qr.beat_age_s!=null&&qr.beat_age_s<300;
+  const age=t=>t?Math.max(0,nw-t):null,rec=t=>age(t)!=null&&age(t)<900,ag=(w,t)=>t?w+" "+ago(Math.round(age(t)))+" ago":"";
+  const dc=!qr?OFF:live?{...W,t:"Working · heartbeat "+ago(qr.beat_age_s)+" ago"}:!qr.alive?{...OFF,t:"Offline"}:{...ID,t:"Idle · heartbeat "+ago(qr.beat_age_s||0)+" ago"};
+  const ft0=Math.max(A.outcome_last_ts||0,A.position_last_ts||0)||null;
+  const ft=!qr||!qr.alive?{...OFF,t:qr?"Offline":"Unavailable"}:live&&rec(ft0)?{...W,t:"Working · "+ag("last update",ft0)}:{...ID,t:ft0?"Idle · "+ag("last update",ft0):"Idle · last update unknown"};
+  const bt=!qr||!qr.alive?{...OFF,t:qr?"Offline":"Unavailable"}:rec(A.sim_last_ts)?{...W,t:"Working · "+ag("last sim",A.sim_last_ts)}:{...ID,t:A.sim_last_ts?"Idle · "+ag("last sim",A.sim_last_ts):"Idle · last sim unknown"};
   const L=R.leaderboard||[],P=R.progress||[],C=R.counts||{};
   const strong=L.filter(r=>r.label==="STRONG").length,weak=L.filter(r=>r.label==="WEAK").length;
   const rep=R.report_ts?Math.max(0,Date.now()/1000-R.report_ts):null;
   const done=P.reduce((a,p)=>a+(p.tokens_done||0),0),seen=P.reduce((a,p)=>a+(p.tokens_seen||0),0);
   const open=Object.values(C).reduce((a,c)=>a+(c.pending||0),0),fill=Object.values(C).reduce((a,c)=>a+(c.filled||0),0);
-  const fresh=rep==null?{k:"off",t:"No report",col:"#94a3b8"}:{k:rep<26*3600?"work":"idle",t:"Report "+ago(Math.round(rep))+" ago",col:rep<26*3600?"#22c55e":"#94a3b8"};
+  const fresh=rep==null?{k:"off",t:"No report",col:"#94a3b8"}:{k:rep<900?"work":"idle",t:(rep<900?"Working · ":"Idle · ")+"report "+ago(Math.round(rep))+" ago",col:rep<900?"#22c55e":"#94a3b8"};
   const un=s=>s.k==="off"?"Unavailable":null;
   return [["Rule finder",fresh,L.length?`${L.length} rules · ${strong} strong · ${weak} weak`:"No results yet","#6c8cff","tri",un(fresh)||(L.length?`${L.length} rules`:"No results")],
-    ["Backtest",qs,seen?`${done} of ${seen} tokens simulated`:"No samples yet","#10c872","pill",un(qs)||(seen?(qs.k==="work"?`Simulating ${done}/${seen}`:`${done}/${seen} done`):"No samples")],
-    ["Forward tracker",qs,`${open} open · ${fill} filled`,"#ff6a13","bean",un(qs)||`${open} open`],
-    ["Data collection",qs,qr?`${kn(Q.snaps)} snaps · ${kn(Q.young_pools)} young pools · ${kn(Q.spike_pools)} spikes`:"Unavailable","#eab308","sq",un(qs)||`${kn(Q.snaps)} snaps`]];
+    ["Backtest",bt,seen?`${done} of ${seen} tokens simulated`:"No samples yet","#10c872","pill",un(bt)||(seen?(bt.k==="work"?`Simulating ${done}/${seen}`:`${done}/${seen} done`):"No samples")],
+    ["Forward tracker",ft,`${open} open · ${fill} filled`,"#ff6a13","bean",un(ft)||`${open} open`],
+    ["Data collection",dc,qr?`${kn(Q.snaps)} snaps · ${kn(Q.young_pools)} young pools · ${kn(Q.spike_pools)} spikes`:"Unavailable","#eab308","sq",un(dc)||`${kn(Q.snaps)} snaps`]];
 }
 function labSVG(D){
   const I=(i,j)=>[180+(i-j)*80,92+(i+j)*40],c=[I(-.6,-.6),I(1.6,-.6),I(1.6,1.6),I(-.6,1.6)],H=58;
