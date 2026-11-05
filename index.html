@@ -124,6 +124,17 @@ body.v-dash{background:var(--bg);color:var(--fg)}
 .lw .drawc,.lab>svg>g>.drawc{stroke-dasharray:60;animation:drawc 3.4s ease-in-out infinite}@keyframes drawc{0%{stroke-dashoffset:60}55%,100%{stroke-dashoffset:0}}
 .lw .fillt{animation:fillt 3s ease-in-out infinite}@keyframes fillt{0%{transform:scaleY(.15)}70%,100%{transform:scaleY(1)}}
 .li .led{animation:led 3.2s steps(2) infinite}.li .walk{animation:lwalk2 9s ease-in-out infinite}@keyframes lwalk2{0%,100%{transform:none}50%{transform:translate(4px,2px)}}
+.lrim{stroke:#b8c4d6;stroke-width:2}.night .lrim{stroke:#3a4570}
+.lwin{fill:#bfe3ff;transition:fill .8s}.night .lwin{fill:#141b3d}.lfr{stroke:#94a3b8;stroke-width:1.6}.night .lfr{stroke:#475080}
+.stars,.moonl,.lamp{opacity:0;transition:opacity .8s}.night .stars,.night .moonl,.night .lamp{opacity:1}.sun,.sunb{transition:opacity .8s}.night .sun,.night .sunb{opacity:0}
+.ldoor{fill:#c9b08a;stroke:#9a7b52}.night .ldoor{fill:#4a3f35;stroke:#2f2720}
+.night .lab .fl{fill:#1f2744}.night .lab .wa{fill:#19203c}
+.lab .tw{animation:led 2.6s ease-in-out infinite}.lab .sway{transform-box:fill-box;transform-origin:50% 100%;animation:pswy 5s ease-in-out infinite}@keyframes pswy{50%{transform:rotate(4deg)}}
+.lab .catb{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.8s ease-in-out infinite}.lab .tail{transform-box:fill-box;transform-origin:0 100%;animation:tswy 2.8s ease-in-out infinite}@keyframes tswy{50%{transform:rotate(-18deg)}}
+.lab .stm{animation:steam 2s ease-in-out infinite}
+.lab .zz text{font:800 7px system-ui,sans-serif;fill:#cbd5e1;animation:zz 2.6s ease-in-out infinite}.lab .zz .z2{font-size:5.4px;animation-delay:-1.3s}
+.li .walk{animation:none}.li .bdy{animation:breathe 4.2s ease-in-out infinite}
+.night .lw .lamp{animation:glow 2.4s ease-in-out infinite}@keyframes glow{50%{opacity:.6}}.li .lamp{opacity:0!important}
 .lo{filter:grayscale(1);opacity:.5}.lo *{animation:none!important}
 .hid .lab *{animation-play-state:paused!important}
 @media (prefers-reduced-motion:reduce){.lab *{animation:none!important}.rise{opacity:0}}
@@ -726,18 +737,6 @@ const PROPS=[
   ()=>centri(-22,-10)+mon(6,2,"#22c55e",0)+beaker(32,16,lq[3]),
   ()=>mon(-20,-8,"#f97316",.8)+clip(6,6)+flask(30,15,lq[2],.6),
   ()=>server(-20,-6)+rack(8,6)+beaker(32,17,lq[0])];
-function agent(col,sh,k,i){const e=SH[sh][1],h=k==="work"?5.2:k==="off"?1.4:4;
-  return `<g class="walk" style="animation-delay:${-i*1.7}s"><ellipse cx="0" cy="7.5" rx="9" ry="3.2" fill="rgba(15,23,42,.18)"/><g class="bdy" style="animation-delay:${-i*.3}s"><g fill="${col}">${SH[sh][0]}</g>
-   <path d="M-6.5 0 L0 6.5 L6.5 0 L7 6.5 L-7 6.5Z" fill="#f8fafc" opacity=".95"/>
-   <g class="eye" style="animation-delay:${-i*1.1}s"><rect x="${-e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${h}" rx="1.15" fill="#fff"/><rect x="${e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${h}" rx="1.15" fill="#fff"/></g>
-   <g fill="none" stroke="#e2e8f0" stroke-width=".9" opacity=".9"><circle cx="${-e[1]}" cy="${e[0]-.4}" r="2.9"/><circle cx="${e[1]}" cy="${e[0]-.4}" r="2.9"/><path d="M${-e[1]+2.9} ${e[0]-.4}H${e[1]-2.9}"/></g></g></g>`}
-function stn(x,y,d,i,below){const [name,st,,col,sh,short]=d,k=st.k==="work"?"lw":st.k==="off"?"lo":"li";
-  const t=`${name} · ${short}`,w=Math.max(t.length*5.3+22,60),bx=-w/2+(i===1?16:i===2?-16:0),by=below?52:-60;
-  return `<g transform="translate(${x},${y})" class="${k}">${bench(34,14,14)}<g transform="scale(1.2)">${PROPS[i]()}</g>
-   <g transform="translate(-14,30) scale(1.25)">${agent(col,sh,st.k,i)}</g>
-   <g class="bub"><rect x="${bx}" y="${by}" width="${w}" height="18" rx="9" fill="#fff" stroke="rgba(15,23,42,.1)"/>
-    ${below?`<path d="M-18 ${by} L-14 ${by-5} L-10 ${by} Z" fill="#fff"/>`:`<path d="M-4 ${by+18} L0 ${by+23} L4 ${by+18} Z" fill="#fff"/>`}
-    <circle class="${k==="lw"?"led":""}" cx="${bx+10}" cy="${by+9}" r="3" fill="${st.col}"/><text x="${bx+17}" y="${by+12.3}" style="font-size:9px"><tspan font-weight="700">${esc(name)}</tspan> · ${esc(short)}</text></g></g>`}
 function labData(R){
   const qr=(S.agents||[]).find(a=>a.name==="quant_research"),Q=qr&&qr.counts||{};
   const A=R.activity||{},nw=Date.now()/1000,W={k:"work",col:"#22c55e"},ID={k:"idle",col:"#94a3b8"},OFF={k:"off",t:"Unavailable",col:"#94a3b8"};
@@ -759,22 +758,56 @@ function labData(R){
     ["Forward tracker",ft,`${open} open · ${fill} filled`,"#ff6a13","bean",un(ft)||`${open} open`],
     ["Data collection",dc,qr?`${kn(Q.snaps)} snaps · ${kn(Q.young_pools)} young pools · ${kn(Q.spike_pools)} spikes`:"Unavailable","#eab308","sq",un(dc)||`${kn(Q.snaps)} snaps`]];
 }
+const CAPY={tri:-18,pill:-9.5,sq:-15,bean:-11.5};
+function agent(col,sh,k,i){const e=SH[sh][1],sl=k!=="work"&&k!=="off"?1:0,ty=CAPY[sh]||-12;
+  const eyes=sl?`<g stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M${-e[1]-1.6} ${e[0]-.6} q1.6 1.4 3.2 0"/><path d="M${e[1]-1.6} ${e[0]-.6} q1.6 1.4 3.2 0"/></g>`
+   :`<g class="eye" style="animation-delay:${-i*1.1}s"><rect x="${-e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${k==="off"?1.4:5.2}" rx="1.15" fill="#fff"/><rect x="${e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${k==="off"?1.4:5.2}" rx="1.15" fill="#fff"/></g>
+   <g fill="none" stroke="#e2e8f0" stroke-width=".9" opacity=".9"><circle cx="${-e[1]}" cy="${e[0]-.4}" r="2.9"/><circle cx="${e[1]}" cy="${e[0]-.4}" r="2.9"/><path d="M${-e[1]+2.9} ${e[0]-.4}H${e[1]-2.9}"/></g>`;
+  const cap=sl?`<g transform="translate(0,${ty+1.5})"><path d="M-7 0 Q-1 -3 7 0 Q4 -9 -3 -10 Q-6 -6 -7 0Z" fill="#6c8cff"/><path d="M-7.5 0 Q0 -2 7.5 0" stroke="#fff" stroke-width="1.6" fill="none"/><circle cx="-4" cy="-10" r="1.8" fill="#fff"/></g>
+   <g class="zz" transform="translate(7,${ty-4})"><text class="z1" x="0" y="0">z</text><text class="z2" x="5" y="-6">z</text></g>`:"";
+  return `<g class="walk" style="animation-delay:${-i*1.7}s"><ellipse cx="0" cy="7.5" rx="9" ry="3.2" fill="rgba(15,23,42,.18)"/><g class="bdy" style="animation-delay:${-i*.3}s"><g fill="${col}">${SH[sh][0]}</g>
+   <path d="M-6.5 0 L0 6.5 L6.5 0 L7 6.5 L-7 6.5Z" fill="#f8fafc" opacity=".95"/>${eyes}${cap}</g></g>`}
+function stn(x,y,d,i){const [,st,,col,sh]=d,k=st.k==="work"?"lw":st.k==="off"?"lo":"li";
+  return `<g transform="translate(${x},${y})" class="${k}">${bench(30,12,13)}<g transform="scale(1.1)">${PROPS[i]()}</g>
+   <circle class="lamp" cx="0" cy="-2" r="34" fill="url(#lglow)"/><g transform="translate(-14,28) scale(1.2)">${agent(col,sh,st.k,i)}</g>
+   <g class="bub" transform="translate(-14,43)"><rect x="${-(d[0].length*2.3+9)}" y="0" width="${d[0].length*4.6+18}" height="13" rx="6.5" fill="#fff" stroke="rgba(15,23,42,.1)"/>
+    <circle class="${k==="lw"?"led":""}" cx="${-(d[0].length*2.3+9)+7}" cy="6.5" r="2.4" fill="${st.col}"/><text x="${-(d[0].length*2.3+9)+12.5}" y="9.4" style="font-size:8px;font-weight:700">${esc(d[0])}</text></g></g>`}
 function labSVG(D){
-  const I=(i,j)=>[180+(i-j)*80,92+(i+j)*40],c=[I(-.6,-.6),I(1.6,-.6),I(1.6,1.6),I(-.6,1.6)],H=58;
-  let g=`<path d="M${c[0]} L${c[1]} L${c[2]} L${c[3]} Z" class="fl"/><g class="ft">`;
-  for(let s=-.6+.275;s<1.59;s+=.275){const a=I(s,-.6),b=I(s,1.6),p=I(-.6,s),q=I(1.6,s);g+=`<path d="M${a} L${b}M${p} L${q}"/>`}
-  g+=`</g><path d="M${c[0]} L${c[0][0]},${c[0][1]-H} L${c[1][0]},${c[1][1]-H} L${c[1]} Z" class="wa"/><path d="M${c[0]} L${c[0][0]},${c[0][1]-H} L${c[3][0]},${c[3][1]-H} L${c[3]} Z" class="wb"/>`;
-  // whiteboard on left wall
-  const wb=(x0,x1)=>{const y=x=>44+(180-x)/2;return `<path d="M${x0},${y(x0)-48} L${x1},${y(x1)-48} L${x1},${y(x1)-18} L${x0},${y(x0)-18}Z" fill="#f8fafc" stroke="#94a3b8"/>`};
-  g+=wb(152,72)+`<g transform="matrix(1,-.5,0,1,0,${44+90+34})" stroke="#64748b" stroke-width="1" fill="none" stroke-linecap="round">
-    <path class="drawc" d="M78 -76 q3 -4 6 0 t6 0 M94 -78 h6 M96 -81 v6"/><path class="drawc" style="animation-delay:.7s" stroke="#6c8cff" d="M106 -80 l5 4 l5 -7 l5 3 l5 -6"/>
-    <path class="drawc" style="animation-delay:1.4s" d="M80 -68 h14 M98 -68 q4 -5 8 0 q4 5 8 0 M120 -70 l4 4 m0 -4 l-4 4"/><path d="M82 -60 h30" stroke="#ef4444"/></g>`;
-  // shelves on right wall with bottles
-  const y2=x=>44+(x-180)/2;
-  [[-40],[-24]].forEach(([o])=>{g+=`<path d="M232,${y2(232)+o} L330,${y2(330)+o}" stroke="#94a3b8" stroke-width="2"/>`;
-    [240,254,268,290,306,318].forEach((x,i)=>{const yy=y2(x)+o-1,c=lq[(i+(o<-30?0:2))%5];g+=`<rect x="${x-2.5}" y="${yy-(i%2?9:7)}" width="5" height="${i%2?9:7}" rx="1.5" fill="${c}" opacity=".85"/>`})});
-  const pos=[[0,0],[1,0],[0,1],[1,1]];
-  return `<svg viewBox="0 -18 360 300" role="img" aria-label="Research lab">${g}${D.map((d,k)=>{const p=I(...pos[k]);return stn(p[0],p[1]+18,d,k,k===3)}).join("")}</svg>`;
+  const cx=180,cy=160,RX=168,RY=84,H=56,pt=(t,h=0,k=1)=>[cx+RX*k*Math.cos(t),cy-RY*k*Math.sin(t)-h];
+  const P=p=>`${f1(p[0])},${f1(p[1])}`;
+  let g=`<defs><radialGradient id="lglow"><stop offset="0" stop-color="#fde68a" stop-opacity=".45"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></radialGradient>
+   <linearGradient id="lsun" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff7c2" stop-opacity=".55"/><stop offset="1" stop-color="#fff7c2" stop-opacity="0"/></linearGradient>
+   <clipPath id="lfl"><ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}"/></clipPath></defs>`;
+  // curved wall (back half of the cylinder), then floor
+  g+=`<path class="wa" d="M${cx-RX},${cy} L${cx-RX},${cy-H} A${RX} ${RY} 0 0 1 ${cx+RX},${cy-H} L${cx+RX},${cy} A${RX} ${RY} 0 0 0 ${cx-RX},${cy}Z"/>
+   <path class="lrim" d="M${cx-RX},${cy-H} A${RX} ${RY} 0 0 1 ${cx+RX},${cy-H}" fill="none"/>`;
+  // round windows with sky
+  [2.45,1.95,1.2,.7].forEach((t,j)=>{const [x,y]=pt(t,H*.55),sx=Math.max(.45,Math.abs(Math.sin(t)));
+    g+=`<g transform="translate(${f1(x)},${f1(y)}) scale(${f1(sx)},1)"><ellipse rx="12" ry="13" class="lwin"/>
+     <g class="stars">${[[-5,-5],[4,-2],[-1,5],[6,6]].map((s,q)=>`<circle class="tw" cx="${s[0]}" cy="${s[1]}" r=".9" fill="#fff" style="animation-delay:${(j+q)*.6}s"/>`).join("")}</g>
+     ${j===1?`<circle class="sun" cx="3" cy="-3" r="4.5" fill="#fde047"/><path class="moonl" d="M2 -7a5 5 0 1 0 5 6a4 4 0 1 1 -5 -6z" fill="#e2e8f0"/>`:""}
+     <ellipse rx="12" ry="13" fill="none" class="lfr"/><path d="M-12 0H12M0 -13V13" class="lfr" stroke-width="1"/></g>`});
+  // door on the right
+  {const [x,y]=pt(.32,0);g+=`<path class="ldoor" d="M${f1(x-9)},${f1(y+3)} L${f1(x-9)},${f1(y-40)} Q${f1(x)},${f1(y-46)} ${f1(x+9)},${f1(y-38)} L${f1(x+9)},${f1(y-3)}Z"/><circle cx="${f1(x+5)}" cy="${f1(y-18)}" r="1.4" fill="#fbbf24"/>`}
+  g+=`<ellipse class="fl" cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}"/><g class="ft" clip-path="url(#lfl)">`;
+  for(let k=.25;k<1;k+=.25)g+=`<ellipse cx="${cx}" cy="${cy}" rx="${RX*k}" ry="${RY*k}" fill="none"/>`;
+  for(let a=0;a<12;a++){const t=a*Math.PI/6;g+=`<path d="M${cx},${cy} L${P(pt(t,0,1.05))}"/>`}
+  g+=`</g><g class="sunb">${[1.95,1.2].map(t=>{const [x,y]=pt(t,H*.55);return `<path d="M${f1(x-9)},${f1(y)} L${f1(x+9)},${f1(y)} L${f1(x+34)},${f1(y+90)} L${f1(x-4)},${f1(y+90)}Z" fill="url(#lsun)"/>`}).join("")}</g>`;
+  // whiteboard on curved wall (left), shelves (right)
+  {const [x,y]=pt(2.85,H*.6);g+=`<g transform="translate(${f1(x)},${f1(y)}) skewY(24)"><rect x="-2" y="-14" width="34" height="22" rx="1.5" fill="#f8fafc" stroke="#94a3b8"/>
+    <g stroke="#64748b" fill="none" stroke-width="1" stroke-linecap="round"><path class="drawc" d="M2 -9 q3 -4 6 0 t6 0 M18 -9 h5 M20.5 -11.5 v5"/><path class="drawc" style="animation-delay:.8s" stroke="#6c8cff" d="M2 0 l5 3 l5 -6 l5 2 l5 -5 l6 2"/></g></g>`}
+  {const [x,y]=pt(.95,H*.35);g+=`<g transform="translate(${f1(x)},${f1(y)}) skewY(-30)">${[0,12].map(o=>`<path d="M-14 ${o} H16" stroke="#94a3b8" stroke-width="2"/>`+[-11,-4,3,10].map((b,q)=>`<rect x="${b}" y="${o-(q%2?8:6)}" width="4.5" height="${q%2?8:6}" rx="1.4" fill="${lq[(q+o/6)%5]}" opacity=".85"/>`).join("")).join("")}</g>`}
+  // plant
+  {const [x,y]=pt(2.95,-6,.93);g+=`<g transform="translate(${f1(x)},${f1(y)})"><path d="M-6 0 L6 0 L4.5 8 L-4.5 8Z" fill="#b45309"/><g class="sway"><path d="M0 0 Q-9 -6 -7 -16 Q-1 -9 0 0Z M0 0 Q8 -7 6 -18 Q0 -10 0 0Z M0 0 Q-2 -12 1 -22 Q3 -11 0 0Z" fill="#22a06b"/></g></g>`}
+  const pos=[[cx,cy-52],[cx+98,cy-6],[cx-98,cy-6],[cx,cy+38]];
+  // lab cat (sleeps on the rug in the middle, tail sways)
+  const cat=`<g transform="translate(${cx+44},${cy+18})"><ellipse cx="0" cy="4" rx="10" ry="3" fill="rgba(15,23,42,.18)"/><g class="catb"><ellipse cx="0" cy="0" rx="9" ry="5.5" fill="#f59e0b"/><circle cx="-8" cy="-2" r="4.2" fill="#f59e0b"/>
+   <path d="M-11 -5 L-10.5 -9 L-8 -6Z M-6.5 -6 L-5 -9.5 L-4.5 -5.5Z" fill="#f59e0b"/><path d="M-10 -2 q1 .8 2 0 M-7 -2 q1 .8 2 0" stroke="#7c2d12" stroke-width=".7" fill="none"/></g>
+   <g class="tail"><path d="M8 1 Q15 0 14 -6" stroke="#f59e0b" stroke-width="2.4" fill="none" stroke-linecap="round"/></g></g>`;
+  // coffee mug with steam on the front bench
+  const mug=`<g transform="translate(${cx+30},${cy+22})"><rect x="-3" y="-6" width="6" height="7" rx="1.2" fill="#f8fafc"/><path d="M3 -4.5 q3 1.5 0 4" stroke="#f8fafc" stroke-width="1.2" fill="none"/>
+   <path class="stm" d="M-1 -8 q-2 -3 0 -6 M1.5 -8 q2 -3 0 -6" stroke="#cbd5e1" stroke-width=".8" fill="none"/></g>`;
+  return `<svg viewBox="0 30 360 258" role="img" aria-label="Research lab">${g}${stn(...pos[0],D[0],0)}${stn(...pos[1],D[1],1)}${stn(...pos[2],D[2],2)}${cat}${stn(...pos[3],D[3],3)}${mug}</svg>`;
 }
 document.addEventListener("visibilitychange",()=>document.body.classList.toggle("hid",document.hidden));
 function renderRes(){
