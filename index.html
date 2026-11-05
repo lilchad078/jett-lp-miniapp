@@ -496,7 +496,7 @@ function posCard(p){
 const PEND_POS={};
 function lpLine(p){const o=((S.lp||{}).open||[]).find(x=>String(x.id)===String(p.id));if(!o)return"";
   const R={in:"🟢 In range",out_below:"🔴 Out of range ↓",out_above:"🔴 Out of range ↑",waiting:"⚪ Waiting"};
-  return `<dl class="kv"><dt>Status</dt><dd>${R[o.range]||"–"}</dd><dt>Recipe</dt><dd>${esc(o.recipe||"–")}</dd></dl>`}
+  return `<dl class="kv"><dt>Status</dt><dd>${R[o.range]||"–"}</dd><dt>Recipe</dt><dd>${esc(RNAME(o))}</dd></dl>`}
 function renderLp(){
   const d=S.lp||{},O=d.open||[],sg=x=>(x>=0?"+":"")+(+x).toFixed(3)+" SOL",kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,
     R={in:"🟢 In range",out_below:"🔴 Out ↓",out_above:"🔴 Out ↑",waiting:"⚪ Waiting"},E=t=>String(t).replace(/[<>&"]/g,"");
@@ -506,10 +506,10 @@ function renderLp(){
     +kv("Total PnL",sg(d.realized+d.unrealized))+kv("Realized",sg(d.realized))+kv("Open PnL",sg(d.unrealized))
     +kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")+kv("In use",(+d.in_use).toFixed(2)+" SOL");
   void(O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
-    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(o.recipe||"–"))}</dl>
+    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(RNAME(o)))}</dl>
     ${posBy(o.id)?`<div class="pacts"><button class="ub b-dn" data-close="${+o.id}"${PEND_POS[o.id]?" disabled":""}>${PEND_POS[o.id]?"Closing…":"Close"}</button></div>`:""}</div>`).join("")
     :`<div class="card empty">No open positions</div>`);
-  $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(r.recipe),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
+  $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(RNAME(r)),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
 }
 /* ---------- Manual LP from the Mini App: commands go through the encrypted relay; the CA never lands in the page or snapshot ---------- */
 let NEWP=null;
@@ -692,6 +692,7 @@ const vtag={passed:["t-pass","Passed"],"near-miss":["t-near","Near miss"],reject
 const pst={pending:"Open",filled:"Filled",unfilled:"Not filled",no_entry:"No entry"};
 const WHY={"TVL below v5 minimum":"Low TVL","vol/TVL below v5 minimum":"Low vol/TVL","bin step outside v5 range":"Bin step",
   "base fee outside v5 range":"Base fee","dynamic fee off":"Dynamic fee off","not scanned by the scout yet":"Not scanned yet"};
+const RNAME=o=>{const c=String((o&&o.recipe)||"").replace(/^recipe:/,"");return (o&&o.recipe_name)||((S||{}).names||{})[c]||c.replace(/_/g," ")||"–"};
 const SHPN={bidask:"Bid Ask",curve:"Curve",spot:"Spot",two_spot:"Two Spot"};
 const VPART={launch60:"Launch 60m",bonus:"Bonus stage",d50_99:"Bid Ask both sides −50/+99%",db50_99:"Bid Ask both sides −50/+99%",tp20:"TP +20%",
   cut:"cut on 5m price",cut1m:"cut on 1m price",sl20:"SL −20%",sl20_1m:"SL −20% on 1m price"};
@@ -1162,7 +1163,7 @@ document.addEventListener("click",e=>{
 
 /* ---------- refresh: fast while the app is open and the bot is listening ---------- */
 applyTheme();setInterval(()=>{if(!localStorage.getItem(TK))applyTheme()},60000);
-{const V=["office","pos","lp","rep","res"],qv=new URLSearchParams(location.search).get("v"),lv=localStorage.getItem("jett_view");view(V.includes(qv)?qv:V.includes(lv)?lv:"office")}
+{const V=["office","pos","lp","rep","res"],qv=(()=>{const q=new URLSearchParams(location.search).get("v");if(q)return q;try{const sp=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe||{}).start_param;if(sp)return sp}catch(e){}const h=new URLSearchParams(location.hash.slice(1));return h.get("tgWebAppStartParam")||new URLSearchParams(location.search).get("tgWebAppStartParam")})(),lv=localStorage.getItem("jett_view");view(V.includes(qv)?qv:V.includes(lv)?lv:"office")}
 load();relayInit();
 setInterval(()=>{if(!document.hidden)load()},15000);
 setInterval(hello,240000);
