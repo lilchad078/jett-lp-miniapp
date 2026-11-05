@@ -307,8 +307,6 @@ details.sys summary::-webkit-details-marker{display:none}
     <div class="pacts"><button class="ub b-pri" id="bmlp">Paste CA</button><button class="ub b-dk" id="bnew">New pools</button></div></div>
   <div id="lpnew"></div>
   <div class="card"><div class="row"><b>Paper capital</b><span class="mut" id="lpcapn"></span></div><dl class="kv" id="lpcap"></dl></div>
-  <div class="row" style="margin:12px 2px 8px"><b id="lphd">Open</b></div>
-  <div id="lpopen"></div>
   <div class="row" style="margin:12px 2px 8px"><b>By recipe</b><span class="mut">closed</span></div>
   <div class="card"><dl class="kv" id="lprec" style="margin-top:0"></dl></div>
 </div>
@@ -426,24 +424,26 @@ function posCard(p){
      <div class="mut">Range ${px(p.range.low)} – ${px(p.range.high)} · ${age(p.age_min)} old</div></div>
      <div style="text-align:right"><span class="st ${p.filled?"a":"p"}">${p.filled?"ACTIVE":"PENDING"}</span>
      ${p.filled?`<div class="pnl">${pc(p.pnl_pct,2)}</div>`:""}</div></div>
-   ${mid}${tpsl}
+   ${mid}${lpLine(p)}${tpsl}
    <div class="pacts"><button class="ub b-dk" data-tpsl="${p.id}" ${pend?"disabled":""}>TP / SL</button>
      <button class="ub b-dn" data-close="${p.id}" ${pend?"disabled":""}>${pend==="close"?"Closing…":"Close now"}</button></div></div>`;
 }
 const PEND_POS={};
+function lpLine(p){const o=((S.lp||{}).open||[]).find(x=>String(x.id)===String(p.id));if(!o)return"";
+  const R={in:"🟢 In range",out_below:"🔴 Out of range ↓",out_above:"🔴 Out of range ↑",waiting:"⚪ Waiting"};
+  return `<dl class="kv"><dt>Status</dt><dd>${R[o.range]||"–"}</dd><dt>Recipe</dt><dd>${esc(o.recipe||"–")}</dd></dl>`}
 function renderLp(){
   const d=S.lp||{},O=d.open||[],sg=x=>(x>=0?"+":"")+(+x).toFixed(3)+" SOL",kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,
     R={in:"🟢 In range",out_below:"🔴 Out ↓",out_above:"🔴 Out ↑",waiting:"⚪ Waiting"},E=t=>String(t).replace(/[<>&"]/g,"");
-  if(d.capital==null){$("lpcap").innerHTML=kv("Status","no data yet");$("lpopen").innerHTML="";$("lprec").innerHTML="";return}
+  if(d.capital==null){$("lpcap").innerHTML=kv("Status","no data yet");$("lprec").innerHTML="";return}
   $("lpcapn").textContent=`start ${d.capital} SOL`;
   $("lpcap").innerHTML=kv("Equity",`${(+d.equity).toFixed(3)} SOL (${d.progress>=0?"+":""}${(d.progress*100).toFixed(1)}%)`)
     +kv("Total PnL",sg(d.realized+d.unrealized))+kv("Realized",sg(d.realized))+kv("Open PnL",sg(d.unrealized))
     +kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")+kv("In use",(+d.in_use).toFixed(2)+" SOL");
-  $("lphd").textContent=`Open · ${O.length}`;
-  $("lpopen").innerHTML=O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
+  void(O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
     <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(o.recipe||"–"))}</dl>
     ${posBy(o.id)?`<div class="pacts"><button class="ub b-dn" data-close="${+o.id}"${PEND_POS[o.id]?" disabled":""}>${PEND_POS[o.id]?"Closing…":"Close"}</button></div>`:""}</div>`).join("")
-    :`<div class="card empty">No open positions</div>`;
+    :`<div class="card empty">No open positions</div>`);
   $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(r.recipe),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
 }
 /* ---------- Manual LP from the Mini App: commands go through the encrypted relay; the CA never lands in the page or snapshot ---------- */
