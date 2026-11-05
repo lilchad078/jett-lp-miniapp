@@ -292,6 +292,14 @@ input,select,textarea{font-size:16px!important}
 .tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.02em;white-space:nowrap}
 .t-pass{background:rgba(34,197,94,.14);color:#16a34a}.t-near{background:rgba(245,158,11,.15);color:#d97706}.t-rej{background:var(--card2);color:var(--mut)}.t-bad{background:rgba(239,68,68,.15);color:#ef4444}
 .t-strong{background:rgba(34,197,94,.14);color:#16a34a}.t-weak{background:rgba(245,158,11,.15);color:#d97706}
+.rc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin-bottom:8px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:9px}.rg span{display:block;font-size:11px;color:var(--mut)}.rg b{font-size:13.5px;font-variant-numeric:tabular-nums}.rg small{font-size:11.5px;font-weight:500}
+.cd summary,.more summary{cursor:pointer;color:var(--mut);font-size:12px;font-weight:600;list-style:none;margin-top:8px}.cd summary::-webkit-details-marker,.more summary::-webkit-details-marker{display:none}
+.more summary{text-align:center;padding:8px 0}.cd code{font-size:11px;word-break:break-all}
+.chs{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.chs .chip{margin:0}
+.fd{padding:7px 0;border-bottom:1px solid var(--line);line-height:1.45}.fd:last-child{border-bottom:0}
+.lab{padding:6px 10px 10px}.lg{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:4px}.lg b{font-size:13px}.lg i{width:8px;height:8px;border-radius:3px;flex:none}.lg .mut{font-size:11.5px;line-height:1.35}.lab svg{display:block;width:100%;height:auto}.gl p{margin:0 0 8px;line-height:1.5}.gl p:last-child{margin:0}
+#resv .cl>div:first-child{min-width:0}#resv .cl .mut{overflow-wrap:anywhere}
 @media (prefers-reduced-motion:reduce){#toast,.sw::after,.ub{transition:none}#toast .sp{animation:none}}
 </style>
 </head>
@@ -356,13 +364,22 @@ input,select,textarea{font-size:16px!important}
   <div class="sub" style="text-align:center;margin-top:18px">Paper trading · no real funds</div>
 </div>
 <div class="wrap" id="resv" hidden>
-  <div class="row" style="margin:6px 2px 4px"><b>Research</b><span class="pill p-off">PAPER ESTIMATE</span></div>
-  <div class="mut" id="resnote" style="margin:0 2px 6px"></div>
-  <h3>Sample progress</h3><div class="card" id="resprog"></div>
-  <h3>Rule leaderboard</h3><div class="card" style="overflow-x:auto"><table class="tbl" id="reslb"></table><div class="mut" id="reslbn" style="margin-top:6px"></div></div>
-  <h3>Paper positions</h3><div class="stats" id="rescnt"></div><div class="card" id="respos" style="margin-top:8px"></div>
+  <div class="row" style="margin:6px 2px 2px"><b>Research</b><span class="pill p-off">PAPER</span></div>
+  <div class="mut" id="resnote" style="margin:0 2px 8px"></div>
+  <div class="card lab"><div id="reslab"></div><div class="lg" id="reslabg"></div></div>
+  <h3>Running now</h3><div id="resrun"></div>
+  <h3>Latest findings</h3><div class="card" id="resfind"></div>
   <h3>Live feed</h3><div class="card" id="resfeed"></div>
-  <div class="sub" style="text-align:center;margin-top:18px">Research only · paper estimate · live v5 trading unchanged</div>
+  <h3>Paper positions</h3><div class="card" id="rescnt"></div><div class="card" id="respos" style="margin-top:8px"></div>
+  <details class="sys"><summary>How to read this</summary><div class="card gl">
+   <p><b>Net low / high</b>: average result after a low and a high cost estimate. A rule counts only if it is profitable after low cost on at least <span id="resmin">3</span> tokens.</p>
+   <p><b>Win</b>: share of trades that ended in profit. <b>OOS</b>: result on the later part of the data the rule was not built on.</p>
+   <p><b>Strong</b>: enough tokens and a positive OOS result. <b>Weak</b>: profitable so far, not enough proof yet.</p>
+   <p><b>Near miss / Rejected</b> in the feed: how the live v5 filter would have judged the token. Research tracks it either way.</p>
+   <p><b>Launch 60m</b>: new pools, entry in the first hour. <b>Bonus stage</b>: young pools after a 60% drop from the high with a calm last hour. <b>1m check vs 5m</b>: the same trades with stops on the 1-minute price, shown as the difference.</p>
+   <p><b>Main pool</b>: the token's first or largest SOL DLMM pool. <b>Top 10 ≤ 20%</b>: top 10 holders own at most 20%. <b>Seen late</b>: the trigger had already passed when first seen.</p>
+   <p class="mut">Paper estimates only. Live v5 trading is unchanged.</p></div></details>
+</div>
 </div>
 <div class="mask" id="mask"></div><div class="acard" id="acard"></div>
 <div id="toast" role="status" aria-live="polite"><span class="sp"></span><span id="toastt"></span></div>
@@ -641,39 +658,90 @@ document.querySelectorAll("#eqtabs .tab").forEach(t=>t.onclick=()=>{CH=t.dataset
 /* ---------- Research (paper estimate, symbols only) ---------- */
 const hz=m=>m>=60?(m%60?(m/60).toFixed(1):m/60)+"h":m+"m";
 const np=x=>x==null?"–":`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(+x).toFixed(2)}%</span>`;
-const vtag={passed:["t-pass","v5 pass"],"near-miss":["t-near","v5 near-miss"],rejected:["t-rej","v5 reject"],unsafe:["t-bad","unsafe"]};
-const pst={pending:"Pending",filled:"Filled",unfilled:"Not filled",no_entry:"No entry"};
+const vtag={passed:["t-pass","Passed"],"near-miss":["t-near","Near miss"],rejected:["t-rej","Rejected"],unsafe:["t-bad","Unsafe"]};
+const pst={pending:"Open",filled:"Filled",unfilled:"Not filled",no_entry:"No entry"};
+const WHY={"TVL below v5 minimum":"Low TVL","vol/TVL below v5 minimum":"Low vol/TVL","bin step outside v5 range":"Bin step",
+  "base fee outside v5 range":"Base fee","dynamic fee off":"Dynamic fee off","not scanned by the scout yet":"Not scanned yet"};
+const SHPN={bidask:"Bid Ask",curve:"Curve",spot:"Spot",two_spot:"Two Spot"};
+const VPART={launch60:"Launch 60m",bonus:"Bonus stage",d50_99:"Bid Ask both sides −50/+99%",db50_99:"Bid Ask both sides −50/+99%",tp20:"TP +20%",
+  cut:"cut on 5m price",cut1m:"cut on 1m price",sl20:"SL −20%",sl20_1m:"SL −20% on 1m price"};
+function vname(v){v=String(v||"");let m=v.match(/^now:(bidask|curve|spot|two_spot)_(pm)?(\d+)(?:_(\d+))?$/);
+  if(m)return `${SHPN[m[1]]} ${m[2]?"±"+m[3]+"%":m[3]+"–"+m[4]+"%"}`;
+  if(v.includes("|"))return v.split("|").map(p=>VPART[p]||p).join(", ");
+  m=v.match(/^young-rank(\d)(\d)-bidask(\d+)_(\d+)-(\w+)$/);if(m)return `Pool rank ${m[1]}–${m[2]}, Bid Ask ${m[3]}–${m[4]}%, ${m[5]}`;
+  return v}
+const GRPN={all:"",base:"",late:"Seen late",candidate:"Candidates",cand_pick:"Candidates, main pool",cand_top10le20:"Candidates, top 10 ≤ 20%",
+  cand_pick_top10le20:"Main pool, top 10 ≤ 20%","v5:fail_any":"Fails v5"};
+function gname(g){g=String(g||"");if(g in GRPN)return GRPN[g];let m=g.match(/^ftvl1h:(.+)-(.+)$/);if(m)return `Fees/TVL 1h ${m[1]}–${m[2]}`;
+  m=g.match(/^(tag|age):(.+)$/);if(m)return m[1]==="age"?"Age "+m[2]:m[2].replace(/_/g," ").replace(/^./,c=>c.toUpperCase());return g}
+const rsub=r=>[vname(r.variant),hz(r.horizon_min)+(r.hzs&&r.hzs.length>1?` (also ${r.hzs.slice(1).map(hz).join(", ")})`:""),gname(r.subgroup)].filter(Boolean).join(" · ");
+const kn=n=>n==null?"–":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e4?Math.round(n/1e3)+"k":n>=1e3?(n/1e3).toFixed(1)+"k":String(n);
+const winp=r=>r.win_rate==null?"–":Math.round(r.win_rate*100)+"%";
+function rcard(r){const lab=r.label==="STRONG"?'<span class="tag t-strong">Strong</span>':r.label==="WEAK"?'<span class="tag t-weak">Weak</span>':"";
+  return `<div class="rc"><div class="row" style="align-items:flex-start;gap:8px"><div style="min-width:0"><b>${esc(r.regime)}</b><div class="mut">${esc(rsub(r))}</div></div>${lab}</div>
+   <div class="rg"><div><span>Tokens</span><b>${r.tokens??"–"}</b></div><div><span>Win</span><b>${winp(r)}</b></div>
+   <div><span>Net low / high</span><b>${np(r.net_low)} <small>${np(r.net_high)}</small></b></div><div><span>OOS</span><b>${r.oos_n?np(r.oos_net_low)+` <small class="mut">n ${r.oos_n}</small>`:'<small class="mut">none</small>'}</b></div></div>
+   <details class="cd"><summary>Details</summary><div class="mut">Code <code>${esc(r.variant)}</code>${r.subgroup?` · group <code>${esc(r.subgroup)}</code>`:""} · ${r.n??"–"} trades</div></details></div>`}
+function stn(x,y,name,st,col,sh,below){
+  const w=name.length*6.2+24,bx=-w/2,by=below?40:-74,e=SH[sh][1],h=st.k==="work"?5.2:1.4;
+  return `<g transform="translate(${x},${y})"><g transform="scale(1.35)">${deskSVG(0,0,col,st.k==="work")}</g>
+   <g transform="translate(-30,8) scale(1.4)"><ellipse cx="0" cy="7.5" rx="9" ry="3.2" fill="rgba(15,23,42,.16)"/><g fill="${col}">${SH[sh][0]}</g>
+    <g fill="#fff"><rect x="${-e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${h}" rx="1.15"/><rect x="${e[1]-1.15}" y="${e[0]-2.6}" width="2.3" height="${h}" rx="1.15"/></g></g>
+   <g class="bub"><rect x="${bx}" y="${by}" width="${w}" height="20" rx="10" fill="#fff" stroke="rgba(15,23,42,.08)"/>
+    ${below?`<path d="M-4 ${by} L0 ${by-5} L4 ${by} Z" fill="#fff"/>`:`<path d="M-4 ${by+20} L0 ${by+25} L4 ${by+20} Z" fill="#fff"/>`}
+    <circle cx="${bx+11}" cy="${by+10}" r="3" fill="${st.col}"/><text x="${bx+18}" y="${by+13.5}" style="font-size:10px">${esc(name)}</text></g></g>`}
+function labData(R){
+  const qr=(S.agents||[]).find(a=>a.name==="quant_research"),Q=qr&&qr.counts||{};
+  const qs=qr?agState(qr):{k:"off",t:"Unavailable",col:"#94a3b8"};
+  const L=R.leaderboard||[],P=R.progress||[],C=R.counts||{};
+  const strong=L.filter(r=>r.label==="STRONG").length,weak=L.filter(r=>r.label==="WEAK").length;
+  const rep=R.report_ts?Math.max(0,Date.now()/1000-R.report_ts):null;
+  const done=P.reduce((a,p)=>a+(p.tokens_done||0),0),seen=P.reduce((a,p)=>a+(p.tokens_seen||0),0);
+  const open=Object.values(C).reduce((a,c)=>a+(c.pending||0),0),fill=Object.values(C).reduce((a,c)=>a+(c.filled||0),0);
+  const fresh=rep==null?{k:"off",t:"No report",col:"#94a3b8"}:{k:rep<26*3600?"work":"idle",t:"Report "+ago(Math.round(rep))+" ago",col:rep<26*3600?"#22c55e":"#94a3b8"};
+  return [["Rule finder",fresh,L.length?`${L.length} rules · ${strong} strong · ${weak} weak`:"No results yet","#6c8cff","tri"],
+    ["Backtest",qs,seen?`${done} of ${seen} tokens simulated`:"No samples yet","#10c872","pill"],
+    ["Forward tracker",qs,`${open} open · ${fill} filled`,"#ff6a13","bean"],
+    ["Data collection",qs,qr?`${kn(Q.snaps)} snaps · ${kn(Q.young_pools)} young pools · ${kn(Q.spike_pools)} spikes`:"Unavailable","#eab308","sq"]];
+}
+function labSVG(D){
+  const I=(i,j)=>[180+(i-j)*80,92+(i+j)*40],c=[I(-.6,-.6),I(1.6,-.6),I(1.6,1.6),I(-.6,1.6)];
+  let g=`<path d="M${c[0]} L${c[1]} L${c[2]} L${c[3]} Z" class="fl"/>`;
+  g+=`<path d="M${c[0]} L${c[0][0]},${c[0][1]-36} L${c[1][0]},${c[1][1]-36} L${c[1]} Z" class="wa"/><path d="M${c[0]} L${c[0][0]},${c[0][1]-36} L${c[3][0]},${c[3][1]-36} L${c[3]} Z" class="wb"/>`;
+  const pos=[[0,0],[1,0],[0,1],[1,1]];
+  return `<svg viewBox="0 10 360 250" role="img" aria-label="Research lab">${g}${D.map((d,k)=>{const p=I(...pos[k]);return stn(p[0],p[1]+20,d[0],d[1],d[3],d[4],k===3)}).join("")}</svg>`;
+}
 function renderRes(){
-  const R=S.research;
-  if(!R||R.error){$("resnote").textContent=R&&R.error?"Research data unavailable right now.":"No research data yet.";["resprog","reslb","rescnt","respos","resfeed"].forEach(i=>$(i).innerHTML="");return}
-  $("resnote").textContent=R.universe+(R.report_ts?` Leaderboard from report ${dt(R.report_ts)} WITA.`:"");
-  const P=R.progress||[],T=(P[0]&&P[0].targets)||[30,100],top=T[T.length-1];
-  $("resprog").innerHTML=P.length?P.map(p=>{const f=Math.min(1,p.tokens_done/top)*100,m=T[0]/top*100;
-    return `<div class="rp"><div class="row"><b style="font-size:13px">${esc(p.regime)}</b><span class="mut num">${p.tokens_done} / ${T[0]} · ${top} tokens</span></div>
-     <div class="prog"><i style="left:0;width:${f.toFixed(1)}%;background:${p.tokens_done>=T[0]?"#22c55e":"var(--acc)"}"></i><i style="left:calc(${m}% - 1px);width:2px;background:var(--mut)"></i></div>
-     <div class="mut">${p.tokens_seen} token${p.tokens_seen===1?"":"s"} seen, ${p.tokens_done} with a simulated result</div></div>`}).join("")
-    +`<div class="mut">STRONG needs ${R.strong_tokens} tokens and a positive out-of-sample result.</div>`:`<div class="empty">No samples yet</div>`;
-  const L=R.leaderboard||[];
-  $("reslb").innerHTML=`<tr><th>Regime / rule</th><th>Tokens</th><th>Win</th><th>Net low / high</th><th>OOS</th><th></th></tr>`+(L.length?L.map(r=>
-    `<tr><td><b>${esc(r.regime)}</b><div class="mut">${esc(r.variant)} · ${hz(r.horizon_min)}${r.subgroup&&r.subgroup!=="all"?" · "+esc(r.subgroup):""}</div></td>
-     <td>${r.tokens??"–"}</td><td>${r.win_rate==null?"–":Math.round(r.win_rate*100)+"%"}</td><td>${np(r.net_low)}<div class="mut">${np(r.net_high)}</div></td>
-     <td>${r.oos_n?np(r.oos_net_low)+`<div class="mut">n ${r.oos_n}</div>`:'<span class="mut">none</span>'}</td>
-     <td>${r.label==="STRONG"?'<span class="tag t-strong">STRONG</span>':r.label==="WEAK"?'<span class="tag t-weak">WEAK</span>':'<span class="mut">–</span>'}</td></tr>`).join("")
-    :`<tr><td colspan="6" class="empty">No results yet</td></tr>`);
-  $("reslbn").textContent=`Net = avg net after low / high cost estimate. A rule needs ≥ ${R.rule_min_tokens} tokens profitable after low cost. OOS = later (out-of-sample) part. NP-12h-dip (forward): entry 12h after the pool's first trade, price down over the last 1h, pre-entry vol >= $30k, token's deepest pool; dual Bid-Ask -30/+50%, TP +20%, SL -20%, max 24h, 2 SOL, mid fee (groups: all, top10le20, v5ok = last 5m vol < 0.5x depth, late = backfill; sl20_1m = stop on 1-min GMGN price). Bonus stage (forward): R5 rule (dump >= 60% from ATH, 1h range <= 25%, 1h vol >= $20k; dual Bid-Ask -50/+99%, TP +20%, max 6h) on young pools; groups all / top10le20 / late (trigger already past when first seen, backfill). Launch 60m (forward): new pools after the study, OOS = median net at the mid fee model. Groups: cand_top10le20 = candidate + GMGN top-10 holders <= 20% at entry; cand_pick = candidate + the token's first/largest SOL DLMM pool with base fee 2-5% and bin step 100. 1m check vs 5m: same tokens, cut / -20% stop on the 1-minute GMGN price minus the 5m-close version (net = avg diff, OOS = median diff, win = share where 1m was better).`;
+  const R=S.research,ids=["reslab","reslabg","resrun","resfind","rescnt","respos","resfeed"];
+  if(!R||R.error){$("resnote").textContent=R&&R.error?"Research data unavailable right now.":"No research data yet.";ids.forEach(i=>$(i).innerHTML="");return}
+  $("resnote").textContent=R.report_ts?`Results from report ${dt(R.report_ts)} WITA`:"No report yet";
+  const D=labData(R);$("reslab").innerHTML=labSVG(D);
+  $("reslabg").innerHTML=D.map(d=>`<div><div class="row" style="justify-content:flex-start;gap:6px"><i style="background:${d[3]}"></i><b>${d[0]}</b></div><div class="mut">${esc(d[2])}</div><div class="mut">${esc(d[1].t)}</div></div>`).join("");$("resmin").textContent=R.rule_min_tokens??"–";
+  const rk=r=>(r.label==="STRONG"?2:r.label==="WEAK"?1:0)*1e6+(r.tokens||0);
+  const G={};(R.leaderboard||[]).slice().sort((a,b)=>rk(b)-rk(a)).forEach(r=>{const k=[r.regime,r.variant,r.subgroup].join("|");
+    if(!G[k])G[k]=Object.assign({},r,{hzs:[r.horizon_min]});else G[k].hzs.push(r.horizon_min)});
+  const L=Object.values(G),N=6;
+  $("resrun").innerHTML=L.length?L.slice(0,N).map(rcard).join("")
+    +(L.length>N?`<details class="more"><summary>Show ${L.length-N} more</summary>${L.slice(N).map(rcard).join("")}</details>`:""):`<div class="card empty">No results yet</div>`;
+  const W=L.filter(r=>r.label==="STRONG"),Wk=L.filter(r=>r.label==="WEAK");
+  const sent=r=>`<div class="fd"><b>${esc(r.regime)}</b>, ${esc(rsub(r))}: won ${winp(r)} over ${r.tokens} tokens, ${r.net_low>=0?"+":""}${(+r.net_low).toFixed(1)}% after low cost, ${r.net_high>=0?"+":""}${(+r.net_high).toFixed(1)}% after high cost.</div>`;
+  $("resfind").innerHTML=W.length?W.map(sent).join(""):`<div class="mut" style="margin-bottom:${Wk.length?6:0}px">No rule has passed yet. Passing needs ${R.strong_tokens} tokens and a positive later (out-of-sample) result.</div>`
+    +(Wk.length?`<div class="mut" style="margin-bottom:4px">Promising, not proven:</div>`+Wk.slice(0,3).map(sent).join(""):"");
   const C=R.counts||{};
-  $("rescnt").innerHTML=Object.keys(C).map(k=>{const c=C[k];return `<div class="stat"><span>${esc(k)}</span><b>${c.pending+c.filled+c.unfilled+c.no_entry}</b><div class="mut">${c.pending} pending · ${c.filled} filled · ${c.unfilled+c.no_entry} unfilled</div></div>`}).join("");
-  const Q=R.positions||[];
-  $("respos").innerHTML=Q.length?Q.map(q=>`<div class="cl"><div><b>${esc(q.symbol)}</b>${q.pool_rank?` <span class="chip">pool #${q.pool_rank}</span>`:""}<div class="mut">${esc(q.regime)} · ${esc(q.variant)} · ${hz(q.horizon_min)}</div></div>
-     <div class="r">${q.status==="pending"?`<span class="mut">${pst.pending}</span><div class="mut">ends ${tm(q.ends)}</div>`:`${np(q.net_pct)}<div class="mut">${pst[q.status]||esc(q.status)} · fee ${q.fee_pct==null?"–":(+q.fee_pct).toFixed(2)+"%"}</div>`}</div></div>`).join("")
-    +`<div class="mut" style="margin-top:6px">Paper estimate: simulated LP per regime with its leading variant. Not real positions.</div>`:`<div class="empty">No paper positions yet</div>`;
-  const F=R.feed||[];
-  $("resfeed").innerHTML=F.length?F.map(f=>{const v=vtag[f.v5]||["t-rej",f.v5];
-    return `<div class="cl"><div style="min-width:0"><b>${esc(f.symbol)}</b>${f.pool_rank?` <span class="chip">pool #${f.pool_rank}</span>`:""}${f.dlmm?"":' <span class="chip">no DLMM</span>'}
-      <div class="mut">${esc(f.source)} · ${esc(f.age||"?")} · ${esc(f.regime)}${f.tracked?"":" · not simulated"}</div>
-      ${f.why&&f.why.length?`<div class="mut">${esc(f.why.join(", "))}</div>`:""}</div>
-      <div class="r"><span class="tag ${v[0]}">${esc(v[1])}</span><div class="mut">${tm(f.first_seen)} WITA</div></div></div>`}).join("")
-    +`<div class="mut" style="margin-top:6px">v5 result is a reference only; research does not use it as a gate.</div>`:`<div class="empty">Nothing seen in the last 24h</div>`;
+  $("rescnt").innerHTML=Object.keys(C).length?Object.keys(C).map(k=>{const c=C[k];
+    return `<div class="cl"><div style="min-width:0"><b>${esc(k)}</b><div class="mut">${esc(vname(c.variant))} · ${hz(c.horizon_min)}</div></div>
+     <div class="r"><b class="num">${c.pending+c.filled+c.unfilled+c.no_entry}</b><div class="mut">${c.pending} open · ${c.filled} filled</div></div></div>`}).join(""):`<div class="empty">No paper positions yet</div>`;
+  const Q=(R.positions||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const prow=q=>`<div class="cl"><div style="min-width:0"><b>${esc(q.symbol)}</b><div class="mut">${esc(q.regime)} · ${hz(q.horizon_min)}</div></div>
+     <div class="r">${q.status==="pending"?`<span class="mut">Open</span><div class="mut">ends ${tm(q.ends)}</div>`:`${np(q.net_pct)}<div class="mut">${pst[q.status]||esc(q.status)}</div>`}</div></div>`;
+  $("respos").innerHTML=Q.length?Q.slice(0,5).map(prow).join("")+(Q.length>5?`<details class="more"><summary>Show ${Q.length-5} more</summary>${Q.slice(5).map(prow).join("")}</details>`:""):`<div class="empty">No paper positions yet</div>`;
+  const F=(R.feed||[]).slice().sort((a,b)=>(b.first_seen||0)-(a.first_seen||0)).slice(0,10);
+  $("resfeed").innerHTML=F.length?F.map(f=>{const v=vtag[f.v5]||["t-rej",String(f.v5||"").replace(/^./,c=>c.toUpperCase())];
+    const meta=[f.source,f.age&&f.age!=="?"?f.age+" old":"",f.regime&&f.regime!=="not classified"?f.regime:""].filter(Boolean).join(" · ");
+    const ch=[...(f.why||[]).map(w=>WHY[w]||w),...(f.dlmm===false?["No DLMM pool"]:[])];
+    return `<div class="cl"><div style="min-width:0;flex:1"><div class="row" style="justify-content:flex-start;gap:8px"><b>${esc(f.symbol)}</b><span class="mut">${tm(f.first_seen)}</span></div>
+      <div class="mut">${esc(meta)}</div>${ch.length?`<div class="chs">${ch.map(c=>`<span class="chip">${esc(c)}</span>`).join("")}</div>`:""}</div>
+      <span class="tag ${v[0]}">${esc(v[1])}</span></div>`}).join(""):`<div class="empty">Nothing seen in the last 24h</div>`;
 }
 /* ---------- Office: agents as characters ---------- */
 const BOT="JettLPbot",RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
