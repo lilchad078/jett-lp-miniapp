@@ -1162,7 +1162,7 @@ document.addEventListener("click",e=>{
 
 /* ---------- refresh: fast while the app is open and the bot is listening ---------- */
 applyTheme();setInterval(()=>{if(!localStorage.getItem(TK))applyTheme()},60000);
-view(["office","pos","lp","rep","res"].includes(localStorage.getItem("jett_view"))?localStorage.getItem("jett_view"):"office");
+{const V=["office","pos","lp","rep","res"],qv=new URLSearchParams(location.search).get("v"),lv=localStorage.getItem("jett_view");view(V.includes(qv)?qv:V.includes(lv)?lv:"office")}
 load();relayInit();
 setInterval(()=>{if(!document.hidden)load()},15000);
 setInterval(hello,240000);
