@@ -302,6 +302,7 @@ details.sys summary::-webkit-details-marker{display:none}
 input,select,textarea{font-size:16px!important}
 .ed-sg button.on{background:var(--acc);color:#fff;box-shadow:none}
 .cab{display:inline-flex;align-items:center;gap:6px;margin:2px 0 4px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:600 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}
+.lks{display:inline-flex;gap:10px;margin:4px 0 2px;font:500 12px/1.2 -apple-system,system-ui,sans-serif}.lks a{color:var(--mut);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}.lks a:active{color:var(--fg)}
 .cab span{font:500 11px/1 inherit;font-family:-apple-system,system-ui,sans-serif;color:var(--mut)}.cab.ok span{color:var(--up)}
 .mdesc{font-size:12px;color:var(--mut);margin:6px 0 0}
 .sug{display:block;font-size:11.5px;color:var(--acc);margin-top:4px;min-height:0}.sug:empty{display:none}
@@ -443,7 +444,20 @@ async function load(){
   if(LOCAL&&n.ts<LOCAL.ts)applySt(n,LOCAL.st);else LOCAL=null;
   S=n;$("err").textContent="";renderAll();
 }
-function renderAll(){if(!S)return;header();renderOffice();renderLp();renderPos();renderRep();renderRes()}
+function renderAll(){if(!S)return;header();renderOffice();renderLp();renderPos();renderRep();renderRes();fetchLinks()}
+/* GMGN / Meteora text links. Addresses come sealed to this page only (relay "links"); never shown as text. */
+const LINKS={p:{},k:{}},B58=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/;let lkBusy=0,lkAt=0;
+function lks(m,pl){const a=[];if(m&&B58.test(m))a.push(`<a href="https://gmgn.ai/sol/token/${m}" data-out>GMGN</a>`);
+  if(pl&&B58.test(pl))a.push(`<a href="https://app.meteora.ag/dlmm/${pl}" data-out>Meteora</a>`);return a.length?`<div class="lks">${a.join("")}</div>`:""}
+const lkP=id=>{const x=LINKS.p[id];return x?lks(x.m,x.p):""},lkK=k=>{const x=LINKS.k[k];return x?lks(x.m,x.p):""};
+async function fetchLinks(){if(!canCtl()||lkBusy||Date.now()-lkAt<15000)return;
+  const pids=[...new Set([...(S.positions||[]).map(p=>p.id),...((S.lp||{}).open||[]).map(o=>o.id)].map(String))].filter(i=>!LINKS.p[i]);
+  const ks=((NEWP&&NEWP.pools)||[]).map(p=>String(p.k)).filter(k=>!LINKS.k[k]);
+  if(!pids.length&&!ks.length)return;lkBusy=1;lkAt=Date.now();const id=rid("l-");
+  PEND[id]={quiet:1,fin:b=>{delete PEND[id];lkBusy=0;try{const o=JSON.parse((b&&b.data&&b.data.links)||"{}");Object.assign(LINKS.p,o.p||{});Object.assign(LINKS.k,o.k||{});
+    if(o.p&&Object.keys(o.p).length||o.k&&Object.keys(o.k).length){renderLp();renderPos();renderNew()}}catch(e){}},t:setTimeout(()=>{delete PEND[id];lkBusy=0},30000)};
+  try{await post(await seal({id,init:tg.initData,cmd:"links",args:{pids,ks}}))}catch(e){delete PEND[id];lkBusy=0}}
+function openOut(u){try{if(tg&&tg.openLink){tg.openLink(u,{try_instant_view:false});return}}catch(e){}window.open(u,"_blank","noopener")}
 
 /* ---------- theme: purely visual, never touches agent state or the sleep logic ---------- */
 const TK="jett_theme";
@@ -489,7 +503,7 @@ function posCard(p){
      <div class="mut">Range ${px(p.range.low)} – ${px(p.range.high)} · ${age(p.age_min)} old</div></div>
      <div style="text-align:right"><span class="st ${p.filled?"a":"p"}">${p.filled?"ACTIVE":"PENDING"}</span>
      ${p.filled?`<div class="pnl">${pc(p.pnl_pct,2)}</div>`:""}</div></div>
-   ${mid}${lpLine(p)}${tpsl}
+   ${mid}${lpLine(p)}${tpsl}${lkP(p.id)}
    <div class="pacts"><button class="ub b-dk" data-tpsl="${p.id}" ${pend?"disabled":""}>TP / SL</button>
      <button class="ub b-dn" data-close="${p.id}" ${pend?"disabled":""}>${pend==="close"?"Closing…":"Close now"}</button></div></div>`;
 }
@@ -506,7 +520,7 @@ function renderLp(){
     +kv("Total PnL",sg(d.realized+d.unrealized))+kv("Realized",sg(d.realized))+kv("Open PnL",sg(d.unrealized))
     +kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")+kv("In use",(+d.in_use).toFixed(2)+" SOL");
   void(O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
-    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(RNAME(o)))}</dl>
+    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(RNAME(o)))}</dl>${lkP(o.id)}
     ${posBy(o.id)?`<div class="pacts"><button class="ub b-dn" data-close="${+o.id}"${PEND_POS[o.id]?" disabled":""}>${PEND_POS[o.id]?"Closing…":"Close"}</button></div>`:""}</div>`).join("")
     :`<div class="card empty">No open positions</div>`);
   $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(RNAME(r)),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
@@ -548,7 +562,7 @@ function copyCA(btn){const ca=DR&&DR.mint;if(!ca)return;const done=()=>{btn.clas
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(ca).then(done,fb);else fb()}
 const pct1=x=>(x>=0?"+":"−")+Math.abs(x*100).toFixed(1)+"%";
 function statsSheet(v){DR=v;ED=Object.assign({},v.edit);
-  sheet(1,`<div class="msh"><h4>${E2(v.symbol)}</h4>${v.mint?`<button class="cab" data-ca type="button" aria-label="Copy token CA">${E2(short(v.mint))}<span>Copy</span></button>`:""}<p>Token stats. Nothing is built until you ask.</p>
+  sheet(1,`<div class="msh"><h4>${E2(v.symbol)}</h4>${v.mint?`<button class="cab" data-ca type="button" aria-label="Copy token CA">${E2(short(v.mint))}<span>Copy</span></button>`:""}${lks(v.mint,v.pool_addr)}<p>Token stats. Nothing is built until you ask.</p>
    ${(v.stats||[]).map(s=>`<div class="sec"><h5>${E2(s.title)}</h5>${s.rows.map(r=>`<div class="rw"><span>${E2(r[0])}</span><b>${E2(r[1])}${r[2]?` <i class="tg ${r[2]==="Unknown"?"tg-u":"tg-w"}">${E2(r[2])}</i>`:""}</b></div>`).join("")}</div>`).join("")}
    <p class="fn">* GMGN field, meaning unconfirmed.</p>
    <button class="ub b-pri b-wide" data-plan>Build plan</button><button class="ub b-dk b-wide" data-x>Close</button></div>`)}
@@ -613,7 +627,7 @@ function renderNew(){const el=$("lpnew");if(!NEWP){el.innerHTML="";return}
   el.innerHTML=`<div class="row" style="margin:12px 2px 8px"><b>New pools · ${NEWP.pools.length}</b><span class="mut">${NEWP.dropped} filtered</span></div>`
    +(NEWP.pools.length?NEWP.pools.map(p=>`<div class="card"><div class="row"><b>${E2(p.symbol)}</b><span class="mut">${hr(p.age_min)} old</span></div>
      <dl class="kv"><dt>TVL</dt><dd>${usd(p.tvl)}</dd><dt>Volume 1h</dt><dd>${usd(p.vol1h)}</dd><dt>Bin step</dt><dd>${p.bin_step}</dd>
-     <dt>Organic</dt><dd>${p.organic==null?"unknown":p.organic}</dd></dl>
+     <dt>Organic</dt><dd>${p.organic==null?"unknown":p.organic}</dd></dl>${lkK(p.k)}
      <div class="pacts"><button class="ub b-pri" data-np="${E2(p.k)}">Token stats</button></div></div>`).join("")
      :`<div class="card empty">Nothing passed the filter</div>`)}
 async function mlpRun(args){const r=await send("mlp",args,"Reading token stats…","mlp");if(r&&r.ok&&r.data&&r.data.draft)statsSheet(r.data.draft)}
@@ -1077,7 +1091,10 @@ async function onReply(txt){
   const ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},RL._sig,ub64(o.s),te.encode(o.b)).catch(()=>false);
   if(!ok)return;                                   // forged or foreign message: ignore
   const b=JSON.parse(o.b),p=PEND[b.id];if(!p)return;
-  if(b.data&&b.data.draft&&b.data.draft.mint_enc)b.data.draft.mint=await openReply(b.id,b.data.draft.mint_enc);delete RK[b.id];
+  if(b.data&&b.data.draft&&b.data.draft.mint_enc)b.data.draft.mint=await openReply(b.id,b.data.draft.mint_enc);
+  if(b.data&&b.data.draft&&b.data.draft.pool_enc)b.data.draft.pool_addr=await openReply(b.id,b.data.draft.pool_enc);
+  if(b.data&&b.data.links_enc)b.data.links=await openReply(b.id,b.data.links_enc);delete RK[b.id];
+  if(p.quiet){clearTimeout(p.t);p.fin(b);return}
   if(b.st&&S){LOCAL={st:b.st,ts:b.ts||Date.now()/1000};applySt(S,b.st)}
   p.fin(b);[3000,9000,20000].forEach(t=>setTimeout(load,t));
 }
@@ -1147,7 +1164,8 @@ document.addEventListener("click",e=>{
   if(q("#swpause")){if(S)send("pause",{on:!S.mode.paused},S.mode.paused?"Resuming…":"Pausing…","pause");return}
   const h=q("#sghours button");if(h){if(S&&h.dataset.h!==(S.mode.hours||"auto"))send("hours",{v:h.dataset.h},"Changing hours…","hours");return}
   if(q("#bmlp")){mlpForm();return}
-  if(q("#bnew")){send("newpools",{},"Loading new pools…","newpools").then(r=>{if(r&&r.ok&&r.data){NEWP=r.data;renderNew()}});return}
+  if(q("#bnew")){send("newpools",{},"Loading new pools…","newpools").then(r=>{if(r&&r.ok&&r.data){NEWP=r.data;renderNew();lkAt=0;fetchLinks()}});return}
+  const out=q("a[data-out]");if(out){e.preventDefault();openOut(out.href);return}
   if(q("[data-ca]")){copyCA(q("[data-ca]"));return}
   if(q("[data-plan]")){planSheet();return}
   if(q("[data-stats]")){statsSheet(DR);return}
