@@ -186,12 +186,12 @@ html{background:#f3f6fb}html.night{background:#0b0e14}body{background:var(--bg);
 .acard:not(.show){visibility:hidden;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s .28s}
 body.v-office{background:linear-gradient(180deg,#eef3fb 0%,#dfe7f4 58%,var(--bg) 58%);color:var(--fg)}
 body.v-office.night{background:linear-gradient(180deg,#0f1630 0%,#0c1226 58%,var(--bg) 58%)}
-body.v-pos,body.v-rep{background:var(--bg);color:var(--fg)}
-.v-pos .hsub,.v-rep .hsub{color:var(--mut)}
-.v-pos .seg,.v-rep .seg{background:rgba(127,140,160,.12)}
+body.v-lp,body.v-pos,body.v-rep{background:var(--bg);color:var(--fg)}
+.v-lp .hsub,.v-pos .hsub,.v-rep .hsub{color:var(--mut)}
+.v-lp .seg,.v-pos .seg,.v-rep .seg{background:rgba(127,140,160,.12)}
 body:not(.night) .seg button.on{background:#fff;color:#111827}
 .night .seg button.on{background:#1f2937;color:#f9fafb}
-.v-pos .ttl,.v-rep .ttl{color:var(--fg)}
+.v-lp .ttl,.v-pos .ttl,.v-rep .ttl{color:var(--fg)}
 .cc,.acard{background:var(--sheet);color:var(--fg)}
 body:not(.night) .cc{box-shadow:0 -8px 24px rgba(15,23,42,.08)}
 .grab{background:var(--line)}
@@ -283,7 +283,7 @@ details.sys summary::-webkit-details-marker{display:none}
     <div style="min-width:0"><div class="ttl">Jett LP</div><div class="hsub"><span class="ldot" id="ldot"></span><span id="sub">Loading…</span></div></div>
     <div class="hright"><span class="pill p-dry">PAPER</span><span id="mode" class="pill p-off">…</span></div></div>
   <div id="err"></div>
-  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button><button data-v="res">Research</button></div>
+  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="lp">LP</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button><button data-v="res">Research</button></div>
 </div>
 <div id="office">
   <div class="scene"><div id="scene"></div><button class="thm" id="thm" type="button" aria-label="Switch theme"></button></div>
@@ -301,6 +301,13 @@ details.sys summary::-webkit-details-marker{display:none}
     <div class="feedc"><div class="fh"><b>Live activity</b><span class="mut">WITA</span></div><div id="feed"></div></div>
     <div class="note" id="note">Tap an agent for details · paper trading, no real funds</div>
   </div>
+</div>
+<div class="wrap" id="lpv" hidden>
+  <div class="card"><div class="row"><b>Paper capital</b><span class="mut" id="lpcapn"></span></div><dl class="kv" id="lpcap"></dl></div>
+  <div class="row" style="margin:12px 2px 8px"><b id="lphd">Open</b></div>
+  <div id="lpopen"></div>
+  <div class="row" style="margin:12px 2px 8px"><b>By recipe</b><span class="mut">closed</span></div>
+  <div class="card"><dl class="kv" id="lprec" style="margin-top:0"></dl></div>
 </div>
 <div class="wrap" id="posv" hidden>
   <div class="row" style="margin:6px 2px 10px"><b id="poshd">Positions</b><span class="mut" id="posnote"></span></div>
@@ -370,7 +377,7 @@ async function load(){
   if(LOCAL&&n.ts<LOCAL.ts)applySt(n,LOCAL.st);else LOCAL=null;
   S=n;$("err").textContent="";renderAll();
 }
-function renderAll(){if(!S)return;header();renderOffice();renderPos();renderRep();renderRes()}
+function renderAll(){if(!S)return;header();renderOffice();renderLp();renderPos();renderRep();renderRes()}
 
 /* ---------- theme: purely visual, never touches agent state or the sleep logic ---------- */
 const TK="jett_theme";
@@ -421,6 +428,20 @@ function posCard(p){
      <button class="ub b-dn" data-close="${p.id}" ${pend?"disabled":""}>${pend==="close"?"Closing…":"Close now"}</button></div></div>`;
 }
 const PEND_POS={};
+function renderLp(){
+  const d=S.lp||{},O=d.open||[],sg=x=>(x>=0?"+":"")+(+x).toFixed(3)+" SOL",kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,
+    R={in:"🟢 In range",out_below:"🔴 Out ↓",out_above:"🔴 Out ↑",waiting:"⚪ Waiting"},E=t=>String(t).replace(/[<>&"]/g,"");
+  if(d.capital==null){$("lpcap").innerHTML=kv("Status","no data yet");$("lpopen").innerHTML="";$("lprec").innerHTML="";return}
+  $("lpcapn").textContent=`start ${d.capital} SOL`;
+  $("lpcap").innerHTML=kv("Equity",`${(+d.equity).toFixed(3)} SOL (${d.progress>=0?"+":""}${(d.progress*100).toFixed(1)}%)`)
+    +kv("Total PnL",sg(d.realized+d.unrealized))+kv("Realized",sg(d.realized))+kv("Open PnL",sg(d.unrealized))
+    +kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")+kv("In use",(+d.in_use).toFixed(2)+" SOL");
+  $("lphd").textContent=`Open · ${O.length}`;
+  $("lpopen").innerHTML=O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
+    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(o.recipe||"–"))}</dl></div>`).join("")
+    :`<div class="card empty">No open positions</div>`;
+  $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(r.recipe),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
+}
 function renderPos(){
   const P=S.positions||[],A=P.filter(p=>p.filled),W=P.filter(p=>!p.filled);
   $("poshd").textContent=`Active ${A.length} · Pending ${W.length}`;
@@ -511,7 +532,7 @@ function renderRes(){
      <td>${r.oos_n?np(r.oos_net_low)+`<div class="mut">n ${r.oos_n}</div>`:'<span class="mut">none</span>'}</td>
      <td>${r.label==="STRONG"?'<span class="tag t-strong">STRONG</span>':r.label==="WEAK"?'<span class="tag t-weak">WEAK</span>':'<span class="mut">–</span>'}</td></tr>`).join("")
     :`<tr><td colspan="6" class="empty">No results yet</td></tr>`);
-  $("reslbn").textContent=`Net = avg net after low / high cost estimate. A rule needs ≥ ${R.rule_min_tokens} tokens profitable after low cost. OOS = later (out-of-sample) part.`;
+  $("reslbn").textContent=`Net = avg net after low / high cost estimate. A rule needs ≥ ${R.rule_min_tokens} tokens profitable after low cost. OOS = later (out-of-sample) part. NP-12h-dip (forward): entry 12h after the pool's first trade, price down over the last 1h, pre-entry vol >= $30k, token's deepest pool; dual Bid-Ask -30/+50%, TP +20%, SL -20%, max 24h, 2 SOL, mid fee (groups: all, top10le20, v5ok = last 5m vol < 0.5x depth, late = backfill; sl20_1m = stop on 1-min GMGN price). Bonus stage (forward): R5 rule (dump >= 60% from ATH, 1h range <= 25%, 1h vol >= $20k; dual Bid-Ask -50/+99%, TP +20%, max 6h) on young pools; groups all / top10le20 / late (trigger already past when first seen, backfill). Launch 60m (forward): new pools after the study, OOS = median net at the mid fee model. Groups: cand_top10le20 = candidate + GMGN top-10 holders <= 20% at entry; cand_pick = candidate + the token's first/largest SOL DLMM pool with base fee 2-5% and bin step 100. 1m check vs 5m: same tokens, cut / -20% stop on the 1-minute GMGN price minus the 5m-close version (net = avg diff, OOS = median diff, win = share where 1m was better).`;
   const C=R.counts||{};
   $("rescnt").innerHTML=Object.keys(C).map(k=>{const c=C[k];return `<div class="stat"><span>${esc(k)}</span><b>${c.pending+c.filled+c.unfilled+c.no_entry}</b><div class="mut">${c.pending} pending · ${c.filled} filled · ${c.unfilled+c.no_entry} unfilled</div></div>`}).join("");
   const Q=R.positions||[];
@@ -809,8 +830,8 @@ async function act(a,pid){
 }
 function view(v){
   VIEW=v;localStorage.setItem("jett_view",v);const b=document.body.classList;
-  b.toggle("v-office",v==="office");b.toggle("v-dash",v!=="office");b.toggle("v-pos",v==="pos");b.toggle("v-rep",v==="rep");b.toggle("v-res",v==="res");
-  $("office").hidden=v!=="office";$("posv").hidden=v!=="pos";$("repv").hidden=v!=="rep";$("resv").hidden=v!=="res";
+  b.toggle("v-office",v==="office");b.toggle("v-dash",v!=="office");b.toggle("v-pos",v==="pos");b.toggle("v-lp",v==="lp");b.toggle("v-rep",v==="rep");b.toggle("v-res",v==="res");
+  $("office").hidden=v!=="office";$("posv").hidden=v!=="pos";$("lpv").hidden=v!=="lp";$("repv").hidden=v!=="rep";$("resv").hidden=v!=="res";
   document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));tgColors();window.scrollTo(0,0);
 }
 document.addEventListener("click",e=>{
