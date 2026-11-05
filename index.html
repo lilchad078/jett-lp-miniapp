@@ -131,7 +131,25 @@ body.v-dash{background:var(--bg);color:var(--fg)}
 .night .lab .fl{fill:#1f2744}.night .lab .wa{fill:#19203c}
 .lab .tw{animation:led 2.6s ease-in-out infinite}.lab .sway{transform-box:fill-box;transform-origin:50% 100%;animation:pswy 5s ease-in-out infinite}@keyframes pswy{50%{transform:rotate(4deg)}}
 .lab .catb{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.8s ease-in-out infinite}.lab .tail{transform-box:fill-box;transform-origin:0 100%;animation:tswy 2.8s ease-in-out infinite}@keyframes tswy{50%{transform:rotate(-18deg)}}
-.lab .stm{animation:steam 2s ease-in-out infinite}
+.lab .stm,.ofc .stm{animation:steam 2s ease-in-out infinite}
+.ofc .tw{animation:led 2.6s ease-in-out infinite}.ofc .sway{transform-box:fill-box;transform-origin:50% 100%;animation:pswy 5s ease-in-out infinite}
+.ofc .holo{transform-box:fill-box;transform-origin:50% 50%;animation:holo 6s linear infinite}@keyframes holo{to{transform:rotate(360deg)}}
+.ofc .blink{animation:led 1.8s steps(2) infinite}.ofc .tick{animation:tick 4s ease-in-out infinite}@keyframes tick{50%{opacity:.35}}
+.ofc .nm{font:700 6.4px -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;fill:#475569}.night .ofc .nm{fill:#cbd5e1}
+.ofc .nmb{fill:rgba(255,255,255,.82)}.night .ofc .nmb{fill:rgba(15,23,42,.72)}
+.ofc .rug{fill:#dbe4f3}.night .ofc .rug{fill:#2a3358}.ofc .tbl1{fill:#e2e8f0}.ofc .tbl2{fill:#94a3b8}.night .ofc .tbl1{fill:#3a4570}.night .ofc .tbl2{fill:#252d4f}
+.ofc .wsc{fill:#0f172a}.ofc .lbl2{font:800 4.4px system-ui,sans-serif;letter-spacing:.4px;fill:#94a3b8}
+@media (prefers-reduced-motion:reduce){.ofc *{animation:none!important}}
+.hq{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 0}
+.hq .tile{min-height:62px}.hq .tile b{font-size:15px;margin-top:2px}.hq .tile .k{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.hcap{background:var(--tile);border:1px solid var(--tileb);border-radius:16px;padding:12px;margin-top:10px}
+.hcap .big{font-size:24px;font-weight:800;margin:2px 0}.hcap .kv{margin-top:6px}
+.att{background:var(--tile);border:1px solid var(--tileb);border-radius:16px;padding:10px 12px;margin-top:10px}
+.att .it{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line);font-size:13px}.att .it:first-of-type{border-top:0}
+.att .dt{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none}.att .w{background:var(--warn)}.att .e{background:var(--dn)}.att .o{background:var(--up)}
+.qk{display:flex;gap:8px;margin-top:10px}.qk button{flex:1;padding:10px 6px;border-radius:12px;background:var(--tile);border:1px solid var(--tileb);color:var(--fg);font:600 13px/1.2 inherit;cursor:pointer}
+.cc details.sys summary{margin:14px 2px 6px}.cc .agents .ag{background:var(--tile);border-color:var(--tileb)}
+.cc .list{background:var(--tile);border:1px solid var(--tileb);border-radius:14px;padding:2px 10px}
 .lab .zz text{font:800 7px system-ui,sans-serif;fill:#cbd5e1;animation:zz 2.6s ease-in-out infinite}.lab .zz .z2{font-size:5.4px;animation-delay:-1.3s}
 .li .walk{animation:none}.li .bdy{animation:breathe 4.2s ease-in-out infinite}
 .night .lw .lamp{animation:glow 2.4s ease-in-out infinite}@keyframes glow{50%{opacity:.6}}.li .lamp{opacity:0!important}
@@ -352,10 +370,19 @@ input,select,textarea{font-size:16px!important}
       <div class="trow trow-c"><div><b>Trading hours</b><span class="mut" id="hrsub"></span></div>
         <div class="sg" id="sghours"><button data-h="auto">Schedule</button><button data-h="on">Always</button><button data-h="off">Standby</button></div></div>
     </div>
-    <div class="tiles"><button class="tile" data-v="pos" type="button"><b id="tpos">Positions</b><span id="tposs">–</span></button>
-      <button class="tile" data-v="rep" type="button"><b>Reports</b><span id="treps">–</span></button></div>
-    <div class="mut" id="ccsub" style="margin:0 2px 2px"></div>
+    <div class="hcap" id="hqcap"></div>
+    <div class="hq"><button class="tile" data-v="pos" type="button"><span class="k">Open positions</span><b id="tpos">–</b><span id="tposs">–</span></button>
+      <button class="tile" data-hl type="button"><span class="k">Health</span><b id="thl">–</b><span id="thls">–</span></button>
+      <div class="tile"><span class="k">Today</span><b id="tday">–</b><span id="tdays">–</span></div>
+      <div class="tile"><span class="k">Last 10 min</span><b id="tpl">–</b><span id="tpls">–</span></div></div>
+    <div class="att"><div class="fh"><b>Needs attention</b><span class="mut" id="attn"></span></div><div id="att"></div></div>
+    <div class="qk"><button data-v="lp" type="button">Token stats</button><button data-v="rep" type="button">Reports</button><button data-v="res" type="button">Research</button></div>
     <div class="feedc"><div class="fh"><b>Live activity</b><span class="mut">WITA</span></div><div id="feed"></div></div>
+    <details class="sys" id="sysd"><summary>System ▾</summary>
+      <div class="card row" id="health"></div><div class="agents" id="agents"></div>
+      <h3>Risk decisions</h3><div class="list" id="risk"></div>
+      <h3>Recent signals</h3><div class="list" id="sig"></div>
+    </details>
     <div class="note" id="note">Tap an agent for details · paper trading, no real funds</div>
   </div>
 </div>
@@ -363,9 +390,7 @@ input,select,textarea{font-size:16px!important}
   <div class="card"><div class="row"><b>Token stats</b><span class="mut">paper</span></div>
     <div class="pacts"><button class="ub b-pri" id="bmlp">Search Token</button><button class="ub b-dk" id="bnew">New pools</button></div></div>
   <div id="lpnew"></div>
-  <div class="card"><div class="row"><b>Paper capital</b><span class="mut" id="lpcapn"></span></div><dl class="kv" id="lpcap"></dl></div>
-  <div class="row" style="margin:12px 2px 8px"><b>By recipe</b><span class="mut">closed</span></div>
-  <div class="card"><dl class="kv" id="lprec" style="margin-top:0"></dl></div>
+  <div class="sub" style="text-align:center;margin-top:14px">Capital and open positions live in Office and Positions</div>
 </div>
 <div class="wrap" id="posv" hidden>
   <div class="row" style="margin:6px 2px 10px"><b id="poshd">Positions</b><span class="mut" id="posnote"></span></div>
@@ -375,23 +400,17 @@ input,select,textarea{font-size:16px!important}
 <div class="wrap" id="repv" hidden>
   <div class="tabs" id="eqtabs"><div class="tab on" data-c="sol">Solana</div><div class="tab" data-c="rh">Robinhood</div></div>
   <div class="hero">
-    <div class="row"><span class="lbl">Capital progress</span><span class="mut" id="capst"></span></div>
-    <div class="big" id="eq">–</div><div class="mut" id="eqd"></div>
+    <div class="row"><span class="lbl">Equity curve</span><span class="mut" id="capst"></span></div>
     <div class="prog" id="prog"></div>
     <div class="row mut" style="font-size:11px"><span id="pl0"></span><span id="pl1"></span></div>
     <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
-    <div class="split"><div><span class="mut">Realized</span><b id="rl">–</b></div><div><span class="mut">Unrealized</span><b id="ur">–</b></div></div>
   </div>
   <h3>Last 7 days</h3><div class="stats" id="stats"></div>
   <h3>Recent closes</h3><div class="card" id="closes"></div>
+  <h3>By recipe</h3><div class="card"><dl class="kv" id="lprec" style="margin-top:0"></dl></div>
   <h3>By config</h3><div class="card" style="overflow-x:auto"><table class="tbl" id="byver"></table></div>
   <h3>Daily</h3><div class="card" style="overflow-x:auto"><table class="tbl" id="days"></table><div class="mut" id="perfnote" style="margin-top:6px"></div></div>
   <div class="card bt" id="bt"></div>
-  <details class="sys"><summary>System ▾</summary>
-    <div class="card row" id="health"></div><div class="agents" id="agents"></div>
-    <h3>Risk decisions</h3><div class="card list" id="risk"></div>
-    <h3>Recent signals</h3><div class="card list" id="sig"></div>
-  </details>
   <div class="sub" style="text-align:center;margin-top:18px">Paper trading · no real funds</div>
 </div>
 <div class="wrap" id="resv" hidden>
@@ -512,19 +531,24 @@ function lpLine(p){const o=((S.lp||{}).open||[]).find(x=>String(x.id)===String(p
   const R={in:"🟢 In range",out_below:"🔴 Out of range ↓",out_above:"🔴 Out of range ↑",waiting:"⚪ Waiting"};
   return `<dl class="kv"><dt>Status</dt><dd>${R[o.range]||"–"}</dd><dt>Recipe</dt><dd>${esc(RNAME(o))}</dd></dl>`}
 function renderLp(){
-  const d=S.lp||{},O=d.open||[],sg=x=>(x>=0?"+":"")+(+x).toFixed(3)+" SOL",kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,
-    R={in:"🟢 In range",out_below:"🔴 Out ↓",out_above:"🔴 Out ↑",waiting:"⚪ Waiting"},E=t=>String(t).replace(/[<>&"]/g,"");
-  if(d.capital==null){$("lpcap").innerHTML=kv("Status","no data yet");$("lprec").innerHTML="";return}
-  $("lpcapn").textContent=`start ${d.capital} SOL`;
-  $("lpcap").innerHTML=kv("Equity",`${(+d.equity).toFixed(3)} SOL (${d.progress>=0?"+":""}${(d.progress*100).toFixed(1)}%)`)
-    +kv("Total PnL",sg(d.realized+d.unrealized))+kv("Realized",sg(d.realized))+kv("Open PnL",sg(d.unrealized))
-    +kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")+kv("In use",(+d.in_use).toFixed(2)+" SOL");
-  void(O.length?O.map(o=>`<div class="card"><div class="row"><b>#${o.id} ${E(o.symbol)}</b><span>${R[o.range]||""}</span></div>
-    <dl class="kv">${kv("PnL",sg(o.pnl))}${kv("Value vs deposit",sg(o.value_pnl))}${kv("Fees",(+o.fees).toFixed(4)+" SOL")}${kv("Recipe",E(RNAME(o)))}</dl>${lkP(o.id)}
-    ${posBy(o.id)?`<div class="pacts"><button class="ub b-dn" data-close="${+o.id}"${PEND_POS[o.id]?" disabled":""}>${PEND_POS[o.id]?"Closing…":"Close"}</button></div>`:""}</div>`).join("")
-    :`<div class="card empty">No open positions</div>`);
+  const d=S.lp||{},E=t=>String(t).replace(/[<>&"]/g,""),sg=x=>(x>=0?"+":"")+(+x).toFixed(3)+" SOL",kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`;
   $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(RNAME(r)),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
 }
+function hqCap(){const d=S.lp||{},kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,sg=x=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(+x).toFixed(3)}</span> SOL`;
+  if(d.capital==null)return `<div class="row"><b>Paper capital</b></div><div class="mut">No data yet</div>`;
+  return `<div class="row"><b>Paper capital</b><span class="mut">start ${d.capital} SOL</span></div>
+   <div class="big">${(+d.equity).toFixed(3)} SOL</div><div class="mut">${pc(d.progress,1)} since start</div>
+   <dl class="kv">${kv("Total PnL",sg(d.realized+d.unrealized))}${kv("Realized",sg(d.realized))}${kv("Open PnL",sg(d.unrealized))}${kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")}</dl>`}
+function attention(s){const A=[],ags=s.agents||[],h=s.health||{},m=s.mode||{},stale=(Date.now()/1000-s.ts)/60;
+  if(stale>10)A.push(["e",`No fresh snapshot for ${age(Math.round(stale))}`]);
+  ags.filter(a=>!a.alive).forEach(a=>A.push(["e",`${(AG[a.name]||{}).n||a.name} is offline`]));
+  ags.filter(a=>a.alive&&a.beat_age_s>180).forEach(a=>A.push(["w",`${(AG[a.name]||{}).n||a.name} heartbeat late (${ago(a.beat_age_s)})`]));
+  if(h.ok===false)A.push(["e","Health check failing: "+Object.entries(h.checks||{}).filter(x=>x[1]===false).map(x=>x[0]).join(", ")]);
+  if(h.maintenance)A.push(["w","Maintenance mode on"]);
+  if(m.off)A.push(["w","Bot is off"]);else if(m.paused)A.push(["w","New positions paused"]);
+  ((s.lp||{}).open||[]).filter(o=>/^out/.test(o.range||"")).forEach(o=>A.push(["w",`${esc(o.symbol)} out of range ${o.range==="out_above"?"above":"below"}`]));
+  (s.positions||[]).filter(p=>!p.filled&&p.left_min!=null&&p.left_min<30).forEach(p=>A.push(["w",`${esc(p.pair)} unfilled, times out in ${age(p.left_min)}`]));
+  return A}
 /* ---------- Manual LP from the Mini App: commands go through the encrypted relay; the CA never lands in the page or snapshot ---------- */
 let NEWP=null;
 const usd=x=>x>=1e6?"$"+(x/1e6).toFixed(1)+"M":x>=1e3?"$"+(x/1e3).toFixed(0)+"k":"$"+Math.round(x||0);
@@ -657,19 +681,18 @@ function renderRep(){
   document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
   $("eqtabs").style.display=EN.length>1?"":"none";
   const e=(s.equity||{})[CH];if(!e)return;const u=e.unit,cap=e.capital||0,ch=cap?e.equity/cap-1:0;
-  $("eq").textContent=amt(e.equity,u);$("eqd").innerHTML=`${pc(ch,2)} vs starting capital ${amt(cap,u)}`;
-  $("capst").textContent=ch>=0?"Above start":"Below start";
+  $("capst").innerHTML=`${pc(ch,2)} vs start`;
   // progress bar: centre = starting capital, ±10% at the edges
   const f=Math.max(-1,Math.min(1,ch/0.10)),col=ch>=0?"#22c55e":"#ef4444";
   $("prog").innerHTML=`<i style="left:${f>=0?50:50+f*50}%;width:${Math.abs(f)*50}%;background:${col}"></i><i style="left:calc(50% - 1px);width:2px;background:var(--mut)"></i>`;
   $("pl0").textContent=amt(cap*0.9,u);$("pl1").textContent=amt(cap*1.1,u);
-  $("rl").innerHTML=sgn(e.realized,u);$("ur").innerHTML=sgn(e.unrealized,u);curve(e.points,cap);
+  curve(e.points,cap);
   const P=s.performance,c=P&&P.chains&&P.chains[CH];
   const k=(l,v,x)=>`<div class="stat"><span>${l}</span><b>${v}</b>${x?`<div class="mut">${x}</div>`:""}</div>`;
   if(c){const w=c.d7;
     $("stats").innerHTML=k("Win rate",w.n?Math.round(w.wins/w.n*100)+"%":"–",`${w.wins}/${w.n} closed`)
       +k("Avg PnL",w.avg_pct==null?"–":pc(w.avg_pct/100,2),"per trade")+k("Fill rate",w.opened?Math.round(w.filled/w.opened*100)+"%":"–",`${w.filled}/${w.opened} opened`)
-      +k("PnL",sgn(w.pnl,u),u)+k("Fees",(+w.fees).toFixed(dp(u)),u)+k("Since start",pc(c.cum_pct/100,2));
+      +k("PnL",sgn(w.pnl,u),u)+k("Fees",(+w.fees).toFixed(dp(u)),u);
     const V=c.by_ver||[];
     $("byver").innerHTML=`<tr><th>Config</th><th>Trades</th><th>Fill</th><th>Win</th><th>PnL</th></tr>`+(V.length?V.slice().reverse().map(r=>
       `<tr><td><b>${esc(r.ver)}</b>${r.ver===P.cfg_ver?' <span class="chip">LIVE</span>':""}<div class="mut" style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.label||"")}</div></td>
@@ -690,13 +713,6 @@ function renderRep(){
     <div class="mut" style="margin-top:4px">${esc(b.label)} · ${b.pools} pools</div><svg id="btcurve" viewBox="0 0 300 80" preserveAspectRatio="none"></svg>
     <div class="row mut"><span>${b.n} trades · win ${Math.round(b.win_rate*100)}% · avg ${b.avg_pnl_pct>=0?"+":""}${(+b.avg_pnl_pct).toFixed(2)}%</span><span>fill ${Math.round(b.fill_rate*100)}% · ${pc(b.capital_pct/100)}</span></div>`;spk($("btcurve"),b.curve)}
   else el.style.display="none";
-  const h=s.health,ags=s.agents||[];
-  $("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${ags.filter(a=>a.alive).length}/${ags.length} agents</span>`;
-  $("agents").innerHTML=ags.map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
-  const st={opened:"Opened",skipped_risk:"Blocked",skipped_held:"Already held",approved:"Approved",reject:"Rejected"};
-  const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(st[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""}</span></div>`).join(""):`<div class="empty">None yet</div>`;
-  const kd={wallet_buy:"Wallet buy",gmgn_trending:"Trending"};
-  const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">None yet</div>`;
 }
 document.querySelectorAll("#eqtabs .tab").forEach(t=>t.onclick=()=>{CH=t.dataset.c;if(S)renderRep()});
 /* ---------- Research (paper estimate, symbols only) ---------- */
@@ -872,6 +888,7 @@ const AG={
   miniapp:{n:"Mini App",r:"Local Mini App server",c:"#a855f7",g:[1,2],sh:"tall",ey:"v",act:"wave"},
   publisher:{n:"Publisher",r:"Pushes this snapshot to Pages",c:"#ec4899",g:[2,2],sh:"puff",ey:"v",act:"papers"},
   quant_research:{n:"Research",r:"Logs candidates and paper outcomes",c:"#eab308",g:[3,2],sh:"sq",ey:"v",act:"calc"}};
+const LOOP=new Set(["coordinator","watcher","tg_bot","miniapp","publisher","quant_research"]);
 const FLOW=["scout","quant","mm","lp_strategist","risk","executor_sol","watcher"];
 const ISO=(i,j)=>[200+(i-j-.5)*57,96+(i+j)*33];
 const ago=s=>s==null?"–":s<60?s+"s":s<3600?Math.round(s/60)+"m":Math.round(s/3600)+"h";
@@ -880,6 +897,8 @@ function agState(a){
   if(a.beat_age_s>180)return{k:"late",t:"Late",col:"#f59e0b"};
   if(a.status&&a.status!=="running")return{k:"stb",t:a.status[0].toUpperCase()+a.status.slice(1),col:"#818cf8"};
   if(a.action_age_s!=null&&a.action_age_s<150)return{k:"work",t:"Working",col:"#22c55e"};
+  // loop agents (watcher, comms, research...) log an action only on change; a fresh heartbeat while running = working
+  if(LOOP.has(a.name)&&a.beat_age_s!=null&&a.beat_age_s<300)return{k:"work",t:"Running",col:"#22c55e"};
   return{k:"idle",t:"Idle",col:"#94a3b8"};
 }
 function say(a){
@@ -935,6 +954,7 @@ function propSVG(id){ // role props: decorative, animate only while awake (faste
   }return["",""];
 }
 const hsh=id=>[...id].reduce((a,c)=>a*31+c.charCodeAt(0)>>>0,7);
+let CSC=1.3;
 function charSVG(id,x,y,a,st,quiet){
   // real state (st.k from heartbeat/last action) picks work/idle/offline; the idle activity and naps are decorative
   const m=AG[id],h=hsh(id),awakeDuty=id==="watcher"&&!(S&&S.mode&&S.mode.off);
@@ -943,7 +963,7 @@ function charSVG(id,x,y,a,st,quiet){
   const mode=st.k==="off"?"off":sleep?"sleep":"open";
   const [inner,outer]=propSVG(id),wan=idle&&!sleep&&(m.act==="pace"?"pace":["look","wave","peek"].includes(m.act)?"wan":"");
   const cls=`ch blob s-${st.k}${sleep?" sleep":""} a-${m.act}`;
-  return `<g class="${cls}" data-id="${id}" style="--d:${-(h%37)/10}s" transform="translate(${x},${y}) scale(1.3)">
+  return `<g class="${cls}" data-id="${id}" style="--d:${-(h%37)/10}s" transform="translate(${x},${y}) scale(${CSC})">
    <ellipse cx="0" cy="7.5" rx="10" ry="3.6" fill="rgba(15,23,42,.16)"/>
    <g class="${wan}"><g class="bl" fill="${m.c}">${SH[m.sh][0]}${eyesSVG(id,mode)}${inner}</g>${outer}</g>
    ${sleep||mode==="off"?`<g class="zz" fill="${mode==="off"?"#ef4444":"#6366f1"}"><text x="7" y="-16">${mode==="off"?"×":"z"}</text>${mode==="off"?"":`<text x="10" y="-21" class="z2">z</text>`}</g>`:""}
@@ -958,51 +978,60 @@ function bubbleSVG(x,y,l1,l2,col){
    <path d="M-3 0 L0 4 L3 0 Z" fill="#fff"/>
    <text x="${-w/2+5}" y="-12.2">${esc(l1)}</text><text x="${-w/2+5}" y="-4" class="t2">${esc(l2)}</text></g>`;
 }
+/* Office HQ scene: top-view grid (i east, j south) drawn isometric. Agents sit by pipeline; decor is static or CSS-animated. */
+const OG={scout:[.7,.45],quant:[1.9,.45],mm:[2.9,.5],lp_strategist:[4.15,.3],risk:[4.75,1.55],executor_sol:[4.75,2.7],watcher:[4.75,3.85],
+  coordinator:[2.0,1.8],tg_bot:[.45,2.0],miniapp:[.45,3.3],publisher:[1.6,3.9],quant_research:[3.2,3.9]};
+const OI=(i,j)=>[200+(i-j)*34,80+(i+j)*17];
+const OP=(...a)=>a.map(q=>OI(...q).map(f1).join(",")).join(" L");
 function scene(s){
-  const ags=Object.fromEntries((s.agents||[]).map(a=>[a.name,a]));
-  const ids=Object.keys(AG).filter(id=>ags[id]);
+  const ags=Object.fromEntries((s.agents||[]).map(a=>[a.name,a])),ids=Object.keys(OG).filter(id=>ags[id]&&AG[id]);
   const wibH=(new Date().getUTCHours()+7)%24,quiet=wibH>=18||wibH<6||(s.mode&&s.mode.mode!=="AKTIF"&&!s.mode.paused)||!!(s.mode&&(s.mode.paused||s.mode.off));
-  let floor="",desks="",chars="",bubs="";
-  // floor (decorative)
-  const P=(i,j)=>ISO(i,j).map((v,k)=>v+(k?0:0));
-  const c0=ISO(-.5,-.5),c1=ISO(3.5,-.5),c2=ISO(3.5,2.5),c3=ISO(-.5,2.5);
-  floor+=`<path d="M${c0} L${c1} L${c2} L${c3} Z" class="fl"/>`;
-  for(let i=0;i<=4;i++){const a=ISO(i-.5,-.5),b=ISO(i-.5,2.5);floor+=`<path d="M${a} L${b}" stroke="#d5dde8" stroke-width=".6"/>`}
-  for(let j=0;j<=3;j++){const a=ISO(-.5,j-.5),b=ISO(3.5,j-.5);floor+=`<path d="M${a} L${b}" stroke="#d5dde8" stroke-width=".6"/>`}
-  // back walls with windows (decorative; night tint follows WIB clock)
-  const wl=`<path d="M${c0} L${c0[0]},${c0[1]-58} L${c1[0]},${c1[1]-58} L${c1} Z" class="wa"/><path d="M${c0} L${c0[0]},${c0[1]-58} L${c3[0]},${c3[1]-58} L${c3} Z" class="wb"/>`;
-  let wins="";for(let k=0;k<4;k++){const a=ISO(k+.05,-.5),b=ISO(k+.6,-.5);wins+=`<path class="win" d="M${a[0]},${a[1]-46} L${b[0]},${b[1]-46} L${b[0]},${b[1]-18} L${a[0]},${a[1]-18} Z"/>`}
-  for(let k=0;k<3;k++){const a=ISO(-.5,k+.1),b=ISO(-.5,k+.65);wins+=`<path class="win" d="M${a[0]},${a[1]-46} L${b[0]},${b[1]-46} L${b[0]},${b[1]-18} L${a[0]},${a[1]-18} Z"/>`}
-  // zone plates on floor
-  const plate=(i,j,t)=>{const[x,y]=ISO(i,j);return `<text class="plate" x="${x}" y="${y}" text-anchor="middle" transform="rotate(0)">${t}</text>`};
-  // pipeline path through the flow desks; dots move only when the pipeline had activity in the last 10 min
-  const pl=s.pipeline||{},busy=(pl.signals||0)+(pl.candidates||0)>0;
-  const pts=FLOW.filter(id=>ags[id]).map(id=>{const[i,j]=AG[id].g;const[x,y]=ISO(i,j);return[x,y+12]});
-  const pd="M"+pts.map(p=>p.join(",")).join(" L");
-  let flow=`<path id="flowp" d="${pd}" fill="none" stroke="#6c8cff" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 3"/>`;
-  if(busy&&!RM){for(let k=0;k<4;k++)flow+=`<circle r="2.2" fill="#6c8cff"><animateMotion dur="9s" begin="${-k*2.25}s" repeatCount="indefinite"><mpath href="#flowp"/></animateMotion></circle>`}
-  // order back-to-front so nearer characters overlap correctly
-  const ord=ids.slice().sort((a,b)=>(AG[a].g[0]+AG[a].g[1])-(AG[b].g[0]+AG[b].g[1]));
-  for(const id of ord){const a=ags[id],st=agState(a),[i,j]=AG[id].g,[x,y]=ISO(i,j);
-    desks+=deskSVG(x+8,y+4,AG[id].c,st.k==="work");
-    chars+=charSVG(id,x-6,y-2,a,st,quiet);
-    desks+=`<text class="ws" x="${x+4}" y="${y+33}" text-anchor="middle">${AG[id].n.toUpperCase()}</text>`;
-  }
-  // bubbles: most recent action first, skip any that would overlap one already placed (tap the agent for the rest)
-  const placed=[];
-  for(const id of ids.slice().sort((a,b)=>(ags[a].action_age_s??1e9)-(ags[b].action_age_s??1e9))){
-    const a=ags[id],st=agState(a),[i,j]=AG[id].g,[x,y]=ISO(i,j),l1=say(a),l2=`${st.t} · ${ago(a.action_age_s)}`;
-    const w=bubbleW(l1,l2),bx=x-6,by=y-42,box=[bx-w/2-2,by-23,bx+w/2+2,by+2];
-    if(placed.some(q=>!(box[2]<q[0]||box[0]>q[2]||box[3]<q[1]||box[1]>q[3])))continue;
-    placed.push(box);bubs+=bubbleSVG(bx,y-2,l1,l2,st.col)}
-  // plant + coffee (decorative)
-  const[px1,py1]=ISO(3,2);
-  const deco=`<g transform="translate(${px1},${py1})"><ellipse cx="0" cy="8" rx="9" ry="4" fill="rgba(15,23,42,.15)"/><path d="M-6 0 L6 0 L4 9 L-4 9 Z" fill="#b45309"/><path d="M0 0 Q-10 -10 -4 -20 Q0 -8 0 0 Q2 -16 8 -18 Q6 -6 0 0" fill="#16a34a"/></g>
-    <text class="ws" x="${px1}" y="${py1+33}" text-anchor="middle">PAPER ONLY</text>`;
-  return `<svg viewBox="0 0 400 310" role="img" aria-label="Agent office">
-   <defs><linearGradient id="nightfxg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0b1023" stop-opacity=".3"/><stop offset="1" stop-color="#0b1023" stop-opacity=".12"/></linearGradient></defs>
-   ${wl}${wins}<circle class="moon" cx="360" cy="24" r="8" fill="#fde68a"/>${floor}${flow}${desks}${deco}${chars}${bubs}
-   <rect id="nightfx" x="0" y="0" width="400" height="310" fill="url(#nightfxg)"/></svg>`;
+  const I=5.2,J=4.4,H=62;let g="";
+  // walls: back (along i at j=0) and left (along j at i=0)
+  const w0=OI(0,0),w1=OI(I,0),w3=OI(0,J);
+  g+=`<path class="wa" d="M${OP([0,0],[I,0])} L${f1(w1[0])},${f1(w1[1]-H)} L${f1(w0[0])},${f1(w0[1]-H)}Z"/>`;
+  g+=`<path class="wb" d="M${OP([0,0],[0,J])} L${f1(w3[0])},${f1(w3[1]-H)} L${f1(w0[0])},${f1(w0[1]-H)}Z"/>`;
+  g+=`<path class="fl" d="M${OP([0,0],[I,0],[I,J],[0,J])}Z"/>`;
+  for(let k=1;k<I;k++)g+=`<path d="M${OP([k,0],[k,J])}" stroke="currentColor" stroke-opacity=".06" stroke-width=".6"/>`;
+  for(let k=1;k<J;k++)g+=`<path d="M${OP([0,k],[I,k])}" stroke="currentColor" stroke-opacity=".06" stroke-width=".6"/>`;
+  // windows: back wall (sky, sun/moon, stars)
+  const winB=(a,b)=>{const p=OI(a,0),q=OI(b,0);return `<path class="lwin" d="M${f1(p[0])},${f1(p[1]-50)} L${f1(q[0])},${f1(q[1]-50)} L${f1(q[0])},${f1(q[1]-30)} L${f1(p[0])},${f1(p[1]-30)}Z"/><path class="lfr" fill="none" stroke-width="1.2" d="M${f1(p[0])},${f1(p[1]-50)} L${f1(q[0])},${f1(q[1]-50)} L${f1(q[0])},${f1(q[1]-30)} L${f1(p[0])},${f1(p[1]-30)}Z M${f1((p[0]+q[0])/2)},${f1((p[1]+q[1])/2-50)} V${f1((p[1]+q[1])/2-30)}"/>`};
+  g+=winB(.25,1.15)+winB(4.15,5.0);
+  {const p=OI(.7,0);g+=`<circle class="sun" cx="${f1(p[0])}" cy="${f1(p[1]-44)}" r="3.2" fill="#fde047"/><g class="stars">${[[0,-46],[8,-38],[-7,-36]].map((d,q)=>`<circle class="tw" cx="${f1(p[0]+d[0])}" cy="${f1(p[1]+d[1])}" r=".8" fill="#fff" style="animation-delay:${q*.7}s"/>`).join("")}</g>`;
+   const m=OI(4.55,0);g+=`<path class="moonl" d="M${f1(m[0]-1)},${f1(m[1]-46)}a4 4 0 1 0 4 5a3.2 3.2 0 1 1 -4 -5z" fill="#e2e8f0"/>`}
+  // back wall: three status screens above the scoring desks (lines tick, glow when that agent works)
+  [["quant",1.6,2.25],["mm",2.6,3.25],["lp_strategist",3.6,4.25]].forEach(([id,a,b],q)=>{const p=OI(a,0),r=OI(b,0),on=ags[id]&&agState(ags[id]).k==="work";
+    g+=`<path class="wsc" d="M${f1(p[0])},${f1(p[1]-52)} L${f1(r[0])},${f1(r[1]-52)} L${f1(r[0])},${f1(r[1]-34)} L${f1(p[0])},${f1(p[1]-34)}Z"/>
+     <path class="${on?"tick":""}" d="M${f1(p[0]+3)},${f1(p[1]-40)} L${f1(p[0]+8)},${f1(p[1]-45+q)} L${f1(p[0]+13)},${f1(p[1]-42)} L${f1(r[0]-3)},${f1(r[1]-47+q)}" stroke="${AG[id].c}" stroke-width="1.2" fill="none" opacity="${on?1:.4}"/>`});
+  // left wall: big command screen (pipeline bars), clock
+  {const p=OI(0,1.0),q=OI(0,2.6),pl=s.pipeline||{},v=[pl.signals,pl.scored,pl.approved,pl.opened].map(x=>Math.min(1,(x||0)/8));
+   g+=`<path class="wsc" d="M${f1(p[0])},${f1(p[1]-56)} L${f1(q[0])},${f1(q[1]-56)} L${f1(q[0])},${f1(q[1]-26)} L${f1(p[0])},${f1(p[1]-26)}Z"/>`;
+   v.forEach((x,k)=>{const a=OI(0,1.2+k*.35),b=OI(0,1.42+k*.35),hh=3+x*16;g+=`<path d="M${f1(a[0])},${f1(a[1]-29)} L${f1(b[0])},${f1(b[1]-29)} L${f1(b[0])},${f1(b[1]-29-hh)} L${f1(a[0])},${f1(a[1]-29-hh)}Z" fill="${["#6c8cff","#22c55e","#eab308","#ec4899"][k]}" opacity=".85"/>`});
+   const c=OI(0,3.0),hm=new Date(Date.now()+8*36e5),hA=(hm.getUTCHours()%12+hm.getUTCMinutes()/60)*30*Math.PI/180,mA=hm.getUTCMinutes()*6*Math.PI/180;
+   g+=`<g transform="translate(${f1(c[0])},${f1(c[1]-46)})"><ellipse rx="5.5" ry="6.5" fill="#f8fafc" stroke="#94a3b8"/><path d="M0 0 L${f1(Math.sin(hA)*2.6)} ${f1(-Math.cos(hA)*3.2)} M0 0 L${f1(Math.sin(mA)*3.8)} ${f1(-Math.cos(mA)*4.8)}" stroke="#334155" stroke-width=".8" stroke-linecap="round"/></g>`;
+   const t=OI(0,1.8);g+=`<text class="lbl2" x="${f1(t[0])}" y="${f1(t[1]-50)}" text-anchor="middle">HQ PIPELINE</text>`}
+  // rug + central HQ table with rotating holo globe
+  {const c=OI(2.75,2.55);g+=`<ellipse class="rug" cx="${f1(c[0])}" cy="${f1(c[1])}" rx="62" ry="28"/>
+   <ellipse class="tbl2" cx="${f1(c[0])}" cy="${f1(c[1]+3)}" rx="34" ry="14"/><ellipse class="tbl1" cx="${f1(c[0])}" cy="${f1(c[1])}" rx="34" ry="14"/>
+   <g transform="translate(${f1(c[0])},${f1(c[1]-14)})"><ellipse rx="10" ry="3" fill="#6c8cff" opacity=".25"/><g class="holo"><ellipse rx="7" ry="7" fill="none" stroke="#6c8cff" stroke-width=".8" opacity=".8"/><ellipse rx="3" ry="7" fill="none" stroke="#6c8cff" stroke-width=".6" opacity=".7"/></g><ellipse rx="7" ry="2.2" fill="none" stroke="#6c8cff" stroke-width=".6" opacity=".7"/></g>
+   <text class="lbl2" x="${f1(c[0])}" y="${f1(c[1]+24)}" text-anchor="middle">PAPER ONLY</text>`}
+  // coffee machine (comms corner) and water cooler
+  {const c=OI(.25,1.25);g+=`<g transform="translate(${f1(c[0])},${f1(c[1])})"><rect x="-6" y="-18" width="12" height="18" rx="1.5" fill="#334155"/><rect x="-4" y="-15" width="8" height="5" rx="1" fill="#0f172a"/><circle class="blink" cx="3" cy="-12.5" r=".9" fill="#22c55e"/><rect x="-2.5" y="-6" width="5" height="4" rx=".8" fill="#f8fafc"/><path class="stm" d="M-1 -8 q-1.5 -2 0 -4 M1.2 -8 q1.5 -2 0 -4" stroke="#cbd5e1" stroke-width=".7" fill="none"/></g>`}
+  {const c=OI(5.0,.35);g+=`<g transform="translate(${f1(c[0])},${f1(c[1])})"><rect x="-4" y="-10" width="8" height="10" rx="1" fill="#e2e8f0"/><rect x="-3.5" y="-18" width="7" height="8" rx="3" fill="#7dd3fc" opacity=".8"/></g>`}
+  // plants in three corners
+  const plant=(i,j,k)=>{const c=OI(i,j);return `<g transform="translate(${f1(c[0])},${f1(c[1])}) scale(${k})"><ellipse cx="0" cy="8" rx="7" ry="2.6" fill="rgba(15,23,42,.15)"/><path d="M-5 0 L5 0 L3.6 8 L-3.6 8Z" fill="#b45309"/><g class="sway"><path d="M0 0 Q-8 -6 -6 -15 Q-1 -8 0 0Z M0 0 Q7 -7 5 -17 Q0 -9 0 0Z M0 0 Q-2 -11 1 -20 Q3 -10 0 0Z" fill="#22a06b"/></g></g>`};
+  g+=plant(.2,.15,1.1)+plant(5.0,4.2,1)+plant(.2,4.2,.9)+plant(2.5,4.25,.8);
+  // pipeline flow line; dots move only when the pipeline had recent activity
+  const pl=s.pipeline||{},busy=(pl.signals||0)+(pl.candidates||0)+(pl.scored||0)>0;
+  const pts=FLOW.filter(id=>ags[id]&&OG[id]).map(id=>{const[i,j]=OG[id];const[x,y]=OI(i+.35,j+.35);return f1(x)+","+f1(y)});
+  g+=`<path id="flowp" d="M${pts.join(" L")}" fill="none" stroke="#6c8cff" stroke-opacity=".3" stroke-width="1.2" stroke-dasharray="3 3"/>`;
+  if(busy&&!RM)for(let k=0;k<3;k++)g+=`<circle r="1.8" fill="#6c8cff"><animateMotion dur="10s" begin="${-k*3.3}s" repeatCount="indefinite"><mpath href="#flowp"/></animateMotion></circle>`;
+  // desks + agents (back to front), name label + status dot only
+  CSC=.95;let ch="",nl="";
+  for(const id of ids.slice().sort((a,b)=>(OG[a][0]+OG[a][1])-(OG[b][0]+OG[b][1]))){const a=ags[id],st=agState(a),[i,j]=OG[id],[x,y]=OI(i,j);
+    ch+=(id==="coordinator"?"":deskSVG(x+7,y+2,AG[id].c,st.k==="work").replace("scale(1.25)","scale(.8)"))+charSVG(id,x-5,y-1,a,st,quiet);
+    const n=AG[id].n,w=n.length*3.4+8;nl+=`<g pointer-events="none"><rect class="nmb" x="${f1(x-w/2)}" y="${f1(y+12)}" width="${f1(w)}" height="9" rx="4.5"/><text class="nm" x="${f1(x)}" y="${f1(y+18.6)}" text-anchor="middle">${esc(n)}</text></g>`}
+  return `<svg class="ofc" viewBox="20 8 360 268" role="img" aria-label="Agent office">${g}${ch}${nl}</svg>`;
 }
 function feed(s){
   const ev=(s.events||[]).slice(0,6);
@@ -1025,10 +1054,23 @@ function renderOffice(){
   $("pausesub").textContent=m.paused?"Paused · open positions keep running":"Open positions keep running";
   const hv=m.hours||"auto";document.querySelectorAll("#sghours button").forEach(b=>{b.classList.toggle("on",b.dataset.h===hv);b.disabled=!can||!!BUSY});
   $("hrsub").textContent=hv==="auto"?`Schedule · window ${m.window}`:hv==="on"?"Always active":"Standby until changed";
-  $("tposs").textContent=`${A} active · ${P.length-A} pending`;
-  const c=s.performance&&s.performance.chains&&s.performance.chains.sol;
-  $("treps").innerHTML=c?`${pc(c.cum_pct/100,2)} since start`:"Equity, closes, configs";
-  const pl=s.pipeline||{};$("ccsub").textContent=`Last 10 min: ${pl.signals||0} signals · ${pl.scored||0} scored · ${pl.approved||0} approved`;
+  const L=s.lp||{};$("tpos").textContent=`${A} active · ${P.length-A} pending`;
+  $("tposs").textContent=L.in_use!=null?`${(+L.in_use).toFixed(2)} SOL in use`:"Exposure unavailable";
+  $("hqcap").innerHTML=hqCap();
+  const ags=s.agents||[],h=s.health||{},up=ags.filter(a=>a.alive).length;
+  $("thl").innerHTML=h.ok?'<span class="up">All OK</span>':h.maintenance?"Maintenance":'<span class="dn">Check</span>';$("thls").textContent=`${up}/${ags.length} agents up`;
+  const c=s.performance&&s.performance.chains&&s.performance.chains.sol,D=c&&c.days||[],td=D.length?D[D.length-1]:null;
+  if(td&&!td.final){$("tday").innerHTML=pc(td.change_pct/100,2);$("tdays").textContent=`${td.wins}/${td.closed} wins closed`}else{$("tday").textContent="–";$("tdays").textContent="No trades today"}
+  const pl=s.pipeline||{};$("tpl").textContent=`${pl.signals||0} signals`;$("tpls").textContent=`${pl.scored||0} scored · ${pl.approved||0} approved · ${pl.opened||0} opened`;
+  const AT=attention(s);$("attn").textContent=AT.length?AT.length:"";
+  $("att").innerHTML=AT.length?AT.map(x=>`<div class="it"><span class="dt ${x[0]}"></span><span>${x[1]}</span></div>`).join(""):`<div class="it"><span class="dt o"></span><span class="mut">Nothing needs attention</span></div>`;
+  $("health").innerHTML=`<span><span class="dot ${h.ok?"d-run":h.maintenance?"d-stb":"d-dead"}"></span>${h.ok?"All systems OK":h.maintenance?"Maintenance":"Needs attention"}</span><span class="mut">${ags.filter(a=>a.alive).length}/${ags.length} agents</span>`;
+  $("agents").innerHTML=ags.map(a=>`<div class="ag"><span class="dot ${!a.alive?"d-dead":a.status==="running"?"d-run":"d-stb"}"></span>${esc(a.name)}</div>`).join("");
+  const rst={opened:"Opened",skipped_risk:"Blocked",skipped_held:"Already held",approved:"Approved",reject:"Rejected"};
+  const R=s.risk||[];$("risk").innerHTML=R.length?R.slice(0,10).map(r=>`<div class="it"><span><span class="chip">${r.chain.toUpperCase()}</span>${esc(r.symbol)}</span><span class="mut">${esc(rst[r.status]||r.status)}${r.reasons.length?" · "+esc(r.reasons[0]):""}</span></div>`).join(""):`<div class="empty">None yet</div>`;
+  const kd={wallet_buy:"Wallet buy",gmgn_trending:"Trending"};
+  const G=s.signals||[];$("sig").innerHTML=G.length?G.slice(0,10).map(g=>`<div class="it"><span><span class="chip">${g.chain.toUpperCase()}</span>${esc(g.symbol)}</span><span class="mut">${esc(kd[g.kind]||g.kind)} · ${tm(g.ts)}</span></div>`).join(""):`<div class="empty">None yet</div>`;
+
   $("feed").innerHTML=feed(s);
   $("note").textContent=can?"Tap an agent for details · paper trading, no real funds":(tg&&tg.initData?"Controls unavailable: relay not reachable":"Open in Telegram to use the controls · paper trading");
 }
@@ -1161,6 +1203,7 @@ document.addEventListener("click",e=>{
   const ch=q(".ch");if(ch){card(ch.dataset.id);return}
   const sv=q("[data-v]");if(sv){view(sv.dataset.v);return}
   if(q("#bpower")){powerSheet();return}
+  if(q("[data-hl]")){const d=$("sysd");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});return}
   if(q("#swpause")){if(S)send("pause",{on:!S.mode.paused},S.mode.paused?"Resuming…":"Pausing…","pause");return}
   const h=q("#sghours button");if(h){if(S&&h.dataset.h!==(S.mode.hours||"auto"))send("hours",{v:h.dataset.h},"Changing hours…","hours");return}
   if(q("#bmlp")){mlpForm();return}
