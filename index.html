@@ -350,6 +350,14 @@ input,select,textarea{font-size:16px!important}
 .lab{padding:6px 10px 10px}.lg{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:4px}.lg b{font-size:13px}.lg i{width:8px;height:8px;border-radius:3px;flex:none}.lg .mut{font-size:11.5px;line-height:1.35}.lab svg{display:block;width:100%;height:auto}.gl p{margin:0 0 8px;line-height:1.5}.gl p:last-child{margin:0}
 #resv .cl>div:first-child{min-width:0}#resv .cl .mut{overflow-wrap:anywhere}
 @media (prefers-reduced-motion:reduce){#toast,.sw::after,.ub{transition:none}#toast .sp{animation:none}}
+
+.net-balance{color:var(--fg);background:var(--card);padding:14px;border-radius:12px;margin:8px 0 12px;overflow-wrap:anywhere}
+.balance-label{font-size:.9rem}.balance-total{font-size:clamp(1.6rem,7vw,2rem);font-weight:750;font-variant-numeric:tabular-nums;margin:4px 0 12px}
+.balance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0}.balance-grid div{min-width:0}
+.balance-grid dt{font-size:.85rem}.balance-grid dd{margin:3px 0;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.balance-pnl{grid-column:1/-1}
+.net-balance p,.measurement p{font-size:.85rem;line-height:1.5;margin:8px 0 0}.measurement{font-size:.85rem;margin-top:8px;overflow-wrap:anywhere}
+.measurement summary{cursor:pointer;min-height:44px;padding:10px 0}.measurement summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+@media(max-width:340px){.balance-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body class="v-office">
@@ -398,9 +406,10 @@ input,select,textarea{font-size:16px!important}
   <div class="sub" style="text-align:center;margin-top:14px">Paper trading · TP/SL are % of position size</div>
 </div>
 <div class="wrap" id="repv" hidden>
+  <div id="netbalance"></div>
   <div class="tabs" id="eqtabs"><div class="tab on" data-c="sol">Solana</div><div class="tab" data-c="rh">Robinhood</div></div>
   <div class="hero">
-    <div class="row"><span class="lbl">Equity curve</span><span class="mut" id="capst"></span></div>
+    <div class="row"><span class="lbl">Gross curve · not the net balance</span><span class="mut" id="capst"></span></div>
     <div class="prog" id="prog"></div>
     <div class="row mut" style="font-size:11px"><span id="pl0"></span><span id="pl1"></span></div>
     <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
@@ -510,19 +519,45 @@ function header(){
   $("ldot").className="ldot"+(st.k==="stop"||st.k==="off"?" off":stale>6&&m.mode==="AKTIF"?" late":"");
   $("sub").textContent=(st.k==="off"?"Bot is off":st.k==="stop"?"Bot not running":`Window ${m.window} · next ${m.next_change}`)+` · updated ${tm(s.ts)} WITA`+(stale>10?` (${age(stale)} ago)`:"");
 }
+/* NET-BALANCE-START */
+function netAmount(x){return x==null||!Number.isFinite(+x)?"unknown":(+x).toFixed(4)+" SOL"}
+function tinyAmount(x){return x==null||!Number.isFinite(+x)?"unknown":((+x!==0&&Math.abs(+x)<1e-9)?(+x).toExponential(3):(+x).toFixed(9))+" SOL"}
+function netBalance(b){
+  if(!b||b.total_net_sol==null)return '<section class="net-balance">Balance unavailable. Refresh for the current paper session.</section>';
+  const st=b.session||{},when=st.started_ts?new Date(st.started_ts*1000).toLocaleString("en-GB",{timeZone:"Asia/Makassar",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})+" WITA":"legacy session";
+  const notes=[b.pending_entry_cost_n?`${b.pending_entry_cost_n} entry cost pending`:"",b.unknown_exit_cost_n?`${b.unknown_exit_cost_n} exit cost unavailable`:"",b.stale_mark_n?`${b.stale_mark_n} stale/unknown mark`:""].filter(Boolean).join(" · ");
+  return `<section class="net-balance" aria-label="Current paper balance"><div class="balance-label">Total paper SOL · estimated net</div>
+    <div class="balance-total">${netAmount(b.total_net_sol)}</div><dl class="balance-grid">
+    <div><dt>Free cash</dt><dd>${netAmount(b.free_sol)}</dd></div><div><dt>Open net</dt><dd>${netAmount(b.open_net_sol)}</dd></div>
+    <div class="balance-pnl"><dt>Net PnL</dt><dd>${b.net_pnl_sol>=0?"+":""}${netAmount(b.net_pnl_sol)}</dd></div></dl>
+    <p>Start ${netAmount(b.capital_sol)} · ${esc(when)}<br>${b.archived_sessions_n||0} earlier session(s) archived</p>
+    <p>Includes proxy fees and known entry/estimated exit costs. Observed fees are separate estimates, excluded from PnL.${notes?"<br>"+esc(notes):""}</p></section>`;
+}
+function measurementLine(m){
+  if(!m)return '<div class="measurement">Net detail unavailable in this snapshot.</div>';
+  const o=m.observation||{},window=o.window_start_ts?new Date(o.window_start_ts*1000).toLocaleString("en-GB",{timeZone:"Asia/Makassar"})+" WITA":"not started";
+  return `<details class="measurement"><summary>Net estimate ${netAmount(m.net_pnl_sol)} · costs &amp; observations</summary>
+   <dl class="balance-grid"><div><dt>Entry cost remaining</dt><dd>${tinyAmount(m.remaining_entry_cost_sol)} · ${esc(m.entry_cost_status)}</dd></div>
+   <div><dt>Estimated exit</dt><dd>${tinyAmount(m.estimated_exit_cost_sol)} · ${esc(m.exit_cost_source)}</dd></div>
+   <div><dt>Active-bin composition</dt><dd>${esc(m.active_bin_comp)}</dd></div><div><dt>Observation</dt><dd>${esc(o.status)} · ${o.covered_bins||0}/${o.positive_bins||0} positive bins</dd></div></dl>
+   <p>Observation age ${o.age_s==null?"unknown":Math.round(o.age_s)+"s"} · ${o.late_start?"late start":"baseline"}<br>Since ${esc(window)}</p>
+   <p>Observed raw ${tinyAmount(o.raw_fee_sol_est)} · diluted ${tinyAmount(o.diluted_fee_sol_est)}<br>Synthetic observation-window estimates only; excluded from PnL. Not lifetime actual fees.</p></details>`;
+}
+/* NET-BALANCE-END */
+
 /* ---------- Positions ---------- */
 function posCard(p){
   const t=p.tpsl||{},u=p.unit,pend=PEND_POS[p.id];
   const tpsl=(t.tp||t.sl)?`<div class="tp">${t.tp?`<span>TP +${t.tp}%</span>`:""}${t.sl?`<span>SL −${t.sl}%</span>`:""}</div>`:"";
   const mid=p.filled
-    ?`<div class="grid3"><div><span>Size</span><b>${amt(p.size,u)}</b></div><div><span>PnL</span><b>${sgn(p.pnl,u)}</b></div><div><span>Fees</span><b>${(+p.fees).toFixed(dp(u)+1)}</b></div></div>`
+    ?`<div class="grid3"><div><span>Size</span><b>${amt(p.size,u)}</b></div><div><span>Gross PnL</span><b>${sgn(p.pnl,u)}</b></div><div><span>Proxy fees</span><b>${(+p.fees).toFixed(dp(u)+1)}</b></div></div>`
     :`<div class="grid3"><div><span>Committed</span><b>${amt(p.size,u)}</b></div><div><span>To range</span><b>${(Math.abs(p.to_range||0)*100).toFixed(1)}%</b></div><div><span>Time left</span><b>${p.left_min!=null?age(p.left_min):"–"}</b></div></div>
       <div class="bar" title="How close price is to the range"><i style="width:${Math.max(4,Math.min(100,100-Math.abs(p.to_range||0)*400)).toFixed(0)}%"></i></div>`;
   return `<div class="pc"><div class="top"><div><div class="pair">${esc(p.pair)}</div>
      <div class="mut">Range ${px(p.range.low)} – ${px(p.range.high)} · ${age(p.age_min)} old</div></div>
      <div style="text-align:right"><span class="st ${p.filled?"a":"p"}">${p.filled?"ACTIVE":"PENDING"}</span>
-     ${p.filled?`<div class="pnl">${pc(p.pnl_pct,2)}</div>`:""}</div></div>
-   ${mid}${lpLine(p)}${tpsl}${lkP(p.id)}
+     ${p.filled?`<div class="pnl">Gross ${pc(p.pnl_pct,2)}</div>`:""}</div></div>
+   ${mid}${lpLine(p)}${measurementLine(((S.balance||{}).positions||{})[String(p.id)])}${tpsl}${lkP(p.id)}
    <div class="pacts"><button class="ub b-dk" data-tpsl="${p.id}" ${pend?"disabled":""}>TP / SL</button>
      <button class="ub b-dn" data-close="${p.id}" ${pend?"disabled":""}>${pend==="close"?"Closing…":"Close now"}</button></div></div>`;
 }
@@ -534,11 +569,7 @@ function renderLp(){
   const d=S.lp||{},E=t=>String(t).replace(/[<>&"]/g,""),sg=x=>(x>=0?"+":"")+(+x).toFixed(3)+" SOL",kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`;
   $("lprec").innerHTML=(d.recipes||[]).slice(0,8).map(r=>kv(E(RNAME(r)),`${r.wins}/${r.n} win · ${sg(r.pnl)}`)).join("")||kv("–","none yet");
 }
-function hqCap(){const d=S.lp||{},kv=(a,b)=>`<dt>${a}</dt><dd>${b}</dd>`,sg=x=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${(+x).toFixed(3)}</span> SOL`;
-  if(d.capital==null)return `<div class="row"><b>Paper capital</b></div><div class="mut">No data yet</div>`;
-  return `<div class="row"><b>Paper capital</b><span class="mut">start ${d.capital} SOL</span></div>
-   <div class="big">${(+d.equity).toFixed(3)} SOL</div><div class="mut">${pc(d.progress,1)} since start</div>
-   <dl class="kv">${kv("Total PnL",sg(d.realized+d.unrealized))}${kv("Realized",sg(d.realized))}${kv("Open PnL",sg(d.unrealized))}${kv("Claimable fees",(+d.claimable).toFixed(4)+" SOL")}</dl>`}
+function hqCap(){return netBalance(S.balance)}
 function attention(s){const A=[],ags=s.agents||[],h=s.health||{},m=s.mode||{},stale=(Date.now()/1000-s.ts)/60;
   if(stale>10)A.push(["e",`No fresh snapshot for ${age(Math.round(stale))}`]);
   ags.filter(a=>!a.alive).forEach(a=>A.push(["e",`${(AG[a.name]||{}).n||a.name} is offline`]));
@@ -677,15 +708,14 @@ function spk(el,ys){if(!el||!ys||ys.length<2){if(el)el.innerHTML="";return}
   const d=ys.map((y,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(y).toFixed(1)).join(" ");const c=ys[n-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
   el.innerHTML=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="4 3"/>`}
 function renderRep(){
+  $("netbalance").innerHTML=netBalance(S.balance);
   const s=S,EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
   document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
   $("eqtabs").style.display=EN.length>1?"":"none";
   const e=(s.equity||{})[CH];if(!e)return;const u=e.unit,cap=e.capital||0,ch=cap?e.equity/cap-1:0;
-  $("capst").innerHTML=`${pc(ch,2)} vs start`;
-  // progress bar: centre = starting capital, ±10% at the edges
-  const f=Math.max(-1,Math.min(1,ch/0.10)),col=ch>=0?"#22c55e":"#ef4444";
-  $("prog").innerHTML=`<i style="left:${f>=0?50:50+f*50}%;width:${Math.abs(f)*50}%;background:${col}"></i><i style="left:calc(50% - 1px);width:2px;background:var(--mut)"></i>`;
-  $("pl0").textContent=amt(cap*0.9,u);$("pl1").textContent=amt(cap*1.1,u);
+  $("capst").textContent="Current session · gross";
+  $("prog").hidden=true;
+  $("pl0").textContent="Start "+amt(cap,u);$("pl1").textContent="Costs/partial cash excluded";
   curve(e.points,cap);
   const P=s.performance,c=P&&P.chains&&P.chains[CH];
   const k=(l,v,x)=>`<div class="stat"><span>${l}</span><b>${v}</b>${x?`<div class="mut">${x}</div>`:""}</div>`;
@@ -702,7 +732,7 @@ function renderRep(){
     $("days").innerHTML=`<tr><th>Day</th><th>End</th><th>Day</th><th>Total</th><th>W/L</th><th>DD</th></tr>`+(D.length?D.map(r=>
       `<tr><td>${esc(r.day.slice(5))}${r.final?"":" ·"}</td><td>${(+r.end_eq).toFixed(dp(u))}</td><td>${pc(r.change_pct/100)}</td><td>${pc(r.cum_pct/100)}</td><td>${r.wins}/${r.closed}</td><td>${(+r.max_dd_pct).toFixed(1)}%</td></tr>`).join("")
       :`<tr><td colspan="6" class="empty">No full day yet</td></tr>`);
-    $("perfnote").textContent=`Day = 09:00–09:00 WIB · "·" = today, in progress`;
+    $("perfnote").textContent=`Gross ledger · 10:00–10:00 WITA · "·" = in progress`;
   }else{$("stats").innerHTML="";$("byver").innerHTML="";$("days").innerHTML=""}
   const C=(s.closes||[]).filter(x=>x.chain===CH).slice(0,10);
   $("closes").innerHTML=C.length?C.map(x=>`<div class="cl"><div><b>${esc(x.pair)}</b><div class="mut">${esc(x.reason)} · held ${age(x.held_min)}${x.cfg_ver?" · "+esc(x.cfg_ver):""}</div></div>
