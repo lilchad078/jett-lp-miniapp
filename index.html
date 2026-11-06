@@ -358,6 +358,7 @@ input,select,textarea{font-size:16px!important}
 .net-balance p,.measurement p{font-size:.85rem;line-height:1.5;margin:8px 0 0}.measurement{font-size:.85rem;margin-top:8px;overflow-wrap:anywhere}
 .measurement summary{cursor:pointer;min-height:44px;padding:10px 0}.measurement summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}
 @media(max-width:340px){.balance-grid{grid-template-columns:minmax(0,1fr)}}
+.net-curve{width:100%;height:140px;display:block}
 </style>
 </head>
 <body class="v-office">
@@ -409,10 +410,10 @@ input,select,textarea{font-size:16px!important}
   <div id="netbalance"></div>
   <div class="tabs" id="eqtabs"><div class="tab on" data-c="sol">Solana</div><div class="tab" data-c="rh">Robinhood</div></div>
   <div class="hero">
-    <div class="row"><span class="lbl">Gross curve · not the net balance</span><span class="mut" id="capst"></span></div>
+    <div class="row"><span class="lbl">Session net equity</span><span class="mut" id="capst"></span></div>
     <div class="prog" id="prog"></div>
     <div class="row mut" style="font-size:11px"><span id="pl0"></span><span id="pl1"></span></div>
-    <svg id="curve" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+    <div id="curve"></div>
   </div>
   <h3>Last 7 days</h3><div class="stats" id="stats"></div>
   <h3>Recent closes</h3><div class="card" id="closes"></div>
@@ -544,6 +545,19 @@ function measurementLine(m){
    <p>Observed raw ${tinyAmount(o.raw_fee_sol_est)} · diluted ${tinyAmount(o.diluted_fee_sol_est)}<br>Synthetic observation-window estimates only; excluded from PnL. Not lifetime actual fees.</p></details>`;
 }
 /* NET-BALANCE-END */
+/* NET-REPORTS-START */
+function netCurve(points,started){
+  const pts=(points||[]).filter(p=>Array.isArray(p)&&p.length>1&&Number.isFinite(+p[0])&&p[1]!=null&&Number.isFinite(+p[1])).map(p=>[+p[0],+p[1]]).sort((a,b)=>a[0]-b[0]);
+  if(!pts.length)return '<p>Net equity history unavailable. Refresh for the current session.</p>';
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),lo=Math.min(...ys),hi=Math.max(...ys),x0=xs[0],x1=xs[xs.length-1];
+  const X=x=>x1>x0?60+(x-x0)/(x1-x0)*248:308,Y=y=>hi>lo?108-(y-lo)/(hi-lo)*80:68;
+  const path=pts.length===1?`M60 ${Y(ys[0])} L308 ${Y(ys[0])}`:pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(2)+' '+Y(p[1]).toFixed(2)).join(' ');
+  const when=started?new Date(started*1000).toLocaleTimeString('en-GB',{timeZone:'Asia/Makassar',hour:'2-digit',minute:'2-digit',hourCycle:'h23'})+' WITA':'legacy session';
+  const value=y=>y.toFixed(4)+' SOL',last=pts[pts.length-1];
+  return `<svg class="net-curve" viewBox="0 0 320 140" role="img" aria-label="Session net equity; latest ${value(last[1])}"><text x="0" y="16" fill="currentColor" font-size="11">${value(hi)}</text>${hi>lo?`<text x="0" y="133" fill="currentColor" font-size="11">${value(lo)}</text>`:''}<path d="${path}" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="${X(last[0])}" cy="${Y(last[1])}" r="3" fill="currentColor"/></svg><p class="measurement">Session started ${esc(when)} · ${pts.length===1?'First recorded value':'Estimated net SOL over time'}</p>`;
+}
+/* NET-REPORTS-END */
+
 
 /* ---------- Positions ---------- */
 function posCard(p){
@@ -694,7 +708,7 @@ function renderPos(){
 }
 
 /* ---------- Reports ---------- */
-function curve(pts,base){
+function grossCurve(pts,base){
   const el=$("curve");if(!pts||pts.length<2){el.innerHTML="";return}
   const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]).concat(base?[base]:[]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
   const X=x=>x1>x0?(x-x0)/(x1-x0)*300:0,Y=y=>y1>y0?112-(y-y0)/(y1-y0)*104:60;
@@ -707,16 +721,18 @@ function spk(el,ys){if(!el||!ys||ys.length<2){if(el)el.innerHTML="";return}
   const y0=Math.min(...ys),y1=Math.max(...ys),n=ys.length,X=i=>i/(n-1)*300,Y=y=>y1>y0?70-(y-y0)/(y1-y0)*60:40;
   const d=ys.map((y,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(y).toFixed(1)).join(" ");const c=ys[n-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
   el.innerHTML=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="4 3"/>`}
+function curve(data){$("curve").innerHTML=netCurve((data||{}).points,(data||{}).started_ts)}
 function renderRep(){
   $("netbalance").innerHTML=netBalance(S.balance);
   const s=S,EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
   document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
   $("eqtabs").style.display=EN.length>1?"":"none";
+  if(CH==="sol")curve(s.net_equity);
   const e=(s.equity||{})[CH];if(!e)return;const u=e.unit,cap=e.capital||0,ch=cap?e.equity/cap-1:0;
-  $("capst").textContent="Current session · gross";
+  $("capst").textContent=CH==="sol"?"Current session · estimated net":"Current session · gross";
   $("prog").hidden=true;
-  $("pl0").textContent="Start "+amt(cap,u);$("pl1").textContent="Costs/partial cash excluded";
-  curve(e.points,cap);
+  $("pl0").textContent="Start "+amt(cap,u);$("pl1").textContent=CH==="sol"?"Known costs included":"Costs/partial cash excluded";
+  if(CH!=="sol")grossCurve(e.points,cap);
   const P=s.performance,c=P&&P.chains&&P.chains[CH];
   const k=(l,v,x)=>`<div class="stat"><span>${l}</span><b>${v}</b>${x?`<div class="mut">${x}</div>`:""}</div>`;
   if(c){const w=c.d7;
