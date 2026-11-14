@@ -425,6 +425,7 @@ input,select,textarea{font-size:16px!important}
 </div>
 <div class="wrap" id="resv" hidden>
   <div class="row" style="margin:6px 2px 2px"><b>Research</b><span class="pill p-off">PAPER</span></div>
+  <div class="card" id="respause" role="status" hidden style="text-align:center;font-weight:600">Paused — v2 active<div class="mut" style="font-weight:400">Entries come only from the rules_v2 engine; research below is observation only.</div></div>
   <div class="mut" id="resnote" style="margin:0 2px 8px"></div>
   <div class="card lab"><div id="reslab"></div><div class="lg" id="reslabg"></div></div>
   <h3>Running now</h3><div id="resrun"></div>
@@ -446,6 +447,7 @@ input,select,textarea{font-size:16px!important}
 <script>
 const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand()}
 const OWNER="lilchad078",REPO="jett-lp-miniapp";
+const MANUAL_OPEN_DISABLED=true;   // B2 (delta-mega): manual execution disabled in v2 era
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const dp=u=>u==="ETH"?4:3;
@@ -888,6 +890,7 @@ function labSVG(D){
 }
 document.addEventListener("visibilitychange",()=>document.body.classList.toggle("hid",document.hidden));
 function renderRes(){
+  $("respause").hidden=!(S.v2_state&&S.v2_state.engine==="rules_v2");   // B3 (delta-mega): Research paused overlay
   const R=S.research,ids=["reslab","reslabg","resrun","resfind","rescnt","respos","resfeed"];
   if(!R||R.error){$("resnote").textContent=R&&R.error?"Research data unavailable right now.":"No research data yet.";ids.forEach(i=>$(i).innerHTML="");return}
   $("resnote").textContent=R.report_ts?`Results from report ${dt(R.report_ts)} WITA`:"No report yet";
@@ -1228,6 +1231,8 @@ async function act(a,pid){
   if(a==="mlp"){const ca=$("fca").value.trim(),sz=$("fsz").value.trim();$("fca").value="";
     if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca)){toast("bad","That doesn't look like a Solana token address");return}
     return mlpRun({ca,size:sz?+sz:null})}
+  // manual execution disabled in v2 era — see rules_engine_v2 / position_manager (B2: Plan stays, Open is blocked)
+  if(a==="mlpopen"&&MANUAL_OPEN_DISABLED){toast("bad","Manual open is disabled while rules_v2 is the entry engine (plan only)");return}
   if(a==="mlpopen"){const e=Object.assign({},ED);delete e.bin_step;return send("mlp_open",{did:pid,edits:e},"Opening paper position…","mlp")}
   if(a==="close"){PEND_POS[pid]="close";return send("close",{pid:+pid},"Closing position…","close")}
   if(a==="tpsl"||a==="tpclear"){
