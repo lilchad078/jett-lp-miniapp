@@ -361,6 +361,26 @@ button[data-v="res"], #resv { display: none !important; }
 .measurement summary{cursor:pointer;min-height:44px;padding:10px 0}.measurement summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}
 @media(max-width:340px){.balance-grid{grid-template-columns:minmax(0,1fr)}}
 .net-curve{width:100%;height:140px;display:block}
+.cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:14px 0 8px}
+.calhd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.calhd b{font-size:15px;font-weight:700}
+.calhd button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--fg);font:700 18px/1 inherit;cursor:pointer}
+.calhd button:disabled{opacity:.35;cursor:default}
+.calwd,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calwd{margin-bottom:4px;text-align:center;color:var(--mut);font-size:10px;font-weight:700;letter-spacing:.04em}
+.calcell{min-height:52px;border-radius:8px;padding:4px 3px 5px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px}
+.calcell .d{font-size:10px;color:var(--mut);font-weight:600}
+.calcell .v{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;line-height:1.15;overflow-wrap:anywhere}
+.calcell.up{background:rgba(46,204,143,.16)}.calcell.up .v{color:var(--up)}
+.calcell.dn{background:rgba(255,92,108,.16)}.calcell.dn .v{color:var(--dn)}
+.calcell.z{background:rgba(133,144,166,.10)}
+.calcell.today{outline:1px solid var(--acc)}
+.calcell.pad{background:transparent;min-height:0;padding:0}
+.calsum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.calsum div{background:rgba(255,255,255,.03);border-radius:10px;padding:8px 10px}
+.calsum span{display:block;color:var(--mut);font-size:11px}
+.calsum b{display:block;font-size:15px;font-variant-numeric:tabular-nums;margin-top:2px}
+@media(min-width:420px){.calsum{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body class="v-office">
@@ -416,6 +436,18 @@ button[data-v="res"], #resv { display: none !important; }
     <div class="prog" id="prog"></div>
     <div class="row mut" style="font-size:11px"><span id="pl0"></span><span id="pl1"></span></div>
     <div id="curve"></div>
+  </div>
+  <div class="cal" id="calwrap">
+    <div class="calhd"><button type="button" id="calprev" aria-label="Previous month">‹</button><b id="caltitle"></b><button type="button" id="calnext" aria-label="Next month">›</button></div>
+    <div class="calwd"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="calgrid" id="calgrid"></div>
+    <div class="calsum">
+      <div><span>This Month PnL</span><b id="calpnl">0.000 SOL</b></div>
+      <div><span>ROI</span><b id="calroi">–</b></div>
+      <div><span>Win Rate</span><b id="calwr">–</b></div>
+      <div><span>Total Positions</span><b id="caln">0</b></div>
+    </div>
+    <div class="mut" style="margin-top:8px">Realized closes · WITA · SOL</div>
   </div>
   <h3>Last 7 days</h3><div class="stats" id="stats"></div>
   <h3>Recent closes</h3><div class="card" id="closes"></div>
@@ -726,8 +758,40 @@ function spk(el,ys){if(!el||!ys||ys.length<2){if(el)el.innerHTML="";return}
   const d=ys.map((y,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(y).toFixed(1)).join(" ");const c=ys[n-1]>=ys[0]?"#2ecc8f":"#ff5c6c";
   el.innerHTML=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="4 3"/>`}
 function curve(data){$("curve").innerHTML=netCurve((data||{}).points,(data||{}).started_ts)}
+const CAL_MN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+let CAL_YM=null;
+function witaYMD(ts){const d=new Date((Number(ts)+8*3600)*1000);return[d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate()]}
+function renderCal(){
+  const box=$("calwrap");if(!box)return;
+  const C=(S&&S.daily_pnl)||{},unit=C.unit||"SOL",now=(S&&S.ts)||Math.floor(Date.now()/1000);
+  const[cy,cm,cd]=witaYMD(now);
+  if(!CAL_YM)CAL_YM=cy+"-"+String(cm).padStart(2,"0");
+  const[y,m]=CAL_YM.split("-").map(Number);
+  $("caltitle").textContent=CAL_MN[m-1]+" "+y;
+  const first=C.days&&C.days.length?C.days[0][0].slice(0,7):cy+"-"+String(cm).padStart(2,"0");
+  $("calprev").disabled=CAL_YM<=first;
+  $("calnext").disabled=y>cy||(y===cy&&m>=cm);
+  const map={};for(const row of(C.days||[]))map[row[0]]={pnl:row[1],n:row[2],w:row[3]};
+  const dim=new Date(Date.UTC(y,m,0)).getUTCDate(),pad=new Date(Date.UTC(y,m-1,1)).getUTCDay();
+  let html="",mpnl=0,mn=0,mw=0;
+  for(let i=0;i<pad;i++)html+='<div class="calcell pad"></div>';
+  for(let d=1;d<=dim;d++){
+    const key=CAL_YM+"-"+String(d).padStart(2,"0"),r=map[key],traded=!!r,today=y===cy&&m===cm&&d===cd;
+    if(r){mpnl+=r.pnl;mn+=r.n;mw+=r.w}
+    const cls=traded?(r.pnl>0?"up":r.pnl<0?"dn":"z"):"nil";
+    const val=traded?((r.pnl>0?"+":"")+Number(r.pnl).toFixed(dp(unit))):"";
+    html+=`<div class="calcell ${cls}${today?" today":""}"><span class="d">${d}</span>${val?`<span class="v">${val}</span>`:""}</div>`;
+  }
+  $("calgrid").innerHTML=html;
+  $("calpnl").innerHTML=sgn(mpnl,unit);
+  const eq=((C.month_open)||[]).find(x=>x[0]===CAL_YM);
+  $("calroi").innerHTML=eq&&eq[1]?pc(mpnl/eq[1],2):"–";
+  $("calwr").textContent=mn?Math.round(mw/mn*100)+"%":"–";
+  $("caln").textContent=String(mn);
+}
 function renderRep(){
   $("netbalance").innerHTML=netBalance(S.balance);
+  renderCal();
   const s=S,EN=s.chains||Object.keys(s.equity||{});if(EN.length&&!EN.includes(CH))CH=EN[0];
   document.querySelectorAll("#eqtabs .tab").forEach(t=>{t.style.display=EN.includes(t.dataset.c)?"":"none";t.classList.toggle("on",t.dataset.c===CH)});
   $("eqtabs").style.display=EN.length>1?"":"none";
@@ -1257,6 +1321,7 @@ document.addEventListener("click",e=>{
   if(q("[data-x]")||e.target.id==="mask"){sheet(0);return}
   const ch=q(".ch");if(ch){card(ch.dataset.id);return}
   const sv=q("[data-v]");if(sv){view(sv.dataset.v);return}
+  if(q("#calprev")||q("#calnext")){const[y,m]=CAL_YM.split("-").map(Number),n=q("#calnext")?m:m-2,dt=new Date(Date.UTC(y,n,1));CAL_YM=dt.getUTCFullYear()+"-"+String(dt.getUTCMonth()+1).padStart(2,"0");renderCal();return}
   if(q("#bpower")){powerSheet();return}
   if(q("[data-hl]")){const d=$("sysd");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});return}
   if(q("#swpause")){if(S)send("pause",{on:!S.mode.paused},S.mode.paused?"Resuming…":"Pausing…","pause");return}
