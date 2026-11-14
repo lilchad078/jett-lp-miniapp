@@ -349,6 +349,8 @@ input,select,textarea{font-size:16px!important}
 .fd{padding:7px 0;border-bottom:1px solid var(--line);line-height:1.45}.fd:last-child{border-bottom:0}
 .lab{padding:6px 10px 10px}.lg{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:4px}.lg b{font-size:13px}.lg i{width:8px;height:8px;border-radius:3px;flex:none}.lg .mut{font-size:11.5px;line-height:1.35}.lab svg{display:block;width:100%;height:auto}.gl p{margin:0 0 8px;line-height:1.5}.gl p:last-child{margin:0}
 #resv .cl>div:first-child{min-width:0}#resv .cl .mut{overflow-wrap:anywhere}
+/* DISABLED 2026-11-14: Research tab hidden (quant_research off); markup kept */
+button[data-v="res"], #resv { display: none !important; }
 @media (prefers-reduced-motion:reduce){#toast,.sw::after,.ub{transition:none}#toast .sp{animation:none}}
 
 .net-balance{color:var(--fg);background:var(--card);padding:14px;border-radius:12px;margin:8px 0 12px;overflow-wrap:anywhere}
@@ -367,7 +369,7 @@ input,select,textarea{font-size:16px!important}
     <div style="min-width:0"><div class="ttl">Jett LP</div><div class="hsub"><span class="ldot" id="ldot"></span><span id="sub">Loading…</span></div></div>
     <div class="hright"><span class="pill p-dry">PAPER</span><span id="mode" class="pill p-off">…</span></div></div>
   <div id="err"></div>
-  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="lp">LP</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button><button data-v="res">Research</button></div>
+  <div class="seg"><button data-v="office" class="on">Office</button><button data-v="lp">LP</button><button data-v="pos">Positions</button><button data-v="rep">Reports</button><!-- DISABLED 2026-11-14: Research tab hidden; markup kept --><button data-v="res" style="display:none">Research</button></div>
 </div>
 <div id="office">
   <div class="scene"><div id="scene"></div><button class="thm" id="thm" type="button" aria-label="Switch theme"></button></div>
@@ -385,7 +387,7 @@ input,select,textarea{font-size:16px!important}
       <div class="tile"><span class="k">Today</span><b id="tday">–</b><span id="tdays">–</span></div>
       <div class="tile"><span class="k">Last 10 min</span><b id="tpl">–</b><span id="tpls">–</span></div></div>
     <div class="att"><div class="fh"><b>Needs attention</b><span class="mut" id="attn"></span></div><div id="att"></div></div>
-    <div class="qk"><button data-v="lp" type="button">Token stats</button><button data-v="rep" type="button">Reports</button><button data-v="res" type="button">Research</button></div>
+    <div class="qk"><button data-v="lp" type="button">Token stats</button><button data-v="rep" type="button">Reports</button><!-- DISABLED 2026-11-14: Research tab hidden; markup kept --><button data-v="res" type="button" style="display:none">Research</button></div>
     <div class="feedc"><div class="fh"><b>Live activity</b><span class="mut">WITA</span></div><div id="feed"></div></div>
     <details class="sys" id="sysd"><summary>System ▾</summary>
       <div class="card row" id="health"></div><div class="agents" id="agents"></div>
@@ -423,7 +425,7 @@ input,select,textarea{font-size:16px!important}
   <div class="card bt" id="bt"></div>
   <div class="sub" style="text-align:center;margin-top:18px">Paper trading · no real funds</div>
 </div>
-<div class="wrap" id="resv" hidden>
+<!-- DISABLED 2026-11-14: Research view hidden; markup kept --><div class="wrap" id="resv" hidden style="display:none">
   <div class="row" style="margin:6px 2px 2px"><b>Research</b><span class="pill p-off">PAPER</span></div>
   <div class="card" id="respause" role="status" hidden style="text-align:center;font-weight:600">Paused — v2 active<div class="mut" style="font-weight:400">Entries come only from the rules_v2 engine; research below is observation only.</div></div>
   <div class="mut" id="resnote" style="margin:0 2px 8px"></div>
@@ -1243,6 +1245,8 @@ async function act(a,pid){
   }
 }
 function view(v){
+  // DISABLED 2026-11-14: Research tab hidden; fall back to office (saved view / deep links)
+  if(v==="res")v="office";
   VIEW=v;localStorage.setItem("jett_view",v);const b=document.body.classList;
   b.toggle("v-office",v==="office");b.toggle("v-dash",v!=="office");b.toggle("v-pos",v==="pos");b.toggle("v-lp",v==="lp");b.toggle("v-rep",v==="rep");b.toggle("v-res",v==="res");
   $("office").hidden=v!=="office";$("posv").hidden=v!=="pos";$("lpv").hidden=v!=="lp";$("repv").hidden=v!=="rep";$("resv").hidden=v!=="res";
@@ -1275,7 +1279,7 @@ document.addEventListener("click",e=>{
 
 /* ---------- refresh: fast while the app is open and the bot is listening ---------- */
 applyTheme();setInterval(()=>{if(!localStorage.getItem(TK))applyTheme()},60000);
-{const V=["office","pos","lp","rep","res"],qv=(()=>{const q=new URLSearchParams(location.search).get("v");if(q)return q;try{const sp=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe||{}).start_param;if(sp)return sp}catch(e){}const h=new URLSearchParams(location.hash.slice(1));return h.get("tgWebAppStartParam")||new URLSearchParams(location.search).get("tgWebAppStartParam")})(),lv=localStorage.getItem("jett_view");view(V.includes(qv)?qv:V.includes(lv)?lv:"office")}
+{const V=["office","pos","lp","rep"/* DISABLED 2026-11-14: "res" hidden */],qv=(()=>{const q=new URLSearchParams(location.search).get("v");if(q)return q;try{const sp=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe||{}).start_param;if(sp)return sp}catch(e){}const h=new URLSearchParams(location.hash.slice(1));return h.get("tgWebAppStartParam")||new URLSearchParams(location.search).get("tgWebAppStartParam")})(),lv=localStorage.getItem("jett_view");view(V.includes(qv)?qv:V.includes(lv)?lv:"office")}
 load();relayInit();
 setInterval(()=>{if(!document.hidden)load()},15000);
 setInterval(hello,240000);
